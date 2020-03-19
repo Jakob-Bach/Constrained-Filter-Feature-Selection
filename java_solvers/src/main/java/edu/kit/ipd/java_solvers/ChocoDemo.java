@@ -1,4 +1,4 @@
-package edu.kit.ipd.choco_demo;
+package edu.kit.ipd.java_solvers;
 
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;

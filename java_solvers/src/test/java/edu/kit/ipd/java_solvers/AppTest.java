@@ -1,4 +1,4 @@
-package edu.kit.ipd.choco_demo;
+package edu.kit.ipd.java_solvers;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
