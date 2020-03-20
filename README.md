@@ -20,3 +20,11 @@ mvn install:install-file -Dfile=com.microsoft.z3.jar -DgroupId=com.microsoft -Da
 
 Furthermore, the JAR depends on DLLs also included in the Z3 download.
 To enable access, add the `bin/` directory of your Z3 download to the environment variable `Path`.
+
+For the C++ code, you also need the pre-built version of `Z3`.
+You can put the C++ file in a Visual Studio project.
+Make sure to adapt (for all configurations, all platforms):
+
+- `Project -> Properties -> Configuration Properties -> C/C++ -> General -> Additional Include Directories` by adding the path to the `include/` directory of the Z3 download.
+- `Project -> Properties -> Configuration Properties -> Linker -> General -> Additional Library Directories` by adding the path to the `bin/` directory of the Z3 download.
+- `Project -> Properties -> Configuration Properties -> Linker -> Input -> Additional Dependencies` by adding `libz3.lib`.
