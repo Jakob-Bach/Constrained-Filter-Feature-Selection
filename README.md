@@ -20,8 +20,9 @@ mvn install:install-file -Dfile=com.microsoft.z3.jar -DgroupId=com.microsoft -Da
 
 Furthermore, the JAR depends on DLLs also included in the Z3 download.
 To enable access, add the `bin/` directory of your Z3 download to the environment variable `Path`.
+For `ORToolsDemo`, the process is similar, download is [here](https://developers.google.com/optimization/install/download) , but you need to build two Maven artifacts.
 
-For the C++ code, you also need the pre-built version of `Z3`.
+For the C++ code `z3_demo`, you also need the pre-built version of `Z3`.
 You can put the C++ file in a Visual Studio project.
 Make sure to adapt (for all configurations, all platforms):
 

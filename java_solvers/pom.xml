@@ -22,6 +22,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.google</groupId>
+      <artifactId>protobuf</artifactId>
+      <version>2020-01-27</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google</groupId>
+      <artifactId>ortools</artifactId>
+      <version>7.5.7466</version>
+    </dependency>
+    <dependency>
       <groupId>com.microsoft</groupId>
       <artifactId>z3</artifactId>
       <version>4.8.7</version>
