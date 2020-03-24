@@ -6,7 +6,9 @@ For the Python code contained in the Jupyter notebooks, you need to install some
 Currently you need to check each notebook for what is imported and install these packages manually.
 
 For the Java code, you can import `java_solvers` as a Maven project into Eclipse.
+
 `ChocoDemo` should work directly, its dependency is hosted on Maven Central.
+
 For `Z3Demo`, matters are more complicated.
 First, please download a [pre-built version of Z3](https://github.com/Z3Prover/z3/releases) and extract it.
 (If that's too easy for you, you can also try to compile it.)
@@ -20,6 +22,7 @@ mvn install:install-file -Dfile=com.microsoft.z3.jar -DgroupId=com.microsoft -Da
 
 Furthermore, the JAR depends on DLLs also included in the Z3 download.
 To enable access, add the `bin/` directory of your Z3 download to the environment variable `Path`.
+
 For `ORToolsDemo`, the process is similar, download is [here](https://developers.google.com/optimization/install/download) , but you need to build two Maven artifacts.
 
 For the C++ code `z3_demo`, you also need the pre-built version of `Z3`.
@@ -29,3 +32,6 @@ Make sure to adapt (for all configurations, all platforms):
 - `Project -> Properties -> Configuration Properties -> C/C++ -> General -> Additional Include Directories` by adding the path to the `include/` directory of the Z3 download.
 - `Project -> Properties -> Configuration Properties -> Linker -> General -> Additional Library Directories` by adding the path to the `bin/` directory of the Z3 download.
 - `Project -> Properties -> Configuration Properties -> Linker -> Input -> Additional Dependencies` by adding `libz3.lib`.
+
+For the C++ code `gecode_demo`, you also need to [install](https://www.gecode.org/download.html) or compile the software and reference the DLLs in a similar manner.
+See the [documentation](https://www.gecode.org/doc-latest/MPG.pdf) for more details.
