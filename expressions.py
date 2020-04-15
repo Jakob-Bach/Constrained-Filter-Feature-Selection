@@ -127,7 +127,7 @@ class Weighted_Sum(Arithmetic_Expression):
 
     def __init__(self, bool_expressions, weights):
         self.__bool_expressions = bool_expressions
-        self.__weight = weights
+        self.__weights = weights
 
     def value(self):
         result = 0
