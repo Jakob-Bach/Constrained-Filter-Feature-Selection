@@ -1,11 +1,17 @@
+"""
+Description of a constraint satisfcation problem with boolean variables,
+including functions to count solutions.
+"""
+
 import itertools
 import random
+
 
 class Problem:
 
     def __init__(self, variables):
         self.__variables = variables
-        self.__constraints = [] # several constraints allowed, will be combined by AND
+        self.__constraints = []  # several constraints allowed, will be combined by AND
 
     # Add a Boolean_Expression as constraint
     def add_constraint(self, constraint):
@@ -35,7 +41,7 @@ class Problem:
     def estimate_solution_fraction(self, iterations=1000):
         solutions = 0
         for i in range(iterations):
-            assignment = [random.random() > 0.5 for j in range(len(self.__variables))]
+            assignment = [random.random() >= 0.5 for j in range(len(self.__variables))]
             # Assign
             for i in range(len(assignment)):
                 self.__variables[i].value = assignment[i]
