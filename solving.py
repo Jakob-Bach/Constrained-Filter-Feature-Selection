@@ -13,6 +13,9 @@ class Problem:
         self.__variables = variables
         self.__constraints = []  # several constraints allowed, will be combined by AND
 
+    def get_variables(self):
+        return self.__variables
+
     # Add a Boolean_Expression as constraint
     def add_constraint(self, constraint):
         self.__constraints.append(constraint)
@@ -20,6 +23,9 @@ class Problem:
     # Remove all constraints
     def clear_constraints(self):
         self.__constraints.clear()
+
+    def num_constraints(self):
+        return len(self.__constraints)
 
     # Exact procedure for determining fraction of solutions (valid assignments given constraints)
     def compute_solution_fraction(self):
