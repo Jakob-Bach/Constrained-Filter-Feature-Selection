@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.dummy import DummyRegressor
@@ -15,6 +14,8 @@ models = {
     'Linear regression': LinearRegression(),
     'xgboost': XGBRegressor(),
 }
+
+feature_set_sizes = [0.1, None]
 
 sampled_voxel_dataset = prepare_sampled_voxel_data(delta_steps=20, subset='consecutive')
 delta_voxel_dataset = prepare_delta_voxel_data(subset='consecutive')
@@ -35,17 +36,27 @@ for problem in prediction_problems:
     y_train = dataset[dataset['time'] <= max_train_time][problem['target']]
     X_test = dataset[dataset['time'] > max_train_time][problem['features']]
     y_test = dataset[dataset['time'] > max_train_time][problem['target']]
-    for model_name, model in models.items():
-        model.fit(X_train, y_train)
-        pred_train = model.predict(X_train)
-        train_score = r2_score(y_true=y_train, y_pred=pred_train)
-        pred_test = model.predict(X_test)
-        test_score = r2_score(y_true=y_test, y_pred=pred_test)
-        results.append({'name': problem['name'], 'target': problem['target'], 'model': model_name,
-                        'train_score': train_score, 'test_score': test_score})
+    feature_qualities = [abs(X_train[feature].corr(y_train)) for feature in problem['features']]
+    for num_features in feature_set_sizes:
+        if num_features is None:  # no selection
+            num_features = len(problem['features'])
+        if num_features < 1:  # relative number of features
+            num_features_rel = num_features
+            num_features = round(num_features * len(problem['features']))  # turn absolute
+        else:  # absolute number of features
+            num_features_rel = num_features / len(problem['features'])
+        if 1 <= num_features <= len(problem['features']):
+            top_feature_idx = np.argsort(feature_qualities)[-num_features:]  # take last elements
+            selected_features = [list(X_train)[idx] for idx in top_feature_idx]
+        else:  # number of features does not make sense
+            continue
+        for model_name, model in models.items():
+            model.fit(X_train[selected_features], y_train)
+            pred_train = model.predict(X_train[selected_features])
+            train_score = r2_score(y_true=y_train, y_pred=pred_train)
+            pred_test = model.predict(X_test[selected_features])
+            test_score = r2_score(y_true=y_test, y_pred=pred_test)
+            results.append({'name': problem['name'], 'target': problem['target'],
+                            'num_features': num_features, 'num_features_rel': num_features_rel,
+                            'model': model_name, 'train_score': train_score, 'test_score': test_score})
 results = pd.DataFrame(results)
-
-for scenario in results['name'].unique():
-    results[results['name'] == scenario].set_index(['target', 'model']).plot(
-        kind='bar', ylim=(-0.2, 1.2), title='Scenario: '+ scenario)
-    plt.show()
