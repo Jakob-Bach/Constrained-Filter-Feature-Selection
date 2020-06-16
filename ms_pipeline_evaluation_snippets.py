@@ -1,4 +1,10 @@
-# Run ms_pipeline.py before
+"""Materials science evaluation snippets
+
+Code snippets for evaluating the results of our case stuy in materials science.
+"ms_pipeline.py" needs to be run beforehand.
+"""
+
+
 import matplotlib.pyplot as plt
 
 # Compare train against test scores

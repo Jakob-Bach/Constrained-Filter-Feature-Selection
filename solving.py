@@ -1,7 +1,9 @@
-"""
+"""SMT solving
+
 Description of a constraint satisfcation problem with boolean variables,
-including functions to count solutions.
+including functions to count solutions (not to efficiently find them).
 """
+
 
 import itertools
 import random
@@ -16,7 +18,7 @@ class Problem:
     def get_variables(self):
         return self.__variables
 
-    # Add a Boolean_Expression as constraint
+    # Add a BooleanExpression as constraint
     def add_constraint(self, constraint):
         self.__constraints.append(constraint)
 
@@ -32,8 +34,8 @@ class Problem:
         solutions = 0
         for assignment in itertools.product([False, True], repeat=len(self.__variables)):
             # Assign
-            for i in range(len(assignment)):
-                self.__variables[i].value = assignment[i]
+            for i, value in enumerate(assignment):
+                self.__variables[i].value = value
             # Check SAT
             satisfied = True
             for constraint in self.__constraints:
@@ -46,11 +48,11 @@ class Problem:
     # Probabilistic procedure for determining fraction of solutions (valid assignments given constraints)
     def estimate_solution_fraction(self, iterations=1000):
         solutions = 0
-        for i in range(iterations):
+        for _ in range(iterations):
             assignment = [random.random() >= 0.5 for j in range(len(self.__variables))]
             # Assign
-            for i in range(len(assignment)):
-                self.__variables[i].value = assignment[i]
+            for i, value in enumerate(assignment):
+                self.__variables[i].value = value
             # Check SAT
             satisfied = True
             for constraint in self.__constraints:

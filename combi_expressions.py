@@ -1,10 +1,13 @@
-"""
+"""SMT expressions based on Z3
+
 Combination of own expressions (used for model counting) and Z3 expressions
 (used for optimization) to have a uniform interface and avoid inconsistencies.
 """
 
-import expressions
+
 import z3
+
+import expressions
 
 
 class Variable(expressions.Variable):
@@ -50,27 +53,27 @@ class Or(expressions.Or):
         self.z3 = z3.Or([x.z3 for x in bool_expressions])
 
 
-class Weighted_Sum_Eq(expressions.Eq):
+class WeightedSumEq(expressions.Eq):
 
     def __init__(self, bool_expressions, weights, value):
-        super().__init__(expressions.Weighted_Sum(bool_expressions, weights),
-                         expressions.Numeric_Constant(value))
+        super().__init__(expressions.WeightedSum(bool_expressions, weights),
+                         expressions.NumericConstant(value))
         self.z3 = z3.PbEq([(e.z3, w) for (e, w) in zip(bool_expressions, weights)], value)
 
 
-class Weighted_Sum_Gt_Eq(expressions.Gt_Eq):
+class WeightedSumGtEq(expressions.GtEq):
 
     def __init__(self, bool_expressions, weights, value):
-        super().__init__(expressions.Weighted_Sum(bool_expressions, weights),
-                         expressions.Numeric_Constant(value))
+        super().__init__(expressions.WeightedSum(bool_expressions, weights),
+                         expressions.NumericConstant(value))
         self.z3 = z3.PbGe([(e.z3, w) for (e, w) in zip(bool_expressions, weights)], value)
 
 
-class Weighted_Sum_Lt_Eq(expressions.Lt_Eq):
+class WeightedSumLtEq(expressions.LtEq):
 
     def __init__(self, bool_expressions, weights, value):
-        super().__init__(expressions.Weighted_Sum(bool_expressions, weights),
-                         expressions.Numeric_Constant(value))
+        super().__init__(expressions.WeightedSum(bool_expressions, weights),
+                         expressions.NumericConstant(value))
         self.z3 = z3.PbLe([(e.z3, w) for (e, w) in zip(bool_expressions, weights)], value)
 
 

@@ -1,3 +1,9 @@
+"""Materials science pipeline
+
+Prediction script for our case study in materials science.
+"""
+
+
 import numpy as np
 import pandas as pd
 from sklearn.dummy import DummyRegressor

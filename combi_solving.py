@@ -1,9 +1,12 @@
-"""
-Combination of own solution counter and Z3 optimizer.
+"""SMT solving and optimization
+
+Combination of own SMT solution counter and Z3 optimizer.
 """
 
-import solving
+
 import z3
+
+import solving
 
 
 class Problem(solving.Problem):

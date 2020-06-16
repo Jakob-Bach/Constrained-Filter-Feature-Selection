@@ -1,3 +1,10 @@
+"""Material science feature importance
+
+Script which computes feature importances for several datasets and prediction
+targets from our case study in materials science.
+"""
+
+
 import pandas as pd
 
 from ms_datasets import *

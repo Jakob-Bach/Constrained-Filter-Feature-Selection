@@ -1,3 +1,9 @@
+"""Materials science datasets
+
+Utility functions for loading datasets for our case study in materials science.
+"""
+
+
 import re
 
 import pandas as pd

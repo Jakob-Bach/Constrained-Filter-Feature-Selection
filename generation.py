@@ -1,6 +1,8 @@
+"""Constraint generators
+
+Different generator classes for synthetic SMT constraints.
 """
-Different generation functions for synthetic constraints.
-"""
+
 
 import random
 
@@ -9,7 +11,7 @@ import pandas as pd
 import combi_expressions as expr
 
 
-class Constraint_Generator:
+class ConstraintGenerator:
 
     def __init__(self, problem):
         self.problem = problem
@@ -26,9 +28,9 @@ class Constraint_Generator:
     def evaluate_constraints(self):
         random.seed(self.seed)
         results = []
-        for i in range(self.num_repetitions):
+        for _ in range(self.num_repetitions):
             num_constraints = random.randint(self.min_num_constraints, self.max_num_constraints)
-            for j in range(num_constraints):
+            for _ in range(num_constraints):
                 num_variables = random.randint(self.min_num_variables, self.max_num_variables)
                 selected_variables = random.sample(self.problem.get_variables(), k=num_variables)
                 self.problem.add_constraint(self.generate(selected_variables))
@@ -40,7 +42,7 @@ class Constraint_Generator:
         return pd.DataFrame(results)
 
 
-class At_Least_Generator(Constraint_Generator):
+class AtLeastGenerator(ConstraintGenerator):
 
     def __init__(self, problem, global_at_most, cardinality=None):
         super().__init__(problem)
@@ -54,18 +56,19 @@ class At_Least_Generator(Constraint_Generator):
             cardinality = random.randint(1, len(variables) - 1)
         else:
             cardinality = self.cardinality
-        result = expr.Weighted_Sum_Lt_Eq(variables, [1] * len(variables), cardinality)
+        result = expr.WeightedSumLtEq(variables, [1] * len(variables), cardinality)
         if self.problem.num_constraints == 0:
-            global_at_most_constraint = expr.Weighted_Sum_Lt_Eq(
+            global_at_most_constraint = expr.WeightedSumLtEq(
                 self.problem.get_variables(), [1] * len(self.problem.get_variables()),
                 self.global_at_most)
             result = expr.And([global_at_most_constraint, result])
         return result
 
 
-class At_Most_Generator(Constraint_Generator):
+class AtMostGenerator(ConstraintGenerator):
 
-    def __init__(self, cardinality=None):
+    def __init__(self, problem, cardinality=None):
+        super().__init__(problem)
         self.cardinality = cardinality
 
     def generate(self, variables):
@@ -73,16 +76,16 @@ class At_Most_Generator(Constraint_Generator):
             cardinality = random.randint(1, len(variables) - 1)
         else:
             cardinality = self.cardinality
-        return expr.Weighted_Sum_Lt_Eq(variables, [1] * len(variables), cardinality)
+        return expr.WeightedSumLtEq(variables, [1] * len(variables), cardinality)
 
 
-class Global_At_Most_Generator(Constraint_Generator):
+class GlobalAtMostGenerator(ConstraintGenerator):
 
     # For each cardinality, there is exactly one way to express the constraint,
     # so we iterate over cardinalities without repetitions
     def evaluate_constraints(self):
         results = []
-        generator = At_Most_Generator(self.problem)
+        generator = AtMostGenerator(self.problem)
         generator.min_num_constraints = 1
         generator.max_num_constraints = 1
         generator.min_num_variables = len(self.problem.get_variables())
@@ -94,7 +97,7 @@ class Global_At_Most_Generator(Constraint_Generator):
         return pd.concat(results)
 
 
-class Iff_Generator(Constraint_Generator):
+class IffGenerator(ConstraintGenerator):
 
     def __init__(self, problem, global_at_most):
         super().__init__(problem)
@@ -105,20 +108,20 @@ class Iff_Generator(Constraint_Generator):
     def generate(self, variables):
         result = expr.Iff(variables)
         if self.problem.num_constraints == 0:
-            global_at_most_constraint = expr.Weighted_Sum_Lt_Eq(
+            global_at_most_constraint = expr.WeightedSumLtEq(
                 self.problem.get_variables(), [1] * len(self.problem.get_variables()),
                 self.global_at_most)
             result = expr.And([global_at_most_constraint, result])
         return result
 
 
-class Nand_Generator(Constraint_Generator):
+class NandGenerator(ConstraintGenerator):
 
     def generate(self, variables):
         return expr.Not(expr.And(variables))
 
 
-class Xor_Generator(Constraint_Generator):
+class XorGenerator(ConstraintGenerator):
 
     def generate(self, variables):
         return expr.Xor(variables[0], variables[1])

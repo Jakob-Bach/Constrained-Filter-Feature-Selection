@@ -1,15 +1,16 @@
-"""
+"""SMT expressions
+
 Logical and arithmetic expressions which allow to formulate constraints.
 """
 
 
-class Boolean_Expression:
+class BooleanExpression:
 
     def is_true(self):
         pass  # method not implemented here, but in each sub-class
 
 
-class Variable(Boolean_Expression):
+class Variable(BooleanExpression):
 
     def __init__(self):
         self.value = False
@@ -18,7 +19,7 @@ class Variable(Boolean_Expression):
         return self.value
 
 
-class And(Boolean_Expression):
+class And(BooleanExpression):
 
     def __init__(self, bool_expressions):
         self.__bool_expressions = bool_expressions
@@ -30,7 +31,7 @@ class And(Boolean_Expression):
         return True
 
 
-class Eq(Boolean_Expression):
+class Eq(BooleanExpression):
 
     def __init__(self, arith_expression1, arith_expression2):
         self.__arith_expression1 = arith_expression1
@@ -40,7 +41,7 @@ class Eq(Boolean_Expression):
         return self.__arith_expression1.value() == self.__arith_expression2.value()
 
 
-class Iff(Boolean_Expression):
+class Iff(BooleanExpression):
 
     def __init__(self, bool_expressions):
         self.__bool_expressions = bool_expressions
@@ -53,7 +54,7 @@ class Iff(Boolean_Expression):
         return True
 
 
-class Gt_Eq(Boolean_Expression):
+class GtEq(BooleanExpression):
 
     def __init__(self, arith_expression1, arith_expression2):
         self.__arith_expression1 = arith_expression1
@@ -63,7 +64,7 @@ class Gt_Eq(Boolean_Expression):
         return self.__arith_expression1.value() >= self.__arith_expression2.value()
 
 
-class Implies(Boolean_Expression):
+class Implies(BooleanExpression):
 
     def __init__(self, bool_expression1, bool_expression2):
         self.__bool_expression1 = bool_expression1
@@ -73,7 +74,7 @@ class Implies(Boolean_Expression):
         return not (self.__bool_expression1.is_true() and not self.__bool_expression2.is_true())
 
 
-class Lt_Eq(Boolean_Expression):
+class LtEq(BooleanExpression):
 
     def __init__(self, arith_expression1, arith_expression2):
         self.__arith_expression1 = arith_expression1
@@ -83,7 +84,7 @@ class Lt_Eq(Boolean_Expression):
         return self.__arith_expression1.value() <= self.__arith_expression2.value()
 
 
-class Not(Boolean_Expression):
+class Not(BooleanExpression):
 
     def __init__(self, bool_expression):
         self.__expression = bool_expression
@@ -92,7 +93,7 @@ class Not(Boolean_Expression):
         return not self.__expression.is_true()
 
 
-class Or(Boolean_Expression):
+class Or(BooleanExpression):
 
     def __init__(self, bool_expressions):
         self.__bool_expressions = bool_expressions
@@ -104,7 +105,7 @@ class Or(Boolean_Expression):
         return False
 
 
-class Xor(Boolean_Expression):
+class Xor(BooleanExpression):
 
     def __init__(self, bool_expression1, bool_expression2):
         self.__bool_expression1 = bool_expression1
@@ -114,13 +115,13 @@ class Xor(Boolean_Expression):
         return self.__bool_expression1.is_true() != self.__bool_expression2.is_true()
 
 
-class Arithmetic_Expression:
+class ArithmeticExpression:
 
     def value(self):
         pass  # method not implemented here, but in each sub-class
 
 
-class Numeric_Constant(Arithmetic_Expression):
+class NumericConstant(ArithmeticExpression):
 
     def __init__(self, value):
         self.__value = value
@@ -129,7 +130,7 @@ class Numeric_Constant(Arithmetic_Expression):
         return self.__value
 
 
-class Sum(Arithmetic_Expression):
+class Sum(ArithmeticExpression):
 
     def __init__(self, bool_expressions):
         self.__bool_expressions = bool_expressions
@@ -142,7 +143,7 @@ class Sum(Arithmetic_Expression):
         return result
 
 
-class Weighted_Sum(Arithmetic_Expression):
+class WeightedSum(ArithmeticExpression):
 
     def __init__(self, bool_expressions, weights):
         self.__bool_expressions = bool_expressions
