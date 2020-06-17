@@ -13,13 +13,13 @@ import combi_expressions as expr
 
 class ConstraintGenerator:
 
-    def __init__(self, problem):
+    def __init__(self, problem, **kwargs):
         self.problem = problem
-        self.min_num_constraints = 1
-        self.max_num_constraints = 1
-        self.min_num_variables = 2
-        self.max_num_variables = 2
-        self.num_repetitions = 1
+        self.min_num_constraints = kwargs.get('min_num_constraints', 1)
+        self.max_num_constraints = kwargs.get('max_num_constraints', 1)
+        self.min_num_variables = kwargs.get('min_num_variables', 2)
+        self.max_num_variables = kwargs.get('max_num_variables', 2)
+        self.num_repetitions = kwargs.get('num_repetitions', 1)
         self.seed = 25
 
     def generate(self, variables):
@@ -38,14 +38,15 @@ class ConstraintGenerator:
             result = self.problem.optimize()
             result['num_constraints'] = num_constraints
             result['frac_solutions'] = frac_solutions
+            results.append(result)
             self.problem.clear_constraints()
         return pd.DataFrame(results)
 
 
 class AtLeastGenerator(ConstraintGenerator):
 
-    def __init__(self, problem, global_at_most, cardinality=None):
-        super().__init__(problem)
+    def __init__(self, problem, global_at_most, cardinality=None, **kwargs):
+        super().__init__(problem, **kwargs)
         self.cardinality = cardinality
         self.global_at_most = global_at_most
 
@@ -67,8 +68,8 @@ class AtLeastGenerator(ConstraintGenerator):
 
 class AtMostGenerator(ConstraintGenerator):
 
-    def __init__(self, problem, cardinality=None):
-        super().__init__(problem)
+    def __init__(self, problem, cardinality=None, **kwargs):
+        super().__init__(problem, **kwargs)
         self.cardinality = cardinality
 
     def generate(self, variables):
@@ -99,8 +100,8 @@ class GlobalAtMostGenerator(ConstraintGenerator):
 
 class IffGenerator(ConstraintGenerator):
 
-    def __init__(self, problem, global_at_most):
-        super().__init__(problem)
+    def __init__(self, problem, global_at_most, **kwargs):
+        super().__init__(problem, **kwargs)
         self.global_at_most = global_at_most
 
     # As iff does not exclude the trivial solution (select everything), we
