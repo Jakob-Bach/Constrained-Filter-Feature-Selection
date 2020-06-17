@@ -6,6 +6,7 @@ Main script for our experiments with synthetic constraints.
 
 import pandas as pd
 from sklearn.datasets import load_boston
+from tqdm import tqdm
 
 import combi_expressions
 import combi_solving
@@ -36,7 +37,7 @@ for generator in generators.values():
     generator.max_num_constraints = 10
 
 results = []
-for name, generator in generators.items():
+for name, generator in tqdm(generators.items()):  # progress bar wrapped around iterable
     result = generator.evaluate_constraints()
     result['constraint_type'] = name
     results.append(result)
