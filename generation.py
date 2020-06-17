@@ -57,8 +57,8 @@ class AtLeastGenerator(ConstraintGenerator):
             cardinality = random.randint(1, len(variables) - 1)
         else:
             cardinality = self.cardinality
-        result = expr.WeightedSumLtEq(variables, [1] * len(variables), cardinality)
-        if self.problem.num_constraints == 0:
+        result = expr.WeightedSumGtEq(variables, [1] * len(variables), cardinality)
+        if self.problem.num_constraints() == 0:
             global_at_most_constraint = expr.WeightedSumLtEq(
                 self.problem.get_variables(), [1] * len(self.problem.get_variables()),
                 self.global_at_most)
@@ -108,7 +108,7 @@ class IffGenerator(ConstraintGenerator):
     # also add a global cardinality constraint
     def generate(self, variables):
         result = expr.Iff(variables)
-        if self.problem.num_constraints == 0:
+        if self.problem.num_constraints() == 0:
             global_at_most_constraint = expr.WeightedSumLtEq(
                 self.problem.get_variables(), [1] * len(self.problem.get_variables()),
                 self.global_at_most)
