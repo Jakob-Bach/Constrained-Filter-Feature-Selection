@@ -26,18 +26,22 @@ models = {
     'xgboost': XGBRegressor(),
 }
 
-feature_set_sizes = [0.1, None]
+feature_set_sizes = [0.1, 10, None]
 DROP_CORRELATION_THRESHOLD = None  # number in [0,1] or None
 
 print('Loading datasets ...')
 sampled_voxel_dataset = prepare_sampled_voxel_data(delta_steps=20, subset='consecutive')
 delta_voxel_dataset = prepare_delta_voxel_data(subset='consecutive')
-prediction_problems = [
-    predict_sampled_voxel_data_absolute(dataset=sampled_voxel_dataset),
-    predict_sampled_voxel_data_relative(dataset=sampled_voxel_dataset),
-    predict_delta_voxel_data_absolute(dataset=delta_voxel_dataset),
-    predict_delta_voxel_data_relative(dataset=delta_voxel_dataset),
-]
+prediction_problems = []
+for reaction_type in ['coll', 'glissile', 'lomer']:
+    prediction_problems.append(predict_sampled_voxel_data_absolute(
+        dataset=sampled_voxel_dataset, reaction_type=reaction_type))
+    prediction_problems.append(predict_sampled_voxel_data_relative(
+        dataset=sampled_voxel_dataset, reaction_type=reaction_type))
+    prediction_problems.append(predict_delta_voxel_data_absolute(
+        dataset=delta_voxel_dataset, reaction_type=reaction_type))
+    prediction_problems.append(predict_delta_voxel_data_relative(
+        dataset=delta_voxel_dataset, reaction_type=reaction_type))
 
 print('Predicting ...')
 np.random.seed(25)
