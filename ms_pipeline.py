@@ -4,12 +4,15 @@ Prediction script for our case study in materials science.
 """
 
 
+import sys
+
 import numpy as np
 import pandas as pd
 from sklearn.dummy import DummyRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from sklearn.tree import DecisionTreeRegressor
+from tqdm import tqdm
 from xgboost import XGBRegressor
 
 from ms_datasets import *
@@ -23,6 +26,7 @@ models = {
 
 feature_set_sizes = [0.1, None]
 
+print('Loading datasets ...')
 sampled_voxel_dataset = prepare_sampled_voxel_data(delta_steps=20, subset='consecutive')
 delta_voxel_dataset = prepare_delta_voxel_data(subset='consecutive')
 prediction_problems = [
@@ -32,7 +36,9 @@ prediction_problems = [
     predict_delta_voxel_data_relative(dataset=delta_voxel_dataset),
 ]
 
+print('Predicting ...')
 np.random.seed(25)
+progress_bar = tqdm(total=len(models) * len(feature_set_sizes) * len(prediction_problems), file=sys.stdout)
 results = []
 for problem in prediction_problems:
     dataset = problem['dataset']
@@ -65,4 +71,6 @@ for problem in prediction_problems:
             results.append({'name': problem['name'], 'target': problem['target'],
                             'num_features': num_features, 'num_features_rel': num_features_rel,
                             'model': model_name, 'train_score': train_score, 'test_score': test_score})
+            progress_bar.update()
+progress_bar.close()
 results = pd.DataFrame(results)
