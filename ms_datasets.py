@@ -15,7 +15,7 @@ def prepare_delta_voxel_data(
     dataset = pd.read_csv(path)
     dataset.drop(columns=list(dataset)[0], inplace=True)  # drop 1st column (unnamed id column)
     # Add summed reaction densities:
-    for quantity in ['coll', 'glissile', 'lomer']:
+    for quantity in ['coll', 'cs', 'glissile', 'hirth', 'inplane', 'lomer', 'multiple_coll']:
         col = 'rho_' + quantity
         dataset[col] = dataset[[col + '_' + str(i) for i in range(1, 13)]].sum(axis='columns')
         col = 'delta_rho_' + quantity
