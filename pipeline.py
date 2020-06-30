@@ -54,6 +54,8 @@ if __name__ == '__main__':
         {'constraint_type': 'group_NAND', 'generator_func': 'NandGenerator',
          'generator_args': {**common_generator_args, 'max_num_variables': 5}},
         {'constraint_type': 'single_XOR', 'generator_func': 'XorGenerator',
+         'generator_args': common_generator_args},
+        {'constraint_type': 'MIXED', 'generator_func': 'MixedGenerator',
          'generator_args': common_generator_args}
     ]
 

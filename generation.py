@@ -129,6 +129,22 @@ class IffGenerator(ConstraintGenerator):
         return result
 
 
+class MixedGenerator(ConstraintGenerator):
+
+    def __init__(self, problem, **kwargs):
+        super().__init__(problem, **kwargs)
+        self.generators = [
+            AtLeastGenerator(problem, global_at_most=len(problem.get_variables())),  # no global limit
+            AtMostGenerator(problem),
+            IffGenerator(problem, global_at_most=len(problem.get_variables())),  # no global limit
+            NandGenerator(problem),
+            XorGenerator(problem)
+        ]
+
+    def generate(self, variables):
+        return random.choice(self.generators).generate(variables)
+
+
 class NandGenerator(ConstraintGenerator):
 
     def generate(self, variables):
