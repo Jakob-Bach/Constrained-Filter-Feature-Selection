@@ -5,13 +5,14 @@ Utility functions for loading datasets for our case study in materials science.
 
 
 import re
+from typing import Any, Dict
 
 import pandas as pd
 
 
 def prepare_delta_voxel_data(
-        path='C:/MyData/Versetzungsdaten/delta_sampled_merged_last_voxel_data_size2400_order2_speedUp2.csv',
-        subset='consecutive'):
+        path: str = 'C:/MyData/Versetzungsdaten/delta_sampled_merged_last_voxel_data_size2400_order2_speedUp2.csv',
+        subset: str = 'consecutive') -> pd.DataFrame:
     dataset = pd.read_csv(path)
     dataset.drop(columns=list(dataset)[0], inplace=True)  # drop 1st column (unnamed id column)
     # Add summed reaction densities:
@@ -36,8 +37,8 @@ def prepare_delta_voxel_data(
 
 
 def prepare_sampled_voxel_data(
-        path='C:/MyData/Versetzungsdaten/sampled_voxel_data_size2400_order2_speedUp2.csv',
-        delta_steps=1, subset='consecutive'):
+        path: str = 'C:/MyData/Versetzungsdaten/sampled_voxel_data_size2400_order2_speedUp2.csv',
+        delta_steps: int = 1, subset: str = 'consecutive') -> pd.DataFrame:
     dataset = pd.read_csv(path)
     dataset.drop(columns=list(dataset)[0], inplace=True)  # drop 1st column (unnamed id column)
     dataset = dataset[dataset['time'] % 50 == 0]  # remove irregular time steps
@@ -62,7 +63,8 @@ def prepare_sampled_voxel_data(
     return dataset
 
 
-def predict_delta_voxel_data_absolute(dataset, dataset_name='delta_voxel_data', reaction_type='glissile'):
+def predict_delta_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = 'delta_voxel_data',
+                                      reaction_type: str = 'glissile') -> Dict[str, Any]:
     target = 'rho_' + reaction_type
     # Exclude if feature name contains the reaction type (but don't exclude multiple_coll for coll)
     features = [x for x in list(dataset) if (reaction_type not in x) or ('multiple' in x)]
@@ -72,24 +74,27 @@ def predict_delta_voxel_data_absolute(dataset, dataset_name='delta_voxel_data', 
     return {'name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
 
 
-def predict_delta_voxel_data_relative(dataset, dataset_name='delta_voxel_data', reaction_type='glissile'):
+def predict_delta_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str = 'delta_voxel_data',
+                                      reaction_type: str = 'glissile') -> Dict[str, Any]:
     target = 'delta_rho_' + reaction_type
     features = [x for x in list(dataset) if target not in x]  # exclude if feature name contains the target string
     features = [x for x in features if re.search('^0_', x) is not None]  # only values from previous time step
     return {'name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
 
 
-def predict_sampled_voxel_data_absolute(dataset, dataset_name='sampled_voxel_data', reaction_type='glissile'):
+def predict_sampled_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = 'sampled_voxel_data',
+                                        reaction_type: str = 'glissile') -> Dict[str, Any]:
     target = reaction_type
     # Exclude if feature name contains the reaction type (but don't exclude multiple_coll for coll)
     features = [x for x in list(dataset) if (reaction_type not in x) or ('multiple' in x)]
     features = [x for x in features if re.search('^([0-9]+)_', x) is None]  # exclude historic features
     features = [x for x in features if 'delta' not in x]  # exclude delta features
     features = [x for x in features if 'pos_' not in x and x != 'time']  # exclude position and time
-    return {'name': dataset_name , 'dataset': dataset, 'target': target, 'features': features}
+    return {'name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
 
 
-def predict_sampled_voxel_data_relative(dataset, dataset_name='sampled_voxel_data', reaction_type='glissile'):
+def predict_sampled_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str = 'sampled_voxel_data',
+                                        reaction_type: str = 'glissile') -> Dict[str, Any]:
     target = 'delta_' + reaction_type
     features = [x for x in list(dataset) if target not in x]  # exclude if feature name contains the target string
     features = [x for x in features if re.search('^([0-9]+)_', x) is None]  # exclude historic features

@@ -4,16 +4,19 @@ Different generator classes for synthetic SMT constraints.
 """
 
 
+from abc import ABCMeta, abstractmethod
 import random
+from typing import Optional, Sequence
 
 import pandas as pd
 
 import combi_expressions as expr
+import combi_solving as solv
 
 
-class ConstraintGenerator:
+class ConstraintGenerator(metaclass=ABCMeta):
 
-    def __init__(self, problem, **kwargs):
+    def __init__(self, problem: solv.Problem, **kwargs):
         self.problem = problem
         self.min_num_constraints = kwargs.get('min_num_constraints', 1)
         self.max_num_constraints = kwargs.get('max_num_constraints', 1)
@@ -22,10 +25,11 @@ class ConstraintGenerator:
         self.num_repetitions = kwargs.get('num_repetitions', 1)
         self.seed = 25
 
-    def generate(self, variables):
-        pass
+    @abstractmethod
+    def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
+        raise NotImplementedError('Abstract method.')
 
-    def evaluate_constraints(self):
+    def evaluate_constraints(self) -> pd.DataFrame:
         random.seed(self.seed)
         results = []
         for _ in range(self.num_repetitions):
@@ -42,7 +46,7 @@ class ConstraintGenerator:
             self.problem.clear_constraints()
         return pd.DataFrame(results)
 
-    def make_card_absolute(self, cardinality, pass_none=False):
+    def make_card_absolute(self, cardinality: float, pass_none: bool = False) -> int:
         max_cardinality = len(self.problem.get_variables())
         if cardinality is None:
             if pass_none:  # None might be used as default for different purposes
@@ -58,14 +62,15 @@ class ConstraintGenerator:
 
 class AtLeastGenerator(ConstraintGenerator):
 
-    def __init__(self, problem, global_at_most, cardinality=None, **kwargs):
+    def __init__(self, problem: solv.Problem, global_at_most: Optional[int],
+                 cardinality: Optional[int] = None, **kwargs):
         super().__init__(problem, **kwargs)
         self.cardinality = self.make_card_absolute(cardinality, pass_none=True)
         self.global_at_most = self.make_card_absolute(global_at_most)
 
     # As at_most does not exclude the trivial solution (select everything), we
     # also add a global cardinality constraint
-    def generate(self, variables):
+    def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         if self.cardinality is None:
             cardinality = random.randint(1, len(variables) - 1)
         else:
@@ -81,11 +86,11 @@ class AtLeastGenerator(ConstraintGenerator):
 
 class AtMostGenerator(ConstraintGenerator):
 
-    def __init__(self, problem, cardinality=None, **kwargs):
+    def __init__(self, problem: solv.Problem, cardinality: Optional[int] = None, **kwargs):
         super().__init__(problem, **kwargs)
         self.cardinality = self.make_card_absolute(cardinality, pass_none=True)
 
-    def generate(self, variables):
+    def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         if self.cardinality is None:
             cardinality = random.randint(1, len(variables) - 1)
         else:
@@ -95,9 +100,12 @@ class AtMostGenerator(ConstraintGenerator):
 
 class GlobalAtMostGenerator(ConstraintGenerator):
 
+    def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
+        return None  # method not used in this class, because evaluate_constraints() different
+
     # For each cardinality, there is exactly one way to express the constraint,
     # so we iterate over cardinalities without repetitions
-    def evaluate_constraints(self):
+    def evaluate_constraints(self) -> pd.DataFrame():
         results = []
         generator = AtMostGenerator(self.problem)
         generator.min_num_constraints = 1
@@ -113,13 +121,13 @@ class GlobalAtMostGenerator(ConstraintGenerator):
 
 class IffGenerator(ConstraintGenerator):
 
-    def __init__(self, problem, global_at_most, **kwargs):
+    def __init__(self, problem: solv.Problem, global_at_most: Optional[int], **kwargs):
         super().__init__(problem, **kwargs)
         self.global_at_most = self.make_card_absolute(global_at_most)
 
     # As iff does not exclude the trivial solution (select everything), we
     # also add a global cardinality constraint
-    def generate(self, variables):
+    def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         result = expr.Iff(variables)
         if self.problem.num_constraints() == 0:
             global_at_most_constraint = expr.WeightedSumLtEq(
@@ -131,7 +139,7 @@ class IffGenerator(ConstraintGenerator):
 
 class MixedGenerator(ConstraintGenerator):
 
-    def __init__(self, problem, **kwargs):
+    def __init__(self, problem: solv.Problem, **kwargs):
         super().__init__(problem, **kwargs)
         self.generators = [
             AtLeastGenerator(problem, global_at_most=len(problem.get_variables())),  # no global limit
@@ -141,17 +149,17 @@ class MixedGenerator(ConstraintGenerator):
             XorGenerator(problem)
         ]
 
-    def generate(self, variables):
+    def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         return random.choice(self.generators).generate(variables)
 
 
 class NandGenerator(ConstraintGenerator):
 
-    def generate(self, variables):
+    def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         return expr.Not(expr.And(variables))
 
 
 class XorGenerator(ConstraintGenerator):
 
-    def generate(self, variables):
+    def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         return expr.Xor(variables[0], variables[1])

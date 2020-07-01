@@ -3,12 +3,15 @@
 Main script for our experiments with synthetic constraints.
 """
 
+from typing import Any, Dict, Sequence
+
 import combi_expressions
 import combi_solving
 import generation
 
 
-def evaluate(constraint_type, generator_func, generator_args, dataset, qualities):
+def evaluate(constraint_type: str, generator_func: str, generator_args: Dict[str, Any], dataset: str,
+             qualities: Sequence[float]) -> Dict[str, Any]:
     variables = [combi_expressions.Variable(name='Feature_' + str(i)) for i in range(len(qualities))]
     problem = combi_solving.Problem(variables=variables, qualities=qualities)
     generator_func = getattr(generation, generator_func)  # get the function object
@@ -59,7 +62,7 @@ if __name__ == '__main__':
          'generator_args': common_generator_args}
     ]
 
-    def update_progress(x):
+    def update_progress(x: Any):
         progress_bar.update(n=1)
 
     progress_bar = tqdm(total=len(generators))

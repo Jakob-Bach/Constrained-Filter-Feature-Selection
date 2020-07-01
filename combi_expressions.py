@@ -5,80 +5,86 @@ Combination of own expressions (used for model counting) and Z3 expressions
 """
 
 
+from typing import Sequence
+
 import z3
 
-import expressions
+import expressions as expr
 
 
-class Variable(expressions.Variable):
+class BooleanExpression(expr.BooleanExpression):
+    pass  # mainly used as type hint; sub-classes should have an attribute "z3"
 
-    def __init__(self, name):
+
+class Variable(expr.Variable, BooleanExpression):
+
+    def __init__(self, name: str):
         super().__init__()
         self.z3 = z3.Bool(name)
 
 
-class And(expressions.And):
+class And(expr.And, BooleanExpression):
 
-    def __init__(self, bool_expressions):
+    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression]):
         super().__init__(bool_expressions)
         self.z3 = z3.And([x.z3 for x in bool_expressions])
 
 
-class Iff(expressions.Iff):
+class Iff(expr.Iff, BooleanExpression):
 
-    def __init__(self, bool_expressions):
+    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression]):
         super().__init__(bool_expressions)
         self.z3 = z3.Or(z3.And([x.z3 for x in bool_expressions]),
                         z3.Not(z3.Or([x.z3 for x in bool_expressions])))
 
 
-class Implies(expressions.Implies):
+class Implies(expr.Implies, BooleanExpression):
 
-    def __init__(self, bool_expression1, bool_expression2):
+    def __init__(self, bool_expression1: expr.BooleanExpression, bool_expression2: expr.BooleanExpression):
         super().__init__(bool_expression1, bool_expression2)
         self.z3 = z3.Implies(bool_expression1.z3, bool_expression2.z3)
 
 
-class Not(expressions.Not):
+class Not(expr.Not, BooleanExpression):
 
-    def __init__(self, bool_expression):
+    def __init__(self, bool_expression: expr.BooleanExpression):
         super().__init__(bool_expression)
         self.z3 = z3.Not(bool_expression.z3)
 
 
-class Or(expressions.Or):
+class Or(expr.Or, BooleanExpression):
 
-    def __init__(self, bool_expressions):
+    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression]):
         super().__init__(bool_expressions)
         self.z3 = z3.Or([x.z3 for x in bool_expressions])
 
 
-class WeightedSumEq(expressions.Eq):
+class WeightedSumEq(expr.Eq, BooleanExpression):
 
-    def __init__(self, bool_expressions, weights, value):
-        super().__init__(expressions.WeightedSum(bool_expressions, weights),
-                         expressions.NumericConstant(value))
+    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], weights: Sequence[float], value: float):
+        super().__init__(expr.WeightedSum(bool_expressions, weights),
+                         expr.NumericConstant(value))
         self.z3 = z3.PbEq([(e.z3, w) for (e, w) in zip(bool_expressions, weights)], value)
 
 
-class WeightedSumGtEq(expressions.GtEq):
+class WeightedSumGtEq(expr.GtEq, BooleanExpression):
 
-    def __init__(self, bool_expressions, weights, value):
-        super().__init__(expressions.WeightedSum(bool_expressions, weights),
-                         expressions.NumericConstant(value))
+    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], weights: Sequence[float], value: float):
+        super().__init__(expr.WeightedSum(bool_expressions, weights),
+                         expr.NumericConstant(value))
         self.z3 = z3.PbGe([(e.z3, w) for (e, w) in zip(bool_expressions, weights)], value)
 
 
-class WeightedSumLtEq(expressions.LtEq):
+class WeightedSumLtEq(expr.LtEq, BooleanExpression):
 
-    def __init__(self, bool_expressions, weights, value):
-        super().__init__(expressions.WeightedSum(bool_expressions, weights),
-                         expressions.NumericConstant(value))
+    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], weights: Sequence[float], value: float):
+        super().__init__(expr.WeightedSum(bool_expressions, weights),
+                         expr.NumericConstant(value))
         self.z3 = z3.PbLe([(e.z3, w) for (e, w) in zip(bool_expressions, weights)], value)
 
 
-class Xor(expressions.Xor):
+class Xor(expr.Xor, BooleanExpression):
 
-    def __init__(self, bool_expression1, bool_expression2):
+    def __init__(self, bool_expression1: expr.BooleanExpression, bool_expression2: expr.BooleanExpression):
         super().__init__(bool_expression1, bool_expression2)
         self.z3 = z3.Xor(bool_expression1.z3, bool_expression2.z3)
