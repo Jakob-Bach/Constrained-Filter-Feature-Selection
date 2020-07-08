@@ -29,8 +29,8 @@ def prepare_openml_datasets(data_dir: pathlib.Path, data_ids=Sequence[int]) -> N
         dataset_overview = dataset_overview[
             (dataset_overview['format'] != 'Sparse_ARFF') &  # would break when calling get_data()
             (dataset_overview['NumberOfClasses'] == 0) &
-            (dataset_overview['NumberOfNumericFeatures'] >= 10) &
-            (dataset_overview['NumberOfNumericFeatures'] <= 20) &
+            (dataset_overview['NumberOfNumericFeatures'] >= 11) &  # includes target variable
+            (dataset_overview['NumberOfNumericFeatures'] <= 15) &
             (dataset_overview['NumberOfInstances'] >= 100) &
             (dataset_overview['NumberOfInstances'] <= 10000) &
             (dataset_overview['NumberOfMissingValues'] == 0)

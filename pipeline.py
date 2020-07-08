@@ -48,15 +48,15 @@ def pipeline(data_dir: pathlib.Path, n_processes: Optional[int] = None,
     common_generator_args = {'num_repetitions': 10, 'min_num_constraints': 1, 'max_num_constraints': 10}
     generators = [
         {'constraint_type': 'group-AT-LEAST', 'generator_func': 'AtLeastGenerator',
-         'generator_args': {**common_generator_args, 'global_at_most': 10}},
+         'generator_args': {**common_generator_args, 'global_at_most': 5}},
         {'constraint_type': 'group-AT-MOST', 'generator_func': 'AtMostGenerator',
          'generator_args': common_generator_args},
         {'constraint_type': 'global-AT-MOST', 'generator_func': 'GlobalAtMostGenerator',
          'generator_args': common_generator_args},
         {'constraint_type': 'single-IFF', 'generator_func': 'IffGenerator',
-         'generator_args': {**common_generator_args, 'global_at_most': 10}},
+         'generator_args': {**common_generator_args, 'global_at_most': 5}},
         {'constraint_type': 'group-IFF', 'generator_func': 'IffGenerator',
-         'generator_args': {**common_generator_args, 'global_at_most': 10, 'max_num_variables': 5}},
+         'generator_args': {**common_generator_args, 'global_at_most': 5, 'max_num_variables': 5}},
         {'constraint_type': 'single-NAND', 'generator_func': 'NandGenerator',
          'generator_args': common_generator_args},
         {'constraint_type': 'group-NAND', 'generator_func': 'NandGenerator',
@@ -111,4 +111,4 @@ if __name__ == '__main__':
         print('Results directory is not empty. Files might be overwritten, but not deleted.')
     results = pipeline(**vars(args))  # extract dict from Namspace and then unpack for call
     save_results(results, directory=args.results_dir)
-    print('Pipeline exectued successfully.')
+    print('Pipeline executed successfully.')
