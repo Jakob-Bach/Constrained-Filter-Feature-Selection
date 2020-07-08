@@ -17,8 +17,9 @@ import tqdm
 from data_utility import load_dataset, save_qualities
 
 
+# Z3 uses rational number representation instead of float, so rounding leads to speed-up
 def abs_corr(X: pd.DataFrame, y: pd.Series) -> Sequence[float]:
-    return [abs(X[feature].corr(y)) for feature in list(X)]
+    return [round(abs(X[feature].corr(y)), 2) for feature in list(X)]
 
 
 QUALITY_FUNCTIONS = {'abs_corr': abs_corr}
