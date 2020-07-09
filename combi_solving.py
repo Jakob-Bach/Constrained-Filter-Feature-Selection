@@ -17,13 +17,14 @@ class Problem(solving.Problem):
     def __init__(self, variables: Sequence[expr.Variable], qualities: Sequence[float]):
         super().__init__(variables)
         self.__optimizer = z3.Optimize()
+        assert len(variables) == len(qualities)
         objective = z3.Sum([q * var.z3 for (q, var) in zip(qualities, variables)])
         self.__objective = self.__optimizer.maximize(objective)
         self.__optimizer.push()  # restore point for state without constraints
 
     def add_constraint(self, constraint: expr.BooleanExpression) -> None:
         super().add_constraint(constraint)
-        self.__optimizer.add(constraint.z3)  # AttributeError if value not set in BooleanExpression object
+        self.__optimizer.add(constraint.z3)  # AttributeError if "z3" not set in BooleanExpression object
 
     # Remove all constraints
     def clear_constraints(self) -> None:
@@ -40,5 +41,6 @@ class Problem(solving.Problem):
         else:
             value = self.__objective.value().numerator_as_long() /\
                 self.__objective.value().denominator_as_long()
-        num_selected = sum([str(self.__optimizer.model()[var.z3]) == 'True' for var in self.__variables])
-        return {'objective_value': value, 'num_selected': num_selected}
+        model = self.__optimizer.model()
+        selected = [i for i, var in enumerate(self.__variables) if str(model[var.z3]) == 'True']
+        return {'objective_value': value, 'num_selected': len(selected), 'selected': selected}
