@@ -101,7 +101,7 @@ class AtMostGenerator(ConstraintGenerator):
 class GlobalAtMostGenerator(ConstraintGenerator):
 
     def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
-        return None  # method not used in this class, because evaluate_constraints() different
+        raise NotImplementedError('evaluate_constraints() goes through all possible constraints anyway.')
 
     # For each cardinality, there is exactly one way to express the constraint,
     # so we iterate over cardinalities without repetitions
@@ -157,6 +157,20 @@ class NandGenerator(ConstraintGenerator):
 
     def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         return expr.Not(expr.And(variables))
+
+
+# Serves as a baseline
+class NoConstraintGenerator(ConstraintGenerator):
+
+    def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
+        raise NotImplementedError('evaluate_constraints() does not need this method.')
+
+    # If we have no constraints, looping for different solutions does not make sense
+    def evaluate_constraints(self) -> pd.DataFrame():
+        result = self.problem.optimize()  # without constraints added
+        result['num_constraints'] = 0
+        result['frac_solutions'] = 1
+        return pd.DataFrame([result])
 
 
 class XorGenerator(ConstraintGenerator):
