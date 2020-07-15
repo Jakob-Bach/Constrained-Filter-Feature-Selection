@@ -7,6 +7,7 @@ Usage: python feature_qualities.py --help
 """
 
 import argparse
+import math
 import pathlib
 import sys
 from typing import Sequence
@@ -19,10 +20,11 @@ from data_utility import load_dataset, save_qualities
 
 # Z3 uses rational number representation instead of float, so rounding leads to speed-up
 def abs_corr(X: pd.DataFrame, y: pd.Series) -> Sequence[float]:
-    return [round(abs(X[feature].corr(y)), 2) for feature in list(X)]
+    result = [round(abs(X[feature].corr(y)), 2) for feature in list(X)]
+    return [0 if math.isnan(x) else x for x in result]
 
 
-QUALITY_FUNCTIONS = {'abs_corr': abs_corr}
+QUALITIES = {'abs_corr': abs_corr}
 
 
 def compute_qualities(data_dir: pathlib.Path, qualities: Sequence[str]) -> None:
@@ -46,7 +48,7 @@ def compute_qualities(data_dir: pathlib.Path, qualities: Sequence[str]) -> None:
         X, y = load_dataset(dataset_name=dataset_name, directory=data_dir)
         quality_table = pd.DataFrame({'Feature': list(X)})
         for quality in qualities:
-            quality_table[quality] = QUALITY_FUNCTIONS[quality](X, y)
+            quality_table[quality] = QUALITIES[quality](X, y)
         save_qualities(quality_table, dataset_name=dataset_name, directory=data_dir)
 
 
@@ -57,7 +59,7 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--directory', type=pathlib.Path, default='.', dest='data_dir',
                         help='Directory for input and output data.')
-    parser.add_argument('-q', '--qualities', nargs='+', choices=list(QUALITY_FUNCTIONS.keys()),
-                        default=list(QUALITY_FUNCTIONS.keys()), help='Feature qualities to be computed.')
+    parser.add_argument('-q', '--qualities', nargs='+', choices=list(QUALITIES.keys()),
+                        default=list(QUALITIES.keys()), help='Feature qualities to be computed.')
     compute_qualities(**vars(parser.parse_args()))
     print('Feature qualities computed and saved.')
