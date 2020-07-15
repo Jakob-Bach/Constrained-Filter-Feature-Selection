@@ -16,7 +16,7 @@ from tqdm import tqdm
 from xgboost import XGBRegressor
 
 from ms_datasets import *
-from pipeline_utility import drop_correlated_features
+from prediction_utility import drop_correlated_features
 
 
 models = {
