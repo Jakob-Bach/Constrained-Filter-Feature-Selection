@@ -11,6 +11,7 @@ scikit-learn = "*"
 numpy = "*"
 tqdm = "*"
 z3-solver = "*"
+xgboost = "*"
 
 [requires]
 python_version = "3.7"
