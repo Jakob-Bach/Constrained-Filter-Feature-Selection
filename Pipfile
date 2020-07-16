@@ -9,6 +9,7 @@ verify_ssl = true
 pandas = "*"
 scikit-learn = "*"
 numpy = "*"
+tqdm = "*"
 
 [requires]
 python_version = "3.7"
