@@ -10,6 +10,7 @@ pandas = "*"
 scikit-learn = "*"
 numpy = "*"
 tqdm = "*"
+z3-solver = "*"
 
 [requires]
 python_version = "3.7"
