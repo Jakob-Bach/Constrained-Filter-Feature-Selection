@@ -15,6 +15,7 @@ xgboost = "*"
 openml = "*"
 matplotlib = "*"
 seaborn = "*"
+jupyter = "*"
 
 [requires]
 python_version = "3.7"
