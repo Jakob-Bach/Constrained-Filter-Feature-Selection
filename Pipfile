@@ -12,6 +12,7 @@ numpy = "*"
 tqdm = "*"
 z3-solver = "*"
 xgboost = "*"
+openml = "*"
 
 [requires]
 python_version = "3.7"
