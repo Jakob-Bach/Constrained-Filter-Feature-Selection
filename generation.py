@@ -116,7 +116,7 @@ class GlobalAtMostGenerator(ConstraintGenerator):
         for cardinality in range(1, len(self.problem.get_variables()) + 1):
             generator.cardinality = cardinality
             results.append(generator.evaluate_constraints())
-        return pd.concat(results)
+        return pd.concat(results, ignore_index=True) # re-number the rows (else all have index 0)
 
 
 class IffGenerator(ConstraintGenerator):
