@@ -16,6 +16,7 @@ openml = "*"
 matplotlib = "*"
 seaborn = "*"
 jupyter = "*"
+spyder-kernels = "*"
 
 [requires]
 python_version = "3.7"
