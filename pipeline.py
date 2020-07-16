@@ -23,7 +23,7 @@ import generation
 import prediction_utility
 
 
-COMMON_GENERATOR_ARGS = {'num_repetitions': 10, 'min_num_constraints': 1, 'max_num_constraints': 10}
+COMMON_GENERATOR_ARGS = {'num_iterations': 10, 'min_num_constraints': 1, 'max_num_constraints': 10}
 
 GENERATORS = {
     'group-AT-LEAST': {'func': 'AtLeastGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 5}},
@@ -41,7 +41,7 @@ GENERATORS = {
 
 
 def evaluate_constraint_type(
-        generator_name: str, dataset_name: str, data_dir: pathlib.Path,
+        generator_name: str, n_iterations: int, dataset_name: str, data_dir: pathlib.Path,
         quality_names: Sequence[str], model_names: Sequence[str] = None, n_splits: int = 1,
         results_dir: Optional[pathlib.Path] = None) -> pd.DataFrame:
     if model_names is None:
@@ -62,7 +62,9 @@ def evaluate_constraint_type(
             variables = [combi_expressions.Variable(name='Feature_' + str(i)) for i in range(len(qualities))]
             problem = combi_solving.Problem(variables=variables, qualities=qualities)
             generator_func = getattr(generation, GENERATORS[generator_name]['func'])
-            generator = generator_func(**{'problem': problem, **GENERATORS[generator_name]['args']})
+            generator_args = {'problem': problem, **GENERATORS[generator_name]['args']}
+            generator_args['num_iterations'] = n_iterations
+            generator = generator_func(**generator_args)
             result = generator.evaluate_constraints()
             result['quality_name'] = quality_name
             result['split_idx'] = split_idx
@@ -91,8 +93,8 @@ def evaluate_constraint_type(
     return results
 
 
-def pipeline(data_dir: pathlib.Path, generator_names: Sequence[str], quality_names: Sequence[str],
-             model_names: Sequence[str] = None, n_splits: int = 1,
+def pipeline(generator_names: Sequence[str], n_iterations: int, data_dir: pathlib.Path,
+             quality_names: Sequence[str], model_names: Sequence[str] = None, n_splits: int = 1,
              n_processes: Optional[int] = None, results_dir: Optional[pathlib.Path] = None) -> pd.DataFrame:
     datasets = [{'dataset_name': x, 'data_dir': data_dir, 'results_dir': results_dir}
                 for x in data_utility.list_datasets(data_dir)]
@@ -104,8 +106,8 @@ def pipeline(data_dir: pathlib.Path, generator_names: Sequence[str], quality_nam
 
     process_pool = multiprocessing.Pool(processes=n_processes)
     results = [process_pool.apply_async(evaluate_constraint_type, kwds={
-        **dataset_dict, 'generator_name': generator_name, 'quality_names': quality_names,
-        'model_names': model_names, 'n_splits': n_splits},
+        **dataset_dict, 'generator_name': generator_name, 'n_iterations': n_iterations,
+        'quality_names': quality_names, 'model_names': model_names, 'n_splits': n_splits},
         callback=update_progress) for generator_name in generator_names for dataset_dict in datasets]
     process_pool.close()
     process_pool.join()
@@ -128,6 +130,8 @@ if __name__ == '__main__':
                         help='Directory for output data. Is used for saving evaluation metrics.')
     parser.add_argument('-p', '--processes', type=int, default=None, dest='n_processes',
                         help='Number of processes for multi-processing (default: all cores).')
+    parser.add_argument('-i', '--iterations', type=int, default=10, dest='n_iterations',
+                        help='Number of repetitions for constraint generation (per constraint type and dataset).')
     parser.add_argument('-s', '--splits', type=int, default=1, dest='n_splits',
                         help='Number of splits used for prediction (at least 0).')
     parser.add_argument('-g', '--generators', type=str, nargs='+', dest='generator_names',

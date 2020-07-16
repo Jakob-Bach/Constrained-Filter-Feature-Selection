@@ -22,7 +22,7 @@ class ConstraintGenerator(metaclass=ABCMeta):
         self.max_num_constraints = kwargs.get('max_num_constraints', 1)
         self.min_num_variables = self.make_card_absolute(kwargs.get('min_num_variables', 2))
         self.max_num_variables = self.make_card_absolute(kwargs.get('max_num_variables', 2))
-        self.num_repetitions = kwargs.get('num_repetitions', 1)
+        self.num_iterations = kwargs.get('num_iterations', 1)
         self.seed = 25
 
     @abstractmethod
@@ -32,7 +32,7 @@ class ConstraintGenerator(metaclass=ABCMeta):
     def evaluate_constraints(self) -> pd.DataFrame:
         random.seed(self.seed)
         results = []
-        for _ in range(self.num_repetitions):
+        for _ in range(self.num_iterations):
             num_constraints = random.randint(self.min_num_constraints, self.max_num_constraints)
             for _ in range(num_constraints):
                 num_variables = random.randint(self.min_num_variables, self.max_num_variables)
@@ -112,7 +112,7 @@ class GlobalAtMostGenerator(ConstraintGenerator):
         generator.max_num_constraints = 1
         generator.min_num_variables = len(self.problem.get_variables())
         generator.max_num_variables = len(self.problem.get_variables())
-        generator.num_repetitions = 1
+        generator.num_iterations = 1
         for cardinality in range(1, len(self.problem.get_variables()) + 1):
             generator.cardinality = cardinality
             results.append(generator.evaluate_constraints())
