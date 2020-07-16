@@ -35,15 +35,15 @@ def save_qualities(qualities: pd.DataFrame, dataset_name: str, directory: pathli
 
 
 def load_results(directory: pathlib.Path, dataset_name: Optional[str] = None,
-                 constraint_type: Optional[str] = None) -> pd.DataFrame:
-    if (dataset_name is not None) and (constraint_type is not None):
-        return pd.read_csv(directory / (dataset_name + '_' + constraint_type + '_results.csv'))
+                 constraint_name: Optional[str] = None) -> pd.DataFrame:
+    if (dataset_name is not None) and (constraint_name is not None):
+        return pd.read_csv(directory / (dataset_name + '_' + constraint_name + '_results.csv'))
     return pd.read_csv(directory / 'results.csv')
 
 
 def save_results(results: pd.DataFrame, directory: pathlib.Path, dataset_name: Optional[str] = None,
-                 constraint_type: Optional[str] = None) -> None:
-    if (dataset_name is not None) and (constraint_type is not None):
-        results.to_csv(directory / (dataset_name + '_' + constraint_type + '_results.csv'), index=False)
+                 constraint_name: Optional[str] = None) -> None:
+    if (dataset_name is not None) and (constraint_name is not None):
+        results.to_csv(directory / (dataset_name + '_' + constraint_name + '_results.csv'), index=False)
     else:
         results.to_csv(directory / 'results.csv', index=False)
