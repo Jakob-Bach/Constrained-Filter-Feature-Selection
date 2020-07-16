@@ -13,3 +13,15 @@ If already using `conda`, run
 ```
 
 to get the right Python version together with `pipenv`.
+
+To run or create notebooks from the environment, you need first to install a kernel for it:
+
+```bash
+pipenv run ipython kernel install --user --name=cffs_kernel
+```
+
+After that, you should see the kernel when running Juypter notebook with
+
+```bash
+pipenv run jupyter notebook
+```
