@@ -78,7 +78,7 @@ for problem in prediction_problems:
             train_score = r2_score(y_true=y_train, y_pred=pred_train)
             pred_test = model.predict(X_test[selected_features])
             test_score = r2_score(y_true=y_test, y_pred=pred_test)
-            results.append({'name': problem['name'], 'target': problem['target'],
+            results.append({'name': problem['dataset_name'], 'target': problem['target'],
                             'num_features': num_features, 'num_features_rel': num_features_rel,
                             'model': model_name, 'train_score': train_score, 'test_score': test_score})
             progress_bar.update()

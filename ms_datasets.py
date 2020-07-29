@@ -71,7 +71,7 @@ def predict_delta_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str =
     features = [x for x in features if re.search('^([0-9]+)_', x) is None]  # exclude historic features
     features = [x for x in features if 'delta' not in x]  # exclude delta features
     features = [x for x in features if 'pos_' not in x and x != 'time']  # exclude position and time
-    return {'name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
+    return {'dataset_name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
 
 
 def predict_delta_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str = 'delta_voxel_data',
@@ -79,7 +79,7 @@ def predict_delta_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str =
     target = 'delta_rho_' + reaction_type
     features = [x for x in list(dataset) if target not in x]  # exclude if feature name contains the target string
     features = [x for x in features if re.search('^0_', x) is not None]  # only values from previous time step
-    return {'name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
+    return {'dataset_name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
 
 
 def predict_sampled_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = 'sampled_voxel_data',
@@ -90,7 +90,7 @@ def predict_sampled_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str
     features = [x for x in features if re.search('^([0-9]+)_', x) is None]  # exclude historic features
     features = [x for x in features if 'delta' not in x]  # exclude delta features
     features = [x for x in features if 'pos_' not in x and x != 'time']  # exclude position and time
-    return {'name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
+    return {'dataset_name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
 
 
 def predict_sampled_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str = 'sampled_voxel_data',
@@ -98,4 +98,4 @@ def predict_sampled_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str
     target = 'delta_' + reaction_type
     features = [x for x in list(dataset) if target not in x]  # exclude if feature name contains the target string
     features = [x for x in features if re.search('^([0-9]+)_', x) is None]  # exclude historic features
-    return {'name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
+    return {'dataset_name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
