@@ -5,16 +5,16 @@ Utility functions for loading datasets for our case study in materials science.
 
 
 import re
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import pandas as pd
 
 
 def prepare_delta_voxel_data(
-        path: str = 'C:/MyData/Versetzungsdaten/delta_sampled_merged_last_voxel_data_size2400_order2_speedUp2.csv',
+        path: str = 'C:/MyData/Versetzungsdaten/Voxel_Data/delta_sampled_merged_last_voxel_data_size2400_order2_speedUp2.csv',
         subset: str = 'consecutive') -> pd.DataFrame:
     dataset = pd.read_csv(path)
-    dataset.drop(columns=list(dataset)[0], inplace=True)  # drop 1st column (unnamed id column)
+    dataset.drop(columns=dataset.columns[0], inplace=True)  # drop 1st column (unnamed id column)
     # Add summed reaction densities:
     for quantity in ['coll', 'cs', 'glissile', 'hirth', 'inplane', 'lomer', 'multiple_coll']:
         col = 'rho_' + quantity
@@ -37,10 +37,10 @@ def prepare_delta_voxel_data(
 
 
 def prepare_sampled_voxel_data(
-        path: str = 'C:/MyData/Versetzungsdaten/sampled_voxel_data_size2400_order2_speedUp2.csv',
+        path: str = 'C:/MyData/Versetzungsdaten/Voxel_Data/sampled_voxel_data_size2400_order2_speedUp2.csv',
         delta_steps: int = 1, subset: str = 'consecutive') -> pd.DataFrame:
     dataset = pd.read_csv(path)
-    dataset.drop(columns=list(dataset)[0], inplace=True)  # drop 1st column (unnamed id column)
+    dataset.drop(columns=dataset.columns[0], inplace=True)  # drop 1st column (unnamed id column)
     dataset = dataset[dataset['time'] % 50 == 0]  # remove irregular time steps
     # Add delta features
     dataset.sort_values(by='time', inplace=True)
@@ -99,3 +99,21 @@ def predict_sampled_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str
     features = [x for x in list(dataset) if target not in x]  # exclude if feature name contains the target string
     features = [x for x in features if re.search('^([0-9]+)_', x) is None]  # exclude historic features
     return {'dataset_name': dataset_name, 'dataset': dataset, 'target': target, 'features': features}
+
+
+def summarize_voxel_data(dataset: pd.DataFrame, outfile: Optional[str] = None) -> pd.DataFrame:
+    featureTable = pd.DataFrame({'Feature': dataset.columns})
+    # For sampled_voxel_data, first adapt slip system notation, e.g., replace "gs(3)" by "3"
+    featureTable['Feature'] = featureTable['Feature'].str.replace(r'gs\(([0-9]+)\)$', r'\1')
+    # Neighboring voxels are indicated like "3_feature", slip systems like "feature_3"
+    featureTable['Quantity'] = featureTable['Feature'].str.replace('(^[0-9]+_)|(_[0-9]+$)', '')
+    featureTable['Slip_System'] = featureTable['Feature'].str.extract('_([0-9]+)$', expand=False)
+    featureTable['History_Neighbors'] = featureTable['Feature'].str.extract('^([0-9]+)_', expand=False)
+    overviewTable = featureTable.groupby('Quantity').agg(
+        Slip_Systems=('Slip_System', 'nunique'),
+        Neighbors=('History_Neighbors', 'nunique'),
+        Total=('Quantity', 'size'))
+    overviewTable.sort_values(by='Quantity')
+    if outfile is not None:
+        overviewTable.to_csv(outfile)
+    return overviewTable
