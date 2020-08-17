@@ -18,7 +18,9 @@ class Problem(solving.Problem):
         super().__init__(variables)
         self.__optimizer = z3.Optimize()
         assert len(variables) == len(qualities)
-        objective = z3.Sum([q * var.z3 for (q, var) in zip(qualities, variables)])
+        # Direct multiplication between bool var and real quality returns wrong type (BoolRef) if quality is 1,
+        # so we use "If" instead (to which that multiplication is transformed anyway)
+        objective = z3.Sum([z3.If(var.z3, q, 0) for (q, var) in zip(qualities, variables)])
         self.__objective = self.__optimizer.maximize(objective)
         self.__optimizer.push()  # restore point for state without constraints
 
