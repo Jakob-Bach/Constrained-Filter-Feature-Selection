@@ -28,7 +28,7 @@ class Problem:
     def clear_constraints(self) -> None:
         self.__constraints.clear()
 
-    def num_constraints(self) -> int:
+    def get_num_constraints(self) -> int:
         return len(self.__constraints)
 
     # Exact procedure for determining fraction of solutions (valid assignments given constraints)
