@@ -17,14 +17,14 @@ sampled_voxel_dataset = ms_datasets.prepare_sampled_voxel_data(delta_steps=20, s
 delta_voxel_dataset = ms_datasets.prepare_delta_voxel_data(subset='consecutive')
 prediction_problems = []
 for reaction_type in REACTION_TYPES:
-    prediction_problems.append(ms_datasets.predict_sampled_voxel_data_absolute(
-        dataset=sampled_voxel_dataset, reaction_type=reaction_type))
-    prediction_problems.append(ms_datasets.predict_sampled_voxel_data_relative(
-        dataset=sampled_voxel_dataset, reaction_type=reaction_type))
-    prediction_problems.append(ms_datasets.predict_delta_voxel_data_absolute(
-        dataset=delta_voxel_dataset, reaction_type=reaction_type))
-    prediction_problems.append(ms_datasets.predict_delta_voxel_data_relative(
-        dataset=delta_voxel_dataset, reaction_type=reaction_type))
+    prediction_problems.append(ms_datasets.predict_voxel_data_absolute(
+        dataset=sampled_voxel_dataset, reaction_type=reaction_type, dataset_name='sampled_voxel_data'))
+    prediction_problems.append(ms_datasets.predict_voxel_data_relative(
+        dataset=sampled_voxel_dataset, reaction_type=reaction_type, dataset_name='sampled_voxel_data'))
+    prediction_problems.append(ms_datasets.predict_voxel_data_absolute(
+        dataset=delta_voxel_dataset, reaction_type=reaction_type, dataset_name='delta_voxel_data'))
+    prediction_problems.append(ms_datasets.predict_voxel_data_relative(
+        dataset=delta_voxel_dataset, reaction_type=reaction_type, dataset_name='delta_voxel_data'))
 
 results = {}
 for problem in prediction_problems:

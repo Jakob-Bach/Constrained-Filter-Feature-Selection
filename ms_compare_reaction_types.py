@@ -10,7 +10,7 @@ import ms_datasets
 
 SAVE_DIR = '../paper-cffs-material/Reaction-Fractions/'  # use None if plots should not be saved
 SPATIAL_AGGREGATES = ['mean', 'median']  # aggregate over voxels at each time step
-REACTION_TYPES = ['coll', 'cs', 'glissile', 'hirth', 'inplane', 'lomer', 'multiple_coll']
+REACTION_TYPES = ms_datasets.REACTION_TYPES
 
 sampled_voxel_dataset = ms_datasets.prepare_sampled_voxel_data(delta_steps=20, subset='no')
 delta_voxel_dataset = ms_datasets.prepare_delta_voxel_data(subset='no')
