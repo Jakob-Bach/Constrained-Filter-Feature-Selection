@@ -57,7 +57,7 @@ if __name__ == '__main__':
         description='Retrieves several datasets (with X, y stored separately) from a directory, computes ' +
         'one or more feature quality measures for each dataset and stores the result in the same directory.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-d', '--directory', type=pathlib.Path, default='.', dest='data_dir',
+    parser.add_argument('-d', '--directory', type=pathlib.Path, default='data/demo/', dest='data_dir',
                         help='Directory for input and output data.')
     parser.add_argument('-q', '--qualities', nargs='+', choices=list(QUALITIES.keys()),
                         default=list(QUALITIES.keys()), help='Feature qualities to be computed.')

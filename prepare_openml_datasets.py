@@ -60,7 +60,7 @@ if __name__ == '__main__':
         description='Retrieves several datasets from OpenML, prepares them for the ' +
         'experiment pipeline and stores them in the specified directory.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-d', '--directory', type=pathlib.Path, default='.', dest='data_dir',
+    parser.add_argument('-d', '--directory', type=pathlib.Path, default='data/openml/', dest='data_dir',
                         help='Output directory for data.')
     parser.add_argument('-i', '--ids', type=int, default=[], nargs='*', dest='data_ids',
                         help='Data ids. If none provided, will search for suitable datasets automatically.')

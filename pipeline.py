@@ -124,9 +124,9 @@ if __name__ == '__main__':
         description='Evaluates multiple constraint types on multiple datasets with one or more ' +
         'feature quality measures for each dataset. Stores the result in the same directory.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-d', '--data', type=pathlib.Path, default='.', dest='data_dir',
+    parser.add_argument('-d', '--data', type=pathlib.Path, default='data/demo/', dest='data_dir',
                         help='Directory for input data. Should contain datasets (X, y) and dataset qualities.')
-    parser.add_argument('-r', '--results', type=pathlib.Path, default='.', dest='results_dir',
+    parser.add_argument('-r', '--results', type=pathlib.Path, default='data/demo-results/', dest='results_dir',
                         help='Directory for output data. Is used for saving evaluation metrics.')
     parser.add_argument('-p', '--processes', type=int, default=None, dest='n_processes',
                         help='Number of processes for multi-processing (default: all cores).')
