@@ -45,4 +45,5 @@ class Problem(solving.Problem):
                 self.__objective.value().denominator_as_long()
         model = self.__optimizer.model()
         selected = [i for i, var in enumerate(self.__variables) if str(model[var.z3]) == 'True']
-        return {'objective_value': value, 'num_selected': len(selected), 'selected': selected}
+        return {'objective_value': value, 'num_selected': len(selected),
+                'frac_selected': len(selected) / len(self.__variables), 'selected': selected}
