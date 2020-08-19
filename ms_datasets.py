@@ -95,7 +95,6 @@ def predict_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = '',
     features = [x for x in list(dataset) if reaction_type not in x]  # exclude features of target reaction type
     features = [x for x in features if re.search('^([0-9]+)_', x) is None]  # exclude historic features
     features = [x for x in features if 'delta' not in x]  # exclude delta features
-    features = [x for x in features if 'pos_' not in x and x != 'time']  # exclude position and time
     return {'dataset_name': dataset_name, 'dataset': dataset[dataset[target] != 0],
             'target': target, 'features': features}
 

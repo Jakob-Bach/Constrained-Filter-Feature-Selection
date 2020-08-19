@@ -122,10 +122,10 @@ def pipeline(generator_names: Sequence[str], n_iterations: int, data_dir: pathli
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Evaluates multiple constraint types on multiple datasets with one or more ' +
-        'feature quality measures for each dataset. Stores the result in the same directory.',
+        'feature quality measures for each dataset.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--data', type=pathlib.Path, default='data/demo/', dest='data_dir',
-                        help='Directory for input data. Should contain datasets (X, y) and dataset qualities.')
+                        help='Directory for input data. Should contain datasets with two files each (X, y).')
     parser.add_argument('-r', '--results', type=pathlib.Path, default='data/demo-results/', dest='results_dir',
                         help='Directory for output data. Is used for saving evaluation metrics.')
     parser.add_argument('-p', '--processes', type=int, default=None, dest='n_processes',

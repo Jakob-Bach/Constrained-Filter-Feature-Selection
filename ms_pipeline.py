@@ -1,86 +1,134 @@
 """Materials science pipeline
 
 Prediction script for our case study in materials science.
+
+Usage: python ms_pipeline.py --help
 """
 
 
+import argparse
+import multiprocessing
+import pathlib
 import sys
+from typing import Any, Optional, Sequence
 
-import numpy as np
 import pandas as pd
-from sklearn.dummy import DummyRegressor
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
-from sklearn.tree import DecisionTreeRegressor
-from tqdm import tqdm
-from xgboost import XGBRegressor
+import tqdm
 
-from ms_datasets import *
-from prediction_utility import drop_correlated_features
+import combi_expressions
+import combi_solving
+import data_utility
+import feature_qualities
+import ms_constraints
+import prediction_utility
 
 
-models = {
-    'Dummy': DummyRegressor(strategy='mean'),
-    'Decision tree': DecisionTreeRegressor(),
-    'Linear regression': LinearRegression(),
-    'xgboost': XGBRegressor(),
+EVALUATORS = {
+    'Schmid-100': {'func': 'SchmidFactor100Evaluator', 'args': dict()},
+    'UNCONSTRAINED': {'func': 'NoConstraintEvaluator', 'args': dict()}
 }
 
-feature_set_sizes = [0.1, 10, None]
 DROP_CORRELATION_THRESHOLD = None  # number in [0,1] or None
 
-print('Loading datasets ...')
-sampled_voxel_dataset = prepare_sampled_voxel_data(delta_steps=20, subset='consecutive')
-delta_voxel_dataset = prepare_delta_voxel_data(subset='consecutive')
-prediction_problems = []
-for reaction_type in ['coll', 'glissile', 'lomer']:
-    prediction_problems.append(predict_sampled_voxel_data_absolute(
-        dataset=sampled_voxel_dataset, reaction_type=reaction_type))
-    prediction_problems.append(predict_sampled_voxel_data_relative(
-        dataset=sampled_voxel_dataset, reaction_type=reaction_type))
-    prediction_problems.append(predict_delta_voxel_data_absolute(
-        dataset=delta_voxel_dataset, reaction_type=reaction_type))
-    prediction_problems.append(predict_delta_voxel_data_relative(
-        dataset=delta_voxel_dataset, reaction_type=reaction_type))
 
-print('Predicting ...')
-np.random.seed(25)
-progress_bar = tqdm(total=len(models) * len(feature_set_sizes) * len(prediction_problems), file=sys.stdout)
-results = []
-for problem in prediction_problems:
-    dataset = problem['dataset']
-    features = problem['features']
-    dataset.dropna(subset=[problem['target']], inplace=True)
-    max_train_time = dataset['time'].quantile(q=0.8)
-    X_train = dataset[dataset['time'] <= max_train_time][features]
-    y_train = dataset[dataset['time'] <= max_train_time][problem['target']]
-    X_test = dataset[dataset['time'] > max_train_time][features]
-    y_test = dataset[dataset['time'] > max_train_time][problem['target']]
-    X_train, X_test = drop_correlated_features(X_train, X_test, threshold=DROP_CORRELATION_THRESHOLD)
-    features = list(X_train)  # some features might have been removed due to correlation
-    feature_qualities = [abs(X_train[feature].corr(y_train)) for feature in features]
-    for num_features in feature_set_sizes:
-        if num_features is None:  # no selection
-            num_features = len(features)
-        if num_features < 1:  # relative number of features
-            num_features_rel = num_features
-            num_features = round(num_features * len(features))  # turn absolute
-        else:  # absolute number of features
-            num_features_rel = num_features / len(features)
-        if 1 <= num_features <= len(features):
-            top_feature_idx = np.argsort(feature_qualities)[-num_features:]  # take last elements
-            selected_features = [list(X_train)[idx] for idx in top_feature_idx]
-        else:  # number of features does not make sense
-            continue
-        for model_name, model in models.items():
-            model.fit(X_train[selected_features], y_train)
-            pred_train = model.predict(X_train[selected_features])
-            train_score = r2_score(y_true=y_train, y_pred=pred_train)
-            pred_test = model.predict(X_test[selected_features])
-            test_score = r2_score(y_true=y_test, y_pred=pred_test)
-            results.append({'name': problem['dataset_name'], 'target': problem['target'],
-                            'num_features': num_features, 'num_features_rel': num_features_rel,
-                            'model': model_name, 'train_score': train_score, 'test_score': test_score})
-            progress_bar.update()
-progress_bar.close()
-results = pd.DataFrame(results)
+def evaluate_constraints(
+        evaluator_names: Sequence[str], dataset_name: str, data_dir: pathlib.Path,
+        quality_names: Sequence[str], model_names: Sequence[str] = None) -> pd.DataFrame:
+    if model_names is None:
+        model_names = []  # this is more Pythonic than using an empty list as default
+    results = []
+    X, y = data_utility.load_dataset(dataset_name=dataset_name, directory=data_dir)
+    max_train_time = X['time'].quantile(q=0.8)
+    X_train = X[X['time'] <= max_train_time].drop(columns=['pos_x', 'pos_y', 'pos_z', 'time'])
+    y_train = y[X['time'] <= max_train_time]
+    X_test = X[X['time'] > max_train_time].drop(columns=['pos_x', 'pos_y', 'pos_z', 'time'])
+    y_test = y[X['time'] > max_train_time]
+    X_train, X_test = prediction_utility.drop_correlated_features(
+        X_train=X_train, X_test=X_test, threshold=DROP_CORRELATION_THRESHOLD)
+    for quality_name in quality_names:
+        qualities = feature_qualities.QUALITIES[quality_name](X_train, y_train)
+        evaluator_results = []
+        for evaluator_name in evaluator_names:
+            variables = [combi_expressions.Variable(name=x) for x in X_train.columns]
+            problem = combi_solving.Problem(variables=variables, qualities=qualities)
+            evaluator_func = getattr(ms_constraints, EVALUATORS[evaluator_name]['func'])
+            evaluator_args = {'problem': problem, **EVALUATORS[evaluator_name]['args']}
+            evaluator = evaluator_func(**evaluator_args)
+            evaluator_result = evaluator.evaluate_constraints()
+            for model_name in model_names:
+                model_dict = prediction_utility.MODELS[model_name]
+                model = model_dict['func'](**model_dict['args'])
+                feature_idx = evaluator_result['selected']
+                performances = prediction_utility.evaluate_prediction(
+                    X_train=X_train.iloc[:, feature_idx], y_train=y_train,
+                    X_test=X_test.iloc[:, feature_idx], y_test=y_test, model=model)
+                for key, value in performances.items():  # multiple eval metrics might be used
+                    evaluator_result[f'{model_name}_{key}'] = value
+            evaluator_result.pop('selected')
+            evaluator_result['constraint_name'] = evaluator_name
+            evaluator_results.append(evaluator_result)
+        quality_result = pd.DataFrame(evaluator_results)
+        quality_result['quality_name'] = quality_name
+        results.append(quality_result)
+    results = pd.concat(results)
+    results['dataset_name'] = dataset_name
+    return results
+
+
+def pipeline(evaluator_names: Sequence[str], data_dir: pathlib.Path, quality_names: Sequence[str],
+             model_names: Sequence[str] = None, n_processes: Optional[int] = None,
+             results_dir: Optional[pathlib.Path] = None) -> pd.DataFrame:
+    datasets = [{'dataset_name': x, 'data_dir': data_dir} for x in data_utility.list_datasets(data_dir)]
+
+    def update_progress(x: Any):
+        progress_bar.update(n=1)
+
+    progress_bar = tqdm.tqdm(total=len(datasets))
+
+    process_pool = multiprocessing.Pool(processes=n_processes)
+    results = [process_pool.apply_async(evaluate_constraints, kwds={
+        **dataset_dict, 'evaluator_names': evaluator_names, 'quality_names': quality_names,
+        'model_names': model_names}, callback=update_progress) for dataset_dict in datasets]
+    process_pool.close()
+    process_pool.join()
+    progress_bar.close()
+    return pd.concat([x.get() for x in results])
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Evaluates multiple constraint types on multiple datasets with one or more ' +
+        'feature quality measures for each dataset.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-d', '--data', type=pathlib.Path, default='data/ms/', dest='data_dir',
+                        help='Directory for input data. Should contain datasets with two files each (X, y).')
+    parser.add_argument('-r', '--results', type=pathlib.Path, default='data/ms-results/', dest='results_dir',
+                        help='Directory for output data. Is used for saving evaluation metrics.')
+    parser.add_argument('-p', '--processes', type=int, default=None, dest='n_processes',
+                        help='Number of processes for multi-processing (default: all cores).')
+    parser.add_argument('-e', '--evaluators', type=str, nargs='+', dest='evaluator_names',
+                        choices=list(EVALUATORS.keys()), default=list(EVALUATORS.keys()),
+                        help='Constraint generators to be used.')
+    parser.add_argument('-q', '--qualities', type=str, nargs='+', dest='quality_names',
+                        choices=list(feature_qualities.QUALITIES.keys()),
+                        default=list(feature_qualities.QUALITIES.keys()),
+                        help='Feature qualities to be computed.')
+    parser.add_argument('-m', '--models', type=str, nargs='*', dest='model_names',
+                        choices=list(prediction_utility.MODELS.keys()),
+                        default=list(prediction_utility.MODELS.keys()),
+                        help='Prediction models to be used.')
+    args = parser.parse_args()
+    if not args.data_dir.is_dir():
+        print('Data directory does not exist.')
+        sys.exit(1)
+    if len(list(args.data_dir.glob('*'))) == 0:
+        print('Data directory is empty.')
+        sys.exit(1)
+    if not args.results_dir.is_dir():
+        print('Results directory does not exist. We create it.')
+        args.results_dir.mkdir(parents=True)
+    if len(list(args.results_dir.glob('*'))) > 0:
+        print('Results directory is not empty. Files might be overwritten, but not deleted.')
+    results = pipeline(**vars(args))  # extract dict from Namspace and then unpack for call
+    data_utility.save_results(results, directory=args.results_dir)
+    print('Pipeline executed successfully.')
