@@ -38,7 +38,7 @@ class NoConstraintEvaluator(MSConstraintEvaluator):
 
 class SchmidFactor100Evaluator(MSConstraintEvaluator):
 
-    SLIP_GROUPS = [[1, 3, 4, 6, 7, 9, 10, 12], [2, 5, 8, 11]]  # for (1 0 0) orientation
+    SLIP_GROUPS = [[1, 2, 5, 6, 7, 8, 11, 12], [3, 4, 9, 10]]  # for (1 0 0) orientation
 
     def add_constraints(self) -> None:
         variable_groups = []
