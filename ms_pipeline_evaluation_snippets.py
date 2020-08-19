@@ -6,23 +6,45 @@ Code snippets for evaluating the results of our case stuy in materials science.
 
 
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Compare prediction targets
-results[(results['model'] == 'xgboost') & (results['num_features_rel'] == 1)].set_index(['name', 'target']).plot(
-    y=['train_score', 'test_score'], kind='bar', ylim=(-0.2, 1.2), figsize=(16,9), rot=45)
-plt.title('Prediction $R^2$, xgboost, no feature selection')
-plt.tight_layout()
-plt.savefig('Performance_xgboost_noFS.pdf')
+# Compare impact of constraint types on multiple result quantities
+results.groupby('constraint_name').mean().transpose()
+
+# Compare impact of constraint types on one result quantity
+sns.boxplot(x='constraint_name', y='objective_value', data=results)
+plt.xticks(rotation=45)
+plt.show()
+
+# Compare prediction models
+prediction_columns = [x for x in results.columns if '_r2' in x]
+sns.boxplot(data=results[prediction_columns])
+plt.ylim(-1.1, 1.1)
+plt.xticks(rotation=45)
+plt.show()
+
+# Compare datasets
+results[(results['constraint_name'] == 'UNCONSTRAINED') &
+        (results['dataset_name'].str.contains('absolute'))].plot(x='dataset_name', y=prediction_columns, kind='bar')
+plt.show()
 
 # Compare train against test scores
-for scenario in results['name'].unique():
-    results[(results['name'] == scenario) & (results['num_features_rel'] == 1)].set_index(['target', 'model']).plot(
-        y=['train_score', 'test_score'], kind='bar', ylim=(-0.2, 1.2), title='Scenario: '+ scenario)
-    plt.show()
-
-# Compare feature selections
-for scenario in results['name'].unique():
-    results[(results['name'] == scenario)].pivot_table(
-        index=['target', 'model'], columns='num_features_rel', values='test_score').plot(
-            kind='bar', ylim=(-0.2, 1.2), title='Scenario: '+ scenario)
-    plt.show()
+reshaped_results = results[['dataset_name', 'constraint_name'] + prediction_columns]
+reshaped_results = reshaped_results.melt(id_vars=['dataset_name', 'constraint_name'], value_vars=prediction_columns,
+                                         value_name='R2')
+reshaped_results['model'] = reshaped_results['variable'].str.extract('^([^_]*)')
+reshaped_results['split'] = reshaped_results['variable'].str.extract('(train|test)')
+reshaped_results.drop(columns='variable', inplace=True)
+sns.barplot(x='model', y='R2', hue='split',
+            data=reshaped_results[(reshaped_results['constraint_name'] == 'UNCONSTRAINED') &
+                                  (reshaped_results['dataset_name'] == 'delta_sampled_2400_absolute_glissile')])
+plt.show()
+sns.boxplot(x='model', y='R2', hue='split',
+            data=reshaped_results[(reshaped_results['constraint_name'] == 'UNCONSTRAINED') &
+                                  (reshaped_results['dataset_name'].str.contains('absolute'))])
+plt.show()
+# Impact of constraint types on test scores
+sns.boxplot(x='model', y='R2', hue='constraint_name',
+            data=reshaped_results[(reshaped_results['split'] == 'test') &
+                                  (reshaped_results['dataset_name'].str.contains('absolute'))])
+plt.show()
