@@ -95,8 +95,8 @@ def predict_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = '',
     features = [x for x in list(dataset) if reaction_type not in x]  # exclude features of target reaction type
     features = [x for x in features if re.search('^([0-9]+)_', x) is None]  # exclude historic features
     features = [x for x in features if 'delta' not in x]  # exclude delta features
-    return {'dataset_name': dataset_name, 'dataset': dataset[dataset[target] != 0],
-            'target': target, 'features': features}
+    return {'dataset_name': dataset_name, 'target': target, 'features': features,
+            'dataset': dataset[(dataset[target] != 0) & (~dataset[target].isna())]}
 
 
 def predict_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str = '',
@@ -104,8 +104,8 @@ def predict_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str = '',
     target = 'delta_rho_' + reaction_type
     features = [x for x in list(dataset) if target not in x]  # exclude if feature name contains the target string
     features = [x for x in features if re.search('^([0-9]+)_', x) is None]  # exclude historic feature
-    return {'dataset_name': dataset_name, 'dataset': dataset[dataset['rho_' + reaction_type] != 0],
-            'target': target, 'features': features}
+    return {'dataset_name': dataset_name, 'target': target, 'features': features,
+            'dataset': dataset[(dataset['rho_' + reaction_type] != 0) & (~dataset[target].isna())]}
 
 
 def summarize_voxel_data(dataset: pd.DataFrame, outfile: Optional[str] = None) -> pd.DataFrame:
