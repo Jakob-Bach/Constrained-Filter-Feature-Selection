@@ -12,7 +12,7 @@ import seaborn as sns
 results = pd.read_csv('data/openml-results/results.csv')
 CONSTRAINT_METRICS = ['objective_value', 'num_selected', 'num_constraints', 'frac_solutions']
 PREDICTION_METRICS = [x for x in results.columns if x.endswith('_r2')]
-EVALUATION_METRICS = CONSTRAINT_METRICS + ['xgb-tree_test_r2']
+EVALUATION_METRICS = CONSTRAINT_METRICS + ['linear-regression_test_r2', 'xgb-tree_test_r2']
 
 # ---Distribution of constraint evaluation metrics, comparing constraint types---
 
