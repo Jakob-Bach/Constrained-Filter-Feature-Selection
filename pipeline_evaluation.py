@@ -38,6 +38,7 @@ sns.heatmap(data=results[EVALUATION_METRICS].corr(method='spearman'), vmin=-1, v
 
 # ---Performance of prediction models---
 
+# also interesting: results.loc[results['constraint_name'] == 'UNCONSTRAINED', PREDICTION_METRICS]
 prediction_data = results[PREDICTION_METRICS].melt(var_name='model', value_name='r2')
 prediction_data['split'] = prediction_data['model'].apply(lambda x: 'train' if 'train' in x else 'test')
 prediction_data['model'] = prediction_data['model'].str.replace('_train_r2', '').str.replace('_test_r2', '')
