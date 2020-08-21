@@ -11,7 +11,7 @@ import seaborn as sns
 
 results = pd.read_csv('data/openml-results/results.csv')
 CONSTRAINT_METRICS = ['objective_value', 'num_selected', 'num_constraints', 'frac_solutions']
-PREDICTTION_METRICS = [x for x in results.columns if x.endswith('_r2')]
+PREDICTION_METRICS = [x for x in results.columns if x.endswith('_r2')]
 
 # ---Distribution of constraint evaluation metrics, comparing constraint types---
 
@@ -35,3 +35,12 @@ for i in range(len(evaluation_metrics) - 1):
 
 sns.heatmap(data=results[evaluation_metrics].corr(method='spearman'), vmin=-1, vmax=1,
             cmap='RdYlGn', annot=True, square=True)
+
+# ---Performance of prediction models---
+
+prediction_data = results[PREDICTION_METRICS].melt(var_name='model', value_name='r2')
+prediction_data['split'] = prediction_data['model'].apply(lambda x: 'train' if 'train' in x else 'test')
+prediction_data['model'] = prediction_data['model'].str.replace('_train_r2', '').str.replace('_test_r2', '')
+sns.boxplot(x='model', y='r2', hue='split', data=prediction_data)
+plt.ylim(-0.1, 1.1)
+plt.show()
