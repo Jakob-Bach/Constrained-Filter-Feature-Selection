@@ -21,7 +21,7 @@ class ConstraintGenerator(metaclass=ABCMeta):
         self.min_num_constraints = kwargs.get('min_num_constraints', 1)
         self.max_num_constraints = kwargs.get('max_num_constraints', 1)
         self.min_num_variables = self.make_card_absolute(kwargs.get('min_num_variables', 2))
-        self.max_num_variables = self.make_card_absolute(kwargs.get('max_num_variables', 2))
+        self.max_num_variables = self.make_card_absolute(kwargs.get('max_num_variables', None))
         self.num_iterations = kwargs.get('num_iterations', 1)
         self.seed = 25
 
@@ -116,7 +116,7 @@ class GlobalAtMostGenerator(ConstraintGenerator):
         for cardinality in range(1, len(self.problem.get_variables()) + 1):
             generator.cardinality = cardinality
             results.append(generator.evaluate_constraints())
-        return pd.concat(results, ignore_index=True) # re-number the rows (else all have index 0)
+        return pd.concat(results, ignore_index=True)  # re-number the rows (else all have index 0)
 
 
 class IffGenerator(ConstraintGenerator):
@@ -143,10 +143,10 @@ class MixedGenerator(ConstraintGenerator):
         super().__init__(problem, **kwargs)
         self.generators = [
             AtLeastGenerator(problem, global_at_most=len(problem.get_variables())),  # no global limit
-            AtMostGenerator(problem),
+            AtMostGenerator(problem, max_num_variables=2),
             IffGenerator(problem, global_at_most=len(problem.get_variables())),  # no global limit
-            NandGenerator(problem),
-            XorGenerator(problem)
+            NandGenerator(problem, max_num_variables=2),
+            XorGenerator(problem, max_num_variables=2)
         ]
 
     def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:

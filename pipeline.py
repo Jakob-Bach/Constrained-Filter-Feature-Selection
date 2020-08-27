@@ -23,18 +23,18 @@ import generation
 import prediction_utility
 
 
-COMMON_GENERATOR_ARGS = {'num_iterations': 10, 'min_num_constraints': 1, 'max_num_constraints': 10}
+COMMON_GENERATOR_ARGS = {'num_iterations': 1000, 'min_num_constraints': 1, 'max_num_constraints': 10}
 
 GENERATORS = {
-    'group-AT-LEAST': {'func': 'AtLeastGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 5}},
+    'group-AT-LEAST': {'func': 'AtLeastGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 0.5}},
     'group-AT-MOST': {'func': 'AtMostGenerator', 'args': COMMON_GENERATOR_ARGS},
     'global-AT-MOST': {'func': 'GlobalAtMostGenerator', 'args': COMMON_GENERATOR_ARGS},
-    'single-IFF': {'func': 'IffGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 5}},
-    'group-IFF': {'func': 'IffGenerator',
-                  'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 5, 'max_num_variables': 5}},
-    'single-NAND': {'func': 'NandGenerator', 'args': COMMON_GENERATOR_ARGS},
-    'group-NAND': {'func': 'NandGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'max_num_variables': 5}},
-    'single-XOR': {'func': 'XorGenerator', 'args': COMMON_GENERATOR_ARGS},
+    'single-IFF': {'func': 'IffGenerator',
+                   'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 0.5, 'max_num_variables': 2}},
+    'group-IFF': {'func': 'IffGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 0.5}},
+    'single-NAND': {'func': 'NandGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'max_num_variables': 2}},
+    'group-NAND': {'func': 'NandGenerator', 'args': COMMON_GENERATOR_ARGS},
+    'single-XOR': {'func': 'XorGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'max_num_variables': 2}},
     'MIXED': {'func': 'MixedGenerator', 'args': COMMON_GENERATOR_ARGS},
     'UNCONSTRAINED': {'func': 'NoConstraintGenerator', 'args': COMMON_GENERATOR_ARGS}
 }
@@ -130,9 +130,9 @@ if __name__ == '__main__':
                         help='Directory for output data. Is used for saving evaluation metrics.')
     parser.add_argument('-p', '--processes', type=int, default=None, dest='n_processes',
                         help='Number of processes for multi-processing (default: all cores).')
-    parser.add_argument('-i', '--iterations', type=int, default=10, dest='n_iterations',
+    parser.add_argument('-i', '--iterations', type=int, default=1000, dest='n_iterations',
                         help='Number of repetitions for constraint generation (per constraint type and dataset).')
-    parser.add_argument('-s', '--splits', type=int, default=1, dest='n_splits',
+    parser.add_argument('-s', '--splits', type=int, default=10, dest='n_splits',
                         help='Number of splits used for prediction (at least 0).')
     parser.add_argument('-g', '--generators', type=str, nargs='+', dest='generator_names',
                         choices=list(GENERATORS.keys()), default=list(GENERATORS.keys()),
