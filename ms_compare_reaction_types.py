@@ -4,6 +4,8 @@ Compare which reaction types domminate over the course of time.
 """
 
 
+import os
+
 import matplotlib.pyplot as plt
 
 import ms_datasets
@@ -16,12 +18,14 @@ sampled_voxel_dataset = ms_datasets.prepare_sampled_voxel_data(subset='none')
 sampled_merged_dataset = ms_datasets.prepare_sampled_merged_data(subset='none')
 scenarios = [
     {'name': 'sampled_voxel_n', 'dataset': sampled_voxel_dataset,
-     'reactions': REACTION_TYPES},
+     'reactions': ['rho_' + x for x in REACTION_TYPES]},  # only renamed to "rho_", but actually a count
     {'name': 'delta_sampled_merged_n', 'dataset': sampled_merged_dataset,
      'reactions': REACTION_TYPES},
     {'name': 'delta_sampled_merged_rho', 'dataset': sampled_merged_dataset,
      'reactions': ['rho_' + x for x in REACTION_TYPES]},
 ]
+if (SAVE_DIR is not None) and (not os.path.isdir(SAVE_DIR)):
+    os.makedirs(SAVE_DIR)
 
 for scenario in scenarios:
     reaction_cols = scenario['reactions']
@@ -32,6 +36,7 @@ for scenario in scenarios:
     for agg_func in SPATIAL_AGGREGATES:
         dataset.groupby('time')[reaction_cols].agg(agg_func).plot(
             title=f'{agg_func} fraction of reaction types for scenario "{name}"').set(ylabel='%')
+        plt.tight_layout()
         if SAVE_DIR is not None:
             plt.savefig(f'{SAVE_DIR}Reaction_Fraction_{name}_{agg_func}.pdf')
         else:
