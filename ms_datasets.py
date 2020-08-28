@@ -51,7 +51,7 @@ def add_deltas_and_sanitize_time(dataset: pd.DataFrame, delta_quantities: Sequen
     dataset.drop(dataset[~dataset['time'].isin(timestamps)].index, inplace=True)
 
 
-def prepare_delta_voxel_data(
+def prepare_sampled_merged_data(
         path: str = 'C:/MyData/Versetzungsdaten/Voxel_Data/delta_sampled_merged_last_voxel_data_size2400_order2_speedUp2.csv',
         delta_steps: int = 1, subset: str = 'none') -> pd.DataFrame:
     dataset = pd.read_csv(path)
@@ -74,7 +74,7 @@ def prepare_sampled_voxel_data(
     dataset.drop(columns=dataset.columns[0], inplace=True)  # drop 1st column (unnamed id column)
     # In current datasets, slip systems notation for shear is "shear(1)" instead "shear_gs(1)"
     dataset.rename(columns=lambda x: re.sub('shear', 'shear_gs', x), inplace=True)
-    # In strain rate version of dataset, there is one feature with doubloe brackets
+    # In strain rate version of dataset, there is one feature with double brackets
     dataset.rename(columns=lambda x: re.sub('\\(\\(', '(', x), inplace=True)
     # String matching functions are more difficult to use if name of one reaction type is substring
     # of another one, thus we rename "multiple_coll" to avoid clashes with "coll"

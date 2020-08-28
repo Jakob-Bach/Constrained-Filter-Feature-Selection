@@ -16,10 +16,10 @@ import ms_datasets
 
 
 MS_DATA_PATHS = {
-    'delta_sampled_2400': pathlib.Path(
-        'C:/MyData/Versetzungsdaten/Voxel_Data/delta_sampled_merged_last_voxel_data_size2400_order2_speedUp2.csv'),
-    'delta_sampled_2400_strain': pathlib.Path(
-        'C:/MyData/Versetzungsdaten/Balduin_config41/delta_sampled_merged_last_voxel_data_size2400_order2_speedUp2_strain_rate.csv'),
+    'sampled_merged_2400': pathlib.Path(
+        'C:/MyData/Versetzungsdaten/Voxel_Data/sampled_merged_last_voxel_data_size2400_order2_speedUp2.csv'),
+    'sampled_merged_2400_strain': pathlib.Path(
+        'C:/MyData/Versetzungsdaten/Balduin_config41/sampled_merged_last_voxel_data_size2400_order2_speedUp2_strain_rate.csv'),
     'sampled_voxel_2400': pathlib.Path(
         'C:/MyData/Versetzungsdaten/Voxel_Data/sampled_voxel_data_size2400_order2_speedUp2.csv'),
     'sampled_voxel_2400_strain': pathlib.Path(
@@ -34,8 +34,8 @@ def prepare_ms_datasets(data_dir: pathlib.Path) -> None:
     if len(list(data_dir.glob('*'))) > 0:
         print('Data directory is not empty. Files might be overwritten, but not deleted.')
     for dataset_name, data_path in tqdm.tqdm(MS_DATA_PATHS.items()):
-        if data_path.stem.startswith('delta'):
-            loading_func = ms_datasets.prepare_delta_voxel_data
+        if 'sampled_merged' in data_path.stem:
+            loading_func = ms_datasets.prepare_sampled_merged_data
         else:
             loading_func = ms_datasets.prepare_sampled_voxel_data
         dataset = loading_func(data_path, delta_steps=0, subset='none')
