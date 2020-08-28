@@ -43,6 +43,8 @@ def evaluate_constraints(
     y_train = y[X['time'] <= max_train_time]
     X_test = X[X['time'] > max_train_time].drop(columns=['pos_x', 'pos_y', 'pos_z', 'time'])
     y_test = y[X['time'] > max_train_time]
+    if (len(X_train) == 0) or (len(X_test) == 0):
+        return None
     X_train, X_test = prediction_utility.drop_correlated_features(
         X_train=X_train, X_test=X_test, threshold=DROP_CORRELATION_THRESHOLD)
     for quality_name in quality_names:
