@@ -14,6 +14,14 @@ CONSTRAINT_METRICS = ['objective_value', 'num_selected', 'num_constraints', 'fra
 PREDICTION_METRICS = [x for x in results.columns if x.endswith('_r2')]
 EVALUATION_METRICS = CONSTRAINT_METRICS + ['linear-regression_test_r2', 'xgb-tree_test_r2']
 
+
+def reshape_prediction_data(results_data: pd.DataFrame) -> pd.DataFrame:
+    results_data = results_data[PREDICTION_METRICS].melt(var_name='model', value_name='r2')
+    results_data['split'] = results_data['model'].apply(lambda x: 'train' if 'train' in x else 'test')
+    results_data['model'] = results_data['model'].str.replace('_train_r2', '').str.replace('_test_r2', '')
+    return results_data
+
+
 # ---Distribution of constraint evaluation metrics, comparing constraint types---
 
 for evaluation_metric in EVALUATION_METRICS:
@@ -38,11 +46,8 @@ sns.heatmap(data=results[EVALUATION_METRICS].corr(method='spearman'), vmin=-1, v
 
 # ---Performance of prediction models---
 
-# also interesting: results.loc[results['constraint_name'] == 'UNCONSTRAINED', PREDICTION_METRICS]
-prediction_data = results[PREDICTION_METRICS].melt(var_name='model', value_name='r2')
-prediction_data['split'] = prediction_data['model'].apply(lambda x: 'train' if 'train' in x else 'test')
-prediction_data['model'] = prediction_data['model'].str.replace('_train_r2', '').str.replace('_test_r2', '')
-sns.boxplot(x='model', y='r2', hue='split', data=prediction_data)
+# also interesting for results.loc[results['constraint_name'] == 'UNCONSTRAINED']
+sns.boxplot(x='model', y='r2', hue='split', data=reshape_prediction_data(results))
 plt.ylim(-0.1, 1.1)
 plt.show()
 

@@ -39,17 +39,15 @@ def prepare_ms_datasets(data_dir: pathlib.Path) -> None:
         else:
             loading_func = ms_datasets.prepare_sampled_voxel_data
         dataset = loading_func(data_path, delta_steps=0, subset='none')
-        prediction_scenario = ms_datasets.predict_voxel_data_absolute(
-            dataset=dataset, dataset_name=dataset_name + '_absolute', reaction_type='glissile')
+        prediction_scenario = ms_datasets.predict_voxel_data_absolute(dataset=dataset, reaction_type='glissile')
         data_utility.save_dataset(X=prediction_scenario['dataset'][prediction_scenario['features']],
                                   y=prediction_scenario['dataset'][prediction_scenario['target']],
                                   dataset_name=dataset_name + '_absolute_glissile', directory=data_dir)
-        dataset = loading_func(data_path, delta_steps=1, subset='complete')
-        prediction_scenario = ms_datasets.predict_voxel_data_relative(
-            dataset=dataset, dataset_name=dataset_name + '_relative', reaction_type='glissile')
+        dataset = loading_func(data_path, delta_steps=20, subset='complete')
+        prediction_scenario = ms_datasets.predict_voxel_data_relative(dataset=dataset, reaction_type='glissile')
         data_utility.save_dataset(X=prediction_scenario['dataset'][prediction_scenario['features']],
                                   y=prediction_scenario['dataset'][prediction_scenario['target']],
-                                  dataset_name=dataset_name + '_relative_glissile', directory=data_dir)
+                                  dataset_name=dataset_name + '_delta20_glissile', directory=data_dir)
 
 
 if __name__ == '__main__':
