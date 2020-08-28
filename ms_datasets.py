@@ -52,7 +52,7 @@ def add_deltas_and_sanitize_time(dataset: pd.DataFrame, delta_quantities: Sequen
 
 
 def prepare_sampled_merged_data(
-        path: str = 'C:/MyData/Versetzungsdaten/Voxel_Data/delta_sampled_merged_last_voxel_data_size2400_order2_speedUp2.csv',
+        path: str = 'C:/MyData/Versetzungsdaten/Voxel_Data/sampled_merged_last_voxel_data_size2400_order2_speedUp2.csv',
         delta_steps: int = 1, subset: str = 'none') -> pd.DataFrame:
     dataset = pd.read_csv(path)
     dataset.drop(columns=dataset.columns[0], inplace=True)  # drop 1st column (unnamed id column)

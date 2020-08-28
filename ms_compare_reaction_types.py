@@ -19,9 +19,9 @@ sampled_merged_dataset = ms_datasets.prepare_sampled_merged_data(subset='none')
 scenarios = [
     {'name': 'sampled_voxel_n', 'dataset': sampled_voxel_dataset,
      'reactions': ['rho_' + x for x in REACTION_TYPES]},  # only renamed to "rho_", but actually a count
-    {'name': 'delta_sampled_merged_n', 'dataset': sampled_merged_dataset,
+    {'name': 'sampled_merged_n', 'dataset': sampled_merged_dataset,
      'reactions': REACTION_TYPES},
-    {'name': 'delta_sampled_merged_rho', 'dataset': sampled_merged_dataset,
+    {'name': 'sampled_merged_rho', 'dataset': sampled_merged_dataset,
      'reactions': ['rho_' + x for x in REACTION_TYPES]},
 ]
 if (SAVE_DIR is not None) and (not os.path.isdir(SAVE_DIR)):

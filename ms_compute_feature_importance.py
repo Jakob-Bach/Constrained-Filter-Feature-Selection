@@ -14,7 +14,7 @@ SAVE_DIR = None
 REACTION_TYPES = ['coll', 'lomer', 'glissile']
 
 sampled_voxel_dataset = ms_datasets.prepare_sampled_voxel_data(delta_steps=20, subset='consecutive')
-sampled_merged_dataset = ms_datasets.prepare_sampled_merged_data(subset='consecutive')
+sampled_merged_dataset = ms_datasets.prepare_sampled_merged_data(delta_steps=20, subset='consecutive')
 prediction_problems = []
 for reaction_type in REACTION_TYPES:
     prediction_problems.append(ms_datasets.predict_voxel_data_absolute(
