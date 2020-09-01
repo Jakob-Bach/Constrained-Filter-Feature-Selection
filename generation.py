@@ -103,8 +103,9 @@ class GlobalAtMostGenerator(ConstraintGenerator):
     def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         raise NotImplementedError('evaluate_constraints() goes through all possible constraints anyway.')
 
-    # For each cardinality, there is exactly one way to express the constraint,
-    # so we iterate over cardinalities without repetitions
+    # For each cardinality, there is exactly one way to express a global AT-MOST (one elementary
+    # AT-MOST covering all variables), so we just iterate from 1 to k-1 instead of doing repeated
+    # evaluation to deal with randomness (which does not exist here)
     def evaluate_constraints(self) -> pd.DataFrame():
         results = []
         generator = AtMostGenerator(self.problem)
@@ -113,7 +114,7 @@ class GlobalAtMostGenerator(ConstraintGenerator):
         generator.min_num_variables = len(self.problem.get_variables())
         generator.max_num_variables = len(self.problem.get_variables())
         generator.num_iterations = 1
-        for cardinality in range(1, len(self.problem.get_variables()) + 1):
+        for cardinality in range(1, len(self.problem.get_variables())):
             generator.cardinality = cardinality
             results.append(generator.evaluate_constraints())
         return pd.concat(results, ignore_index=True)  # re-number the rows (else all have index 0)
