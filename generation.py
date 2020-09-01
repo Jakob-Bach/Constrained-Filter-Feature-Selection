@@ -62,7 +62,7 @@ class ConstraintGenerator(metaclass=ABCMeta):
 
 class AtLeastGenerator(ConstraintGenerator):
 
-    def __init__(self, problem: solv.Problem, global_at_most: Optional[int],
+    def __init__(self, problem: solv.Problem, global_at_most: Optional[int] = None,
                  cardinality: Optional[int] = None, **kwargs):
         super().__init__(problem, **kwargs)
         self.cardinality = self.make_card_absolute(cardinality, pass_none=True)
@@ -76,7 +76,7 @@ class AtLeastGenerator(ConstraintGenerator):
         else:
             cardinality = self.cardinality
         result = expr.WeightedSumGtEq(variables, [1] * len(variables), cardinality)
-        if self.problem.get_num_constraints() == 0:
+        if (self.problem.get_num_constraints() == 0) and (self.global_at_most < len(self.problem.get_variables())):
             global_at_most_constraint = expr.WeightedSumLtEq(
                 self.problem.get_variables(), [1] * len(self.problem.get_variables()),
                 self.global_at_most)
@@ -122,7 +122,7 @@ class GlobalAtMostGenerator(ConstraintGenerator):
 
 class IffGenerator(ConstraintGenerator):
 
-    def __init__(self, problem: solv.Problem, global_at_most: Optional[int], **kwargs):
+    def __init__(self, problem: solv.Problem, global_at_most: Optional[int] = None, **kwargs):
         super().__init__(problem, **kwargs)
         self.global_at_most = self.make_card_absolute(global_at_most)
 
@@ -130,7 +130,7 @@ class IffGenerator(ConstraintGenerator):
     # also add a global cardinality constraint
     def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         result = expr.Iff(variables)
-        if self.problem.get_num_constraints() == 0:
+        if (self.problem.get_num_constraints() == 0) and (self.global_at_most < len(self.problem.get_variables())):
             global_at_most_constraint = expr.WeightedSumLtEq(
                 self.problem.get_variables(), [1] * len(self.problem.get_variables()),
                 self.global_at_most)
@@ -143,9 +143,9 @@ class MixedGenerator(ConstraintGenerator):
     def __init__(self, problem: solv.Problem, **kwargs):
         super().__init__(problem, **kwargs)
         self.generators = [
-            AtLeastGenerator(problem, global_at_most=len(problem.get_variables())),  # no global limit
-            AtMostGenerator(problem, max_num_variables=2),
-            IffGenerator(problem, global_at_most=len(problem.get_variables())),  # no global limit
+            AtLeastGenerator(problem),
+            AtMostGenerator(problem),
+            IffGenerator(problem, max_num_variables=2),
             NandGenerator(problem, max_num_variables=2),
             XorGenerator(problem, max_num_variables=2)
         ]
