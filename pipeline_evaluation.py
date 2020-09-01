@@ -10,9 +10,17 @@ import seaborn as sns
 
 
 results = pd.read_csv('data/openml-results/results.csv')
-CONSTRAINT_METRICS = ['objective_value', 'num_selected', 'num_constraints', 'frac_solutions']
+CONSTRAINT_METRICS = ['frac_objective', 'frac_selected', 'num_constraints', 'frac_solutions']
 PREDICTION_METRICS = [x for x in results.columns if x.endswith('_r2')]
 EVALUATION_METRICS = CONSTRAINT_METRICS + ['linear-regression_test_r2', 'xgb-tree_test_r2']
+
+# Make objective value relative to dataset's max objective
+max_objective_values = results.loc[results['constraint_name'] == 'UNCONSTRAINED',
+                                   ['quality_name', 'split_idx', 'dataset_name', 'objective_value']]
+assert len(max_objective_values) == results.groupby(['quality_name', 'split_idx', 'dataset_name']).ngroups
+max_objective_values.rename(columns={'objective_value': 'max_objective'}, inplace=True)
+results = results.merge(max_objective_values)
+results['frac_objective'] = results['objective_value'] / results['max_objective']
 
 
 def reshape_prediction_data(results_data: pd.DataFrame) -> pd.DataFrame:
