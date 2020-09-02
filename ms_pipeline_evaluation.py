@@ -25,14 +25,15 @@ def reshape_prediction_data(results_data: pd.DataFrame) -> pd.DataFrame:
 
 
 # ---Relationship between constraint evaluation metrics and datasets---
-# In contrast to the experiments with syntheic constraints, we have so few datasets that we can
-# also compare them directly (not only with boxplots)
+# In contrast to experiments with synthetic constraints, we have one train-test split instead of CV
+# and just one evaluation of each constraint type per dataset; thus, bar plots instead of box plots
 
 results[results['constraint_name'] == 'UNCONSTRAINED'].plot(
     x='dataset_name', y=['xgb-tree_train_r2', 'xgb-tree_test_r2'], kind='bar')
 plt.show()
 
 for evaluation_metric in EVALUATION_METRICS:
+    # Since we have not much datasets/constraint types, we can easily show both together
     sns.barplot(x='dataset_name', y=evaluation_metric, hue='constraint_name', data=results)
     if evaluation_metric.endswith('_r2'):
         plt.ylim(-0.1, 1.1)
