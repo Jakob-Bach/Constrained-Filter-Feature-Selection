@@ -145,9 +145,9 @@ class MixedGenerator(ConstraintGenerator):
         self.generators = [
             AtLeastGenerator(problem),
             AtMostGenerator(problem),
-            IffGenerator(problem, max_num_variables=2),
-            NandGenerator(problem, max_num_variables=2),
-            XorGenerator(problem, max_num_variables=2)
+            IffGenerator(problem),
+            NandGenerator(problem),
+            XorGenerator(problem)
         ]
 
     def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
