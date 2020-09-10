@@ -8,30 +8,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+import evaluation_utility
 
 results = pd.read_csv('data/openml-results/results.csv')
+evaluation_utility.add_normalized_objective(results)
+evaluation_utility.add_normalized_num_constraints(results)
+
 CONSTRAINT_METRICS = ['frac_objective', 'frac_selected', 'frac_constraints', 'frac_solutions']
 PREDICTION_METRICS = [x for x in results.columns if x.endswith('_r2')]
 EVALUATION_METRICS = CONSTRAINT_METRICS + ['linear-regression_test_r2', 'xgb-tree_test_r2']
-
-# Make objective value relative to dataset's max objective
-max_objective_values = results.loc[results['constraint_name'] == 'UNCONSTRAINED',
-                                   ['quality_name', 'split_idx', 'dataset_name', 'objective_value']]
-assert len(max_objective_values) == results.groupby(['quality_name', 'split_idx', 'dataset_name']).ngroups
-max_objective_values.rename(columns={'objective_value': 'max_objective'}, inplace=True)
-results = results.merge(max_objective_values)
-results['frac_objective'] = results['objective_value'] / results['max_objective']
-# Make number of constraints relative (same procedure used for all constraint generators with
-# variable number of constraints anyway, and normalizing allows to use the same ranges on all axes)
-results['frac_constraints'] = results['num_constraints'] / results['num_constraints'].max()
-
-
-def reshape_prediction_data(results_data: pd.DataFrame) -> pd.DataFrame:
-    results_data = results_data[PREDICTION_METRICS].melt(var_name='model', value_name='r2')
-    results_data['split'] = results_data['model'].apply(lambda x: 'train' if 'train' in x else 'test')
-    results_data['model'] = results_data['model'].str.replace('_train_r2', '').str.replace('_test_r2', '')
-    return results_data
-
 
 # ---Distribution of constraint evaluation metrics, comparing constraint types---
 
@@ -56,7 +41,7 @@ sns.heatmap(data=results[EVALUATION_METRICS].corr(method='spearman'), vmin=-1, v
 # ---Performance of prediction models---
 
 # also interesting for results.loc[results['constraint_name'] == 'UNCONSTRAINED']
-prediction_data = reshape_prediction_data(results)
+prediction_data = evaluation_utility.reshape_prediction_data(results)
 sns.boxplot(x='model', y='r2', hue='split', data=prediction_data)
 plt.ylim(-0.1, 1.1)
 plt.show()

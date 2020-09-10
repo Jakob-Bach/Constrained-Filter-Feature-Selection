@@ -68,7 +68,7 @@ class AtLeastGenerator(ConstraintGenerator):
         self.cardinality = self.make_card_absolute(cardinality, pass_none=True)
         self.global_at_most = self.make_card_absolute(global_at_most)
 
-    # As at_most does not exclude the trivial solution (select everything), we
+    # As at-least does not exclude the trivial solution (select everything), we
     # also add a global cardinality constraint
     def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         if self.cardinality is None:
