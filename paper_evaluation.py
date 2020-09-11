@@ -36,7 +36,6 @@ plt.xticks(rotation=20)
 plt.ylim(-0.1, 1.1)
 plt.tight_layout()
 plt.savefig(PLOT_PATH + 'prediction-performance-all.pdf')
-# For comparison: only unconstrained runs
 prediction_data = results.loc[results['constraint_name'] == 'UNCONSTRAINED', ORIGINAL_PRED_METRICS]
 prediction_data = evaluation_utility.reshape_prediction_data(prediction_data)
 plt.figure(figsize=(4, 3))
@@ -89,6 +88,15 @@ plt.xticks(rotation=60)
 plt.ylim(-0.1, 1.1)
 plt.tight_layout()
 plt.savefig(PLOT_PATH + 'constraint-type-vs-objective.pdf')
+
+# For comparison: average out repetitions, only show variation between datasets
+# agg_data = results.groupby(['constraint_name', 'dataset_name'])[EVALUATION_METRICS].mean().reset_index()
+# plt.figure(figsize=(4, 3))
+# sns.boxplot(x='constraint_name', y='frac_objective', data=agg_data, fliersize=0)
+# plt.xticks(rotation=60)
+# plt.ylim(-0.1, 1.1)
+# plt.tight_layout()
+
 # For comparison: prediction performance
 # plt.figure(figsize=(4, 3))
 # sns.boxplot(x='constraint_name', y='frac_linear-regression_test_r2', data=results.replace(float('nan'), 0))
@@ -102,3 +110,26 @@ plt.savefig(PLOT_PATH + 'constraint-type-vs-objective.pdf')
 # plt.tight_layout()
 
 # ---(Q2.3) Comparison of datasets---
+
+# Figure 5
+agg_data = results.groupby('dataset_name')[EVALUATION_METRICS].mean()
+agg_data = pd.melt(agg_data, var_name='evaluation metric', value_name='mean per dataset')
+plt.figure(figsize=(4, 3))
+sns.boxplot(x='evaluation metric', y='mean per dataset', data=agg_data)
+plt.xticks(rotation=30)
+plt.ylim(-0.1, 1.1)
+plt.tight_layout()
+plt.savefig(PLOT_PATH + 'evaluation-metrics-mean-per-dataset.pdf')
+plt.figure(figsize=(4, 3))
+sns.boxplot(x='dataset_name', y='frac_objective', data=results)
+plt.xticks([])
+plt.ylim(-0.1, 1.1)
+plt.tight_layout()
+plt.savefig(PLOT_PATH + 'objective-value-per-dataset.pdf')
+
+# For comparison: without aggregation (constraint types and generation mechanism not averaged out)
+# for evaluation_metric in EVALUATION_METRICS:
+#     sns.boxplot(x='dataset_name', y=evaluation_metric, data=results)
+#     plt.xticks(rotation=45)
+#     plt.ylim(-0.1, 1.1)
+#     plt.show()
