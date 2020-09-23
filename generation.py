@@ -75,11 +75,9 @@ class AtLeastGenerator(ConstraintGenerator):
             cardinality = random.randint(1, len(variables) - 1)
         else:
             cardinality = self.cardinality
-        result = expr.WeightedSumGtEq(variables, [1] * len(variables), cardinality)
+        result = expr.AtLeast(variables, cardinality)
         if (self.problem.get_num_constraints() == 0) and (self.global_at_most < len(self.problem.get_variables())):
-            global_at_most_constraint = expr.WeightedSumLtEq(
-                self.problem.get_variables(), [1] * len(self.problem.get_variables()),
-                self.global_at_most)
+            global_at_most_constraint = expr.AtMost(self.problem.get_variables(), self.global_at_most)
             result = expr.And([global_at_most_constraint, result])
         return result
 
@@ -95,7 +93,7 @@ class AtMostGenerator(ConstraintGenerator):
             cardinality = random.randint(1, len(variables) - 1)
         else:
             cardinality = self.cardinality
-        return expr.WeightedSumLtEq(variables, [1] * len(variables), cardinality)
+        return expr.AtMost(variables, cardinality)
 
 
 class GlobalAtMostGenerator(ConstraintGenerator):
@@ -131,9 +129,7 @@ class IffGenerator(ConstraintGenerator):
     def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         result = expr.Iff(variables)
         if (self.problem.get_num_constraints() == 0) and (self.global_at_most < len(self.problem.get_variables())):
-            global_at_most_constraint = expr.WeightedSumLtEq(
-                self.problem.get_variables(), [1] * len(self.problem.get_variables()),
-                self.global_at_most)
+            global_at_most_constraint = expr.AtMost(self.problem.get_variables(), self.global_at_most)
             result = expr.And([global_at_most_constraint, result])
         return result
 

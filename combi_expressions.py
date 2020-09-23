@@ -30,6 +30,20 @@ class And(expr.And, BooleanExpression):
         self.z3 = z3.And([x.z3 for x in bool_expressions])
 
 
+class AtLeast(expr.GtEq, BooleanExpression):
+
+    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], value: float):
+        super().__init__(expr.Sum(bool_expressions), expr.NumericConstant(value))
+        self.z3 = z3.AtLeast(*[e.z3 for e in bool_expressions], value)
+
+
+class AtMost(expr.LtEq, BooleanExpression):
+
+    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], value: float):
+        super().__init__(expr.Sum(bool_expressions), expr.NumericConstant(value))
+        self.z3 = z3.AtMost(*[e.z3 for e in bool_expressions], value)
+
+
 class Iff(expr.Iff, BooleanExpression):
 
     def __init__(self, bool_expressions: Sequence[expr.BooleanExpression]):

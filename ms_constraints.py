@@ -49,4 +49,4 @@ class SchmidFactor100Evaluator(MSConstraintEvaluator):
                     variable_group.append(variable)
             variable_groups.append(variable_group)
         # Select features from at most one of these groups
-        self._problem.add_constraint(expr.Not(expr.And([expr.Or(x) for x in variable_groups])))
+        self._problem.add_constraint(expr.AtMost([expr.Or(x) for x in variable_groups], 1))
