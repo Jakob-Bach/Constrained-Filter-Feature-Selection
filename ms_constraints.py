@@ -14,7 +14,7 @@ import combi_solving as solv
 class MSConstraintEvaluator(metaclass=ABCMeta):
 
     def __init__(self, problem: solv.Problem):
-        self._problem = problem
+        self.problem = problem
 
     @abstractmethod
     def add_constraints(self) -> None:
@@ -22,11 +22,11 @@ class MSConstraintEvaluator(metaclass=ABCMeta):
 
     def evaluate_constraints(self) -> Dict[str, float]:
         self.add_constraints()
-        frac_solutions = self._problem.estimate_solution_fraction(iterations=1000)
-        result = self._problem.optimize()
-        result['num_constraints'] = self._problem.get_num_constraints()
+        frac_solutions = self.problem.estimate_solution_fraction(iterations=1000)
+        result = self.problem.optimize()
+        result['num_constraints'] = self.problem.get_num_constraints()
         result['frac_solutions'] = frac_solutions
-        self._problem.clear_constraints()
+        self.problem.clear_constraints()
         return result
 
 
@@ -44,9 +44,9 @@ class SchmidFactor100Evaluator(MSConstraintEvaluator):
         variable_groups = []
         for slip_group in SchmidFactor100Evaluator.SLIP_GROUPS:
             variable_group = []
-            for variable in self._problem.get_variables():
+            for variable in self.problem.get_variables():
                 if re.search('_(' + '|'.join([str(i) for i in slip_group]) + ')$', str(variable.z3)) is not None:
                     variable_group.append(variable)
             variable_groups.append(variable_group)
         # Select features from at most one of these groups
-        self._problem.add_constraint(expr.AtMost([expr.Or(x) for x in variable_groups], 1))
+        self.problem.add_constraint(expr.AtMost([expr.Or(x) for x in variable_groups], 1))
