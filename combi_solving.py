@@ -20,13 +20,13 @@ class Problem(solving.Problem):
         assert len(variables) == len(qualities)
         # Direct multiplication between bool var and real quality returns wrong type (BoolRef) if quality is 1,
         # so we use "If" instead (to which that multiplication is transformed anyway)
-        objective = z3.Sum([z3.If(var.z3, q, 0) for (q, var) in zip(qualities, variables)])
+        objective = z3.Sum([z3.If(var.get_z3(), q, 0) for (q, var) in zip(qualities, variables)])
         self.objective = self.optimizer.maximize(objective)
         self.optimizer.push()  # restore point for state without constraints
 
     def add_constraint(self, constraint: expr.BooleanExpression) -> None:
         super().add_constraint(constraint)
-        self.optimizer.add(constraint.z3)  # AttributeError if "z3" not set in BooleanExpression object
+        self.optimizer.add(constraint.get_z3())  # AttributeError if "z3" not set in BooleanExpression object
 
     # Remove all constraints
     def clear_constraints(self) -> None:
@@ -44,6 +44,6 @@ class Problem(solving.Problem):
             value = self.objective.value().numerator_as_long() /\
                 self.objective.value().denominator_as_long()
         model = self.optimizer.model()
-        selected = [i for i, var in enumerate(self.get_variables()) if str(model[var.z3]) == 'True']
+        selected = [i for i, var in enumerate(self.get_variables()) if str(model[var.get_z3()]) == 'True']
         return {'objective_value': value, 'num_selected': len(selected),
                 'frac_selected': len(selected) / len(self.get_variables()), 'selected': selected}
