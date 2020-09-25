@@ -38,12 +38,12 @@ def prepare_ms_datasets(data_dir: pathlib.Path) -> None:
             loading_func = ms_datasets.prepare_sampled_merged_data
         else:
             loading_func = ms_datasets.prepare_sampled_voxel_data
-        dataset = loading_func(data_path, delta_steps=0, subset='none')
+        dataset = loading_func(data_path, delta_steps=0, subset='none', add_aggregates=True)
         prediction_scenario = ms_datasets.predict_voxel_data_absolute(dataset=dataset, reaction_type='glissile')
         data_utility.save_dataset(X=prediction_scenario['dataset'][prediction_scenario['features']],
                                   y=prediction_scenario['dataset'][prediction_scenario['target']],
                                   dataset_name=dataset_name + '_absolute_glissile', directory=data_dir)
-        dataset = loading_func(data_path, delta_steps=20, subset='complete')
+        dataset = loading_func(data_path, delta_steps=20, subset='complete', add_aggregates=True)
         prediction_scenario = ms_datasets.predict_voxel_data_relative(dataset=dataset, reaction_type='glissile')
         data_utility.save_dataset(X=prediction_scenario['dataset'][prediction_scenario['features']],
                                   y=prediction_scenario['dataset'][prediction_scenario['target']],

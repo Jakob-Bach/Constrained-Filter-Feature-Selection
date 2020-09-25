@@ -18,11 +18,9 @@ sampled_voxel_dataset = ms_datasets.prepare_sampled_voxel_data(subset='none')
 sampled_merged_dataset = ms_datasets.prepare_sampled_merged_data(subset='none')
 scenarios = [
     {'name': 'sampled_voxel_n', 'dataset': sampled_voxel_dataset,
-     'reactions': ['rho_' + x for x in REACTION_TYPES]},  # only renamed to "rho_", but actually a count
-    {'name': 'sampled_merged_n', 'dataset': sampled_merged_dataset,
-     'reactions': REACTION_TYPES},
+     'reactions': [f'rho_{x}_sum' for x in REACTION_TYPES]},  # only renamed to "rho_", but actually a count
     {'name': 'sampled_merged_rho', 'dataset': sampled_merged_dataset,
-     'reactions': ['rho_' + x for x in REACTION_TYPES]},
+     'reactions': [f'rho_{x}_sum' for x in REACTION_TYPES]},
 ]
 if (SAVE_DIR is not None) and (not os.path.isdir(SAVE_DIR)):
     os.makedirs(SAVE_DIR)
