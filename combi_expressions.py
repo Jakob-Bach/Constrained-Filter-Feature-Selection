@@ -21,15 +21,8 @@ class BooleanExpression(expr.BooleanExpression):
 class Variable(expr.Variable, BooleanExpression):
 
     def __init__(self, name: str):
-        super().__init__()
-        self.name = name
+        super().__init__(name=name)
         self.z3 = z3.Bool(name)
-
-    def get_name(self) -> str:
-        return self.name
-
-    def __str__(self) -> str:
-        return self.name
 
 
 class And(expr.And, BooleanExpression):

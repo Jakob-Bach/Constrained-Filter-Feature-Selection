@@ -17,11 +17,18 @@ class BooleanExpression(metaclass=ABCMeta):
 
 class Variable(BooleanExpression):
 
-    def __init__(self):
+    def __init__(self, name: str):
+        self.name = name
         self.value = False
 
     def is_true(self) -> bool:
         return self.value
+
+    def get_name(self) -> str:
+        return self.name
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class And(BooleanExpression):
