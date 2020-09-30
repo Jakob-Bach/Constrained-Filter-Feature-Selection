@@ -71,7 +71,7 @@ def add_slip_system_aggregates(dataset: pd.DataFrame) -> None:
 
 def prepare_sampled_merged_data(
         path: str = 'C:/MyData/Versetzungsdaten/Voxel_Data/sampled_merged_last_voxel_data_size2400_order2_speedUp2.csv',
-        delta_steps: int = 1, subset: str = 'none', add_aggregates: bool = False) -> pd.DataFrame:
+        delta_steps: int = 1, subset: str = 'none') -> pd.DataFrame:
     dataset = pd.read_csv(path, dtype='float64')  # specifying dtype makes reading faster
     dataset.drop(columns=dataset.columns[0], inplace=True)  # drop 1st column (unnamed id column)
     # String matching functions are more difficult to use if name of one reaction type is substring
@@ -80,11 +80,10 @@ def prepare_sampled_merged_data(
     # Drop count-based reaction features (we use the density-based versions of these features)
     drop_pattern = '([0-9]+_)?(' + '|'.join(REACTION_TYPES) + ')'
     dataset.drop(columns=[x for x in list(dataset) if re.match(drop_pattern, x) is not None], inplace=True)
-    if add_aggregates:  # multiple aggregates over all slip-system-related quantities
-        add_slip_system_aggregates(dataset)
-    else:  # only sum reaction types (not available in original data, but necessary as target later)
-        for quantity in [f'rho_{x}' for x in REACTION_TYPES]:
-            dataset[f'{quantity}_sum'] = dataset[[f'{quantity}_{i}' for i in range(1, 13)]].sum(axis='columns')
+    # Compute overall reaction density, as not available by default
+    for quantity in [f'rho_{x}' for x in REACTION_TYPES]:
+        dataset[f'{quantity}_sum'] = dataset[[f'{quantity}_{i}' for i in range(1, 13)]].sum(axis='columns')
+    # Add deltas of reaction quantities over time, remove invalid time steps
     add_deltas_and_sanitize_time(dataset, delta_quantities=[f'rho_{x}_sum' for x in REACTION_TYPES],
                                  delta_steps=delta_steps, subset=subset)
     return dataset
@@ -92,7 +91,7 @@ def prepare_sampled_merged_data(
 
 def prepare_sampled_voxel_data(
         path: str = 'C:/MyData/Versetzungsdaten/Voxel_Data/sampled_voxel_data_size2400_order2_speedUp2.csv',
-        delta_steps: int = 1, subset: str = 'none', add_aggregates: bool = False) -> pd.DataFrame:
+        delta_steps: int = 1, subset: str = 'none') -> pd.DataFrame:
     dataset = pd.read_csv(path, dtype='float64')  # specifying dtype makes reading faster
     dataset.drop(columns=dataset.columns[0], inplace=True)  # drop 1st column (unnamed id column)
     # In current datasets, slip systems notation for shear is "shear(1)" instead "shear_gs(1)"
@@ -104,10 +103,9 @@ def prepare_sampled_voxel_data(
     dataset.rename(columns=lambda x: re.sub('multiple_coll', 'multiple_col', x), inplace=True)
     # Make naming consistent to (delta) sampled merged data:
     dataset.rename(columns=lambda x: re.sub(r'gs\(([0-9]+)\)$', r'\1', x), inplace=True)
-    if add_aggregates:  # multiple aggregates over all slip-system-related quantities
-        add_slip_system_aggregates(dataset)
-    for reaction_type in REACTION_TYPES:  # rename potential targets for consistency to (delta) sampled merged data
+    for reaction_type in REACTION_TYPES:  # though absolute quantities instead of densities, still make consistent
         dataset.rename(columns=lambda x: re.sub(reaction_type, f'rho_{reaction_type}_sum', x), inplace=True)
+    # Add deltas of reaction quantities over time, remove invalid time steps
     dataset = dataset[dataset['time'] % 50 == 0]  # remove irregular time steps
     add_deltas_and_sanitize_time(dataset, delta_quantities=[f'rho_{x}_sum' for x in REACTION_TYPES],
                                  delta_steps=delta_steps, subset=subset)
@@ -115,22 +113,28 @@ def prepare_sampled_voxel_data(
 
 
 def predict_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = '',
-                                reaction_type: str = 'glissile') -> Dict[str, Any]:
+                                reaction_type: str = 'glissile', add_aggregates: bool = False) -> Dict[str, Any]:
     target = 'rho_' + reaction_type + '_sum'
     features = [x for x in list(dataset) if reaction_type not in x]  # exclude features of target reaction type
     features = [x for x in features if re.match('[0-9]+_', x) is None]  # exclude historic features
     features = [x for x in features if 'delta' not in x]  # exclude delta features
-    return {'dataset_name': dataset_name, 'target': target, 'features': features,
-            'dataset': dataset[(dataset[target] != 0) & (~dataset[target].isna())]}
+    dataset = dataset.loc[(dataset[target] != 0) & (~dataset[target].isna()), features + [target]]
+    if add_aggregates:
+        add_slip_system_aggregates(dataset)  # in-place
+        features = [x for x in list(dataset) if x != target]
+    return {'dataset_name': dataset_name, 'target': target, 'features': features, 'dataset': dataset}
 
 
 def predict_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str = '',
-                                reaction_type: str = 'glissile') -> Dict[str, Any]:
+                                reaction_type: str = 'glissile', add_aggregates: bool = False) -> Dict[str, Any]:
     target = 'delta_rho_' + reaction_type + '_sum'
     features = [x for x in list(dataset) if 'delta_rho' + reaction_type not in x]  # exclude target reaction's deltas
     features = [x for x in features if re.match('[0-9]+_', x) is None]  # exclude historic feature
-    return {'dataset_name': dataset_name, 'target': target, 'features': features,
-            'dataset': dataset[(dataset[f'rho_{reaction_type}_sum'] != 0) & (~dataset[target].isna())]}
+    dataset = dataset.loc[(dataset[f'rho_{reaction_type}_sum'] != 0) & (~dataset[target].isna()), features + [target]]
+    if add_aggregates:
+        add_slip_system_aggregates(dataset)  # in-place
+        features = [x for x in list(dataset) if x != target]
+    return {'dataset_name': dataset_name, 'target': target, 'features': features, 'dataset': dataset}
 
 
 def summarize_voxel_data(dataset: pd.DataFrame, outfile: Optional[str] = None) -> pd.DataFrame:
