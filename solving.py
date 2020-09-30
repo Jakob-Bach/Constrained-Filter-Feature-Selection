@@ -14,8 +14,8 @@ import expressions as expr
 
 class Problem:
 
-    def __init__(self, variables: Sequence[expr.Variable]):
-        self.variables = variables
+    def __init__(self, variable_names: Sequence[str]):
+        self.variables = [expr.Variable(name=x) for x in variable_names]
         self.constraints = []  # several constraints allowed, will be combined by AND
 
     def get_variables(self) -> Sequence[expr.Variable]:

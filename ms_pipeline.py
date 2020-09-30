@@ -15,7 +15,6 @@ from typing import Any, Optional, Sequence
 import pandas as pd
 import tqdm
 
-import combi_expressions
 import combi_solving
 import data_utility
 import feature_qualities
@@ -51,8 +50,7 @@ def evaluate_constraints(
         qualities = feature_qualities.QUALITIES[quality_name](X_train, y_train)
         evaluator_results = []
         for evaluator_name in evaluator_names:
-            variables = [combi_expressions.Variable(name=x) for x in X_train.columns]
-            problem = combi_solving.Problem(variables=variables, qualities=qualities)
+            problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
             evaluator_func = getattr(ms_constraints, EVALUATORS[evaluator_name]['func'])
             evaluator_args = {'problem': problem, **EVALUATORS[evaluator_name]['args']}
             evaluator = evaluator_func(**evaluator_args)
@@ -60,10 +58,9 @@ def evaluate_constraints(
             for model_name in model_names:
                 model_dict = prediction_utility.MODELS[model_name]
                 model = model_dict['func'](**model_dict['args'])
-                feature_idx = evaluator_result['selected']
                 performances = prediction_utility.evaluate_prediction(
-                    X_train=X_train.iloc[:, feature_idx], y_train=y_train,
-                    X_test=X_test.iloc[:, feature_idx], y_test=y_test, model=model)
+                    X_train=X_train[evaluator_result['selected']], y_train=y_train,
+                    X_test=X_test[evaluator_result['selected']], y_test=y_test, model=model)
                 for key, value in performances.items():  # multiple eval metrics might be used
                     evaluator_result[f'{model_name}_{key}'] = value
             evaluator_result.pop('selected')

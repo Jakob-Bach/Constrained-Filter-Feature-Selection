@@ -15,7 +15,6 @@ from typing import Any, Optional, Sequence
 import pandas as pd
 import tqdm
 
-import combi_expressions
 import combi_solving
 import data_utility
 import feature_qualities
@@ -59,8 +58,7 @@ def evaluate_constraint_type(
             y_test = None
         for quality_name in quality_names:
             qualities = feature_qualities.QUALITIES[quality_name](X_train, y_train)
-            variables = [combi_expressions.Variable(name='Feature_' + str(i)) for i in range(len(qualities))]
-            problem = combi_solving.Problem(variables=variables, qualities=qualities)
+            problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
             generator_func = getattr(generation, GENERATORS[generator_name]['func'])
             generator_args = {'problem': problem, **GENERATORS[generator_name]['args']}
             generator_args['num_iterations'] = n_iterations
@@ -73,12 +71,12 @@ def evaluate_constraint_type(
                 model = model_dict['func'](**model_dict['args'])
                 if X_test is None:
                     performances = [prediction_utility.evaluate_prediction(
-                        X_train=X_train.iloc[:, feature_idx], y_train=y_train, X_test=None,
-                        y_test=None, model=model) for feature_idx in result['selected']]
+                        X_train=X_train[features], y_train=y_train, X_test=None,
+                        y_test=None, model=model) for features in result['selected']]
                 else:
                     performances = [prediction_utility.evaluate_prediction(
-                        X_train=X_train.iloc[:, feature_idx], y_train=y_train, X_test=X_test.iloc[:, feature_idx],
-                        y_test=y_test, model=model) for feature_idx in result['selected']]
+                        X_train=X_train[features], y_train=y_train, X_test=X_test[features],
+                        y_test=y_test, model=model) for features in result['selected']]
                 performances = pd.DataFrame(performances)
                 performances.rename(columns={x: model_name + '_' + x for x in list(performances)}, inplace=True)
                 result = pd.concat([result, performances], axis='columns')

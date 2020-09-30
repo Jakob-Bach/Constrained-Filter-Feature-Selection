@@ -14,13 +14,14 @@ import solving
 
 class Problem(solving.Problem):
 
-    def __init__(self, variables: Sequence[expr.Variable], qualities: Sequence[float]):
-        super().__init__(variables)
+    def __init__(self, variable_names: Sequence[str], qualities: Sequence[float]):
+        assert len(variable_names) == len(qualities)
+        self.variables = [expr.Variable(name=x) for x in variable_names]
+        self.constraints = []
         self.optimizer = z3.Optimize()
-        assert len(variables) == len(qualities)
         # Direct multiplication between bool var and real quality returns wrong type (BoolRef) if quality is 1,
         # so we use "If" instead (to which that multiplication is transformed anyway)
-        objective = z3.Sum([z3.If(var.get_z3(), q, 0) for (q, var) in zip(qualities, variables)])
+        objective = z3.Sum([z3.If(var.get_z3(), q, 0) for (q, var) in zip(qualities, self.get_variables())])
         self.objective = self.optimizer.maximize(objective)
         self.optimizer.push()  # restore point for state without constraints
 
@@ -44,6 +45,6 @@ class Problem(solving.Problem):
             value = self.objective.value().numerator_as_long() /\
                 self.objective.value().denominator_as_long()
         model = self.optimizer.model()
-        selected = [i for i, var in enumerate(self.get_variables()) if str(model[var.get_z3()]) == 'True']
+        selected = [var.get_name() for var in self.get_variables() if str(model[var.get_z3()]) == 'True']
         return {'objective_value': value, 'num_selected': len(selected),
                 'frac_selected': len(selected) / len(self.get_variables()), 'selected': selected}
