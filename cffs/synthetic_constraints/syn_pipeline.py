@@ -2,7 +2,7 @@
 
 Main script for our experiments with synthetic constraints.
 
-Usage: python pipeline.py --help
+Usage: python syn_pipeline.py --help
 """
 
 
@@ -19,7 +19,7 @@ from cffs.core import combi_solving
 from cffs.utilities import data_utility
 from cffs.utilities import feature_qualities
 from cffs.utilities import prediction_utility
-from cffs.synthetic_constraints import generation
+from cffs.synthetic_constraints import syn_constraints
 
 
 COMMON_GENERATOR_ARGS = {'num_iterations': 1000, 'min_num_constraints': 1, 'max_num_constraints': 10}
@@ -59,7 +59,7 @@ def evaluate_constraint_type(
         for quality_name in quality_names:
             qualities = feature_qualities.QUALITIES[quality_name](X_train, y_train)
             problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
-            generator_func = getattr(generation, GENERATORS[generator_name]['func'])
+            generator_func = getattr(syn_constraints, GENERATORS[generator_name]['func'])
             generator_args = {'problem': problem, **GENERATORS[generator_name]['args']}
             generator_args['num_iterations'] = n_iterations
             generator = generator_func(**generator_args)

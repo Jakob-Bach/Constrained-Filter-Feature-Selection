@@ -2,7 +2,7 @@
 
 Script which saves multiple materials science dataset in a format suitable for the MS pipeline.
 
-Usage: python ms_prepare_datasets.py --help
+Usage: python prepare_ms_datasets.py --help
 """
 
 
