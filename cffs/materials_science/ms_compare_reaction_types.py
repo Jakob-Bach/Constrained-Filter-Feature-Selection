@@ -8,14 +8,14 @@ import os
 
 import matplotlib.pyplot as plt
 
-from cffs.materials_science import ms_datasets
+from cffs.materials_science import ms_data_utility
 
 SAVE_DIR = '../paper-cffs-material/Reaction-Fractions/'  # use None if plots should not be saved
 SPATIAL_AGGREGATES = ['mean', 'median']  # aggregate over voxels at each time step
-REACTION_TYPES = ms_datasets.REACTION_TYPES
+REACTION_TYPES = ms_data_utility.REACTION_TYPES
 
-sampled_voxel_dataset = ms_datasets.prepare_sampled_voxel_data(subset='none')
-sampled_merged_dataset = ms_datasets.prepare_sampled_merged_data(subset='none')
+sampled_voxel_dataset = ms_data_utility.prepare_sampled_voxel_data(subset='none')
+sampled_merged_dataset = ms_data_utility.prepare_sampled_merged_data(subset='none')
 scenarios = [
     {'name': 'sampled_voxel_n', 'dataset': sampled_voxel_dataset,
      'reactions': [f'rho_{x}_sum' for x in REACTION_TYPES]},  # only renamed to "rho_", but actually a count

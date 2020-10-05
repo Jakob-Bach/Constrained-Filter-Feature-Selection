@@ -9,7 +9,7 @@ from typing import Dict
 
 from cffs.core import combi_expressions as expr
 from cffs.core import combi_solving as solv
-from cffs.materials_science import ms_datasets
+from cffs.materials_science import ms_data_utility
 
 
 SCHMID_GROUPS_100 = [[1, 2, 5, 6, 7, 8, 11, 12], [3, 4, 9, 10]]  # for (1 0 0) orientation
@@ -113,7 +113,7 @@ class SelectReactionTypeEvaluator(MSConstraintEvaluator):
 
     def add_constraints(self) -> None:
         variable_groups = []
-        for reaction_type in ms_datasets.REACTION_TYPES:
+        for reaction_type in ms_data_utility.REACTION_TYPES:
             variable_group = [variable for variable in self.problem.get_variables()
                               if reaction_type in variable.get_name()]
             variable_groups.append(variable_group)
@@ -153,7 +153,7 @@ class SelectDislocationDensityEvaluator(MSConstraintEvaluator):
 
     def add_constraints(self):
         variable_groups = []
-        quantity_patterns = ['rho_(' + '|'.join(ms_datasets.AGGREGATES) + ')',
+        quantity_patterns = ['rho_(' + '|'.join(ms_data_utility.AGGREGATES) + ')',
                              'mean_free_path', 'free_path_per_voxel']
         for pattern in quantity_patterns:
             variable_group = [variable for variable in self.problem.get_variables()
@@ -181,7 +181,7 @@ class SelectAggregateEvaluator(MSConstraintEvaluator):
 
     def add_constraints(self):
         variable_groups = []
-        for aggregate in ms_datasets.AGGREGATES:
+        for aggregate in ms_data_utility.AGGREGATES:
             variable_group = [variable for variable in self.problem.get_variables()
                               if variable.get_name().endswith('_' + aggregate)]
             variable_groups.append(variable_group)
@@ -196,7 +196,7 @@ class SelectQuantityAggregateEvaluator(MSConstraintEvaluator):
                            if variable.get_name().endswith('_1')]
         for quantity in base_quantities:
             aggregate_variables = [variable for variable in self.problem.get_variables()
-                                   if re.search(quantity + '_(' + '|'.join(ms_datasets.AGGREGATES) + ')$',
+                                   if re.search(quantity + '_(' + '|'.join(ms_data_utility.AGGREGATES) + ')$',
                                                 variable.get_name()) is not None]
             if len(aggregate_variables) > 0:
                 self.problem.add_constraint(expr.AtMost(aggregate_variables, 1))
@@ -212,7 +212,7 @@ class SelectAggregateOrOriginalEvaluator(MSConstraintEvaluator):
             original_variables = [variable for variable in self.problem.get_variables()
                                   if re.search(quantity + '_[0-9]+$', variable.get_name()) is not None]
             aggregate_variables = [variable for variable in self.problem.get_variables()
-                                   if re.search(quantity + '_(' + '|'.join(ms_datasets.AGGREGATES) + ')$',
+                                   if re.search(quantity + '_(' + '|'.join(ms_data_utility.AGGREGATES) + ')$',
                                                 variable.get_name()) is not None]
             if len(original_variables) > 0 and len(aggregate_variables) > 0:
                 self.problem.add_constraint(expr.Not(expr.And([expr.Or(original_variables),

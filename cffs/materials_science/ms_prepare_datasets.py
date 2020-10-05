@@ -12,7 +12,7 @@ import pathlib
 import tqdm
 
 from cffs.utilities import data_utility
-from cffs.materials_science import ms_datasets
+from cffs.materials_science import ms_data_utility
 
 
 MS_DATA_PATHS = {
@@ -35,17 +35,17 @@ def prepare_ms_datasets(data_dir: pathlib.Path) -> None:
         print('Data directory is not empty. Files might be overwritten, but not deleted.')
     for dataset_name, data_path in tqdm.tqdm(MS_DATA_PATHS.items()):
         if 'sampled_merged' in data_path.stem:
-            loading_func = ms_datasets.prepare_sampled_merged_data
+            loading_func = ms_data_utility.prepare_sampled_merged_data
         else:
-            loading_func = ms_datasets.prepare_sampled_voxel_data
+            loading_func = ms_data_utility.prepare_sampled_voxel_data
         dataset = loading_func(data_path, delta_steps=0, subset='none')
-        prediction_scenario = ms_datasets.predict_voxel_data_absolute(
+        prediction_scenario = ms_data_utility.predict_voxel_data_absolute(
             dataset=dataset, reaction_type='glissile', add_aggregates=True)
         data_utility.save_dataset(X=prediction_scenario['dataset'][prediction_scenario['features']],
                                   y=prediction_scenario['dataset'][prediction_scenario['target']],
                                   dataset_name=dataset_name + '_absolute_glissile', directory=data_dir)
         dataset = loading_func(data_path, delta_steps=20, subset='complete')
-        prediction_scenario = ms_datasets.predict_voxel_data_relative(
+        prediction_scenario = ms_data_utility.predict_voxel_data_relative(
             dataset=dataset, reaction_type='glissile', add_aggregates=True)
         data_utility.save_dataset(X=prediction_scenario['dataset'][prediction_scenario['features']],
                                   y=prediction_scenario['dataset'][prediction_scenario['target']],

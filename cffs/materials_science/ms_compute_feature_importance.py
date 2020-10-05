@@ -8,22 +8,22 @@ targets from our case study in materials science.
 import pandas as pd
 
 from cffs.utilities import feature_qualities
-from cffs.materials_science import ms_datasets
+from cffs.materials_science import ms_data_utility
 
 SAVE_DIR = None
 REACTION_TYPES = ['coll', 'lomer', 'glissile']
 
-sampled_voxel_dataset = ms_datasets.prepare_sampled_voxel_data(delta_steps=20, subset='consecutive')
-sampled_merged_dataset = ms_datasets.prepare_sampled_merged_data(delta_steps=20, subset='consecutive')
+sampled_voxel_dataset = ms_data_utility.prepare_sampled_voxel_data(delta_steps=20, subset='consecutive')
+sampled_merged_dataset = ms_data_utility.prepare_sampled_merged_data(delta_steps=20, subset='consecutive')
 prediction_problems = []
 for reaction_type in REACTION_TYPES:
-    prediction_problems.append(ms_datasets.predict_voxel_data_absolute(
+    prediction_problems.append(ms_data_utility.predict_voxel_data_absolute(
         dataset=sampled_voxel_dataset, reaction_type=reaction_type, dataset_name='sampled_voxel_data'))
-    prediction_problems.append(ms_datasets.predict_voxel_data_relative(
+    prediction_problems.append(ms_data_utility.predict_voxel_data_relative(
         dataset=sampled_voxel_dataset, reaction_type=reaction_type, dataset_name='sampled_voxel_data'))
-    prediction_problems.append(ms_datasets.predict_voxel_data_absolute(
+    prediction_problems.append(ms_data_utility.predict_voxel_data_absolute(
         dataset=sampled_merged_dataset, reaction_type=reaction_type, dataset_name='sampled_merged_data'))
-    prediction_problems.append(ms_datasets.predict_voxel_data_relative(
+    prediction_problems.append(ms_data_utility.predict_voxel_data_relative(
         dataset=sampled_merged_dataset, reaction_type=reaction_type, dataset_name='sampled_merged_data'))
 
 results = {}
