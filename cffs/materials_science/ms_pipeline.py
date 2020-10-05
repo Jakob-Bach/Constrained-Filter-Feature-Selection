@@ -15,11 +15,11 @@ from typing import Any, Optional, Sequence
 import pandas as pd
 import tqdm
 
-import combi_solving
-import data_utility
-import feature_qualities
-import ms_constraints
-import prediction_utility
+from cffs.core import combi_solving
+from cffs.materials_science import ms_constraints
+from cffs.utilities import data_utility
+from cffs.utilities import feature_qualities
+from cffs.utilities import prediction_utility
 
 
 EVALUATORS = {

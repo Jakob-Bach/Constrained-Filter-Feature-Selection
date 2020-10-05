@@ -10,8 +10,8 @@ from typing import Optional, Sequence
 
 import pandas as pd
 
-import combi_expressions as expr
-import combi_solving as solv
+from cffs.core import combi_expressions as expr
+from cffs.core import combi_solving as solv
 
 
 class ConstraintGenerator(metaclass=ABCMeta):

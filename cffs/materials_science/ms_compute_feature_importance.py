@@ -7,8 +7,8 @@ targets from our case study in materials science.
 
 import pandas as pd
 
-import feature_qualities
-import ms_datasets
+from cffs.utilities import feature_qualities
+from cffs.materials_science import ms_datasets
 
 SAVE_DIR = None
 REACTION_TYPES = ['coll', 'lomer', 'glissile']

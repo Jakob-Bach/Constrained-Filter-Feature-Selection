@@ -8,8 +8,8 @@ from typing import Dict, Sequence
 
 import z3
 
-import combi_expressions as expr
-import solving
+from . import combi_expressions as expr
+from . import solving
 
 
 class Problem(solving.Problem):

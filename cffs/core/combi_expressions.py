@@ -9,7 +9,7 @@ from typing import Sequence
 
 import z3
 
-import expressions as expr
+from . import expressions as expr
 
 
 class BooleanExpression(expr.BooleanExpression):

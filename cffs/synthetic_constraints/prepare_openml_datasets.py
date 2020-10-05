@@ -14,7 +14,7 @@ import numpy as np
 import openml
 import tqdm
 
-from data_utility import save_dataset
+from cffs.utilities.data_utility import save_dataset
 
 
 def prepare_openml_datasets(data_dir: pathlib.Path, data_ids=Sequence[int]) -> None:

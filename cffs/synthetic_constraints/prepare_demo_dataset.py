@@ -11,7 +11,7 @@ import pathlib
 import pandas as pd
 from sklearn.datasets import load_boston
 
-from data_utility import save_dataset
+from cffs.utilities.data_utility import save_dataset
 
 
 def prepare_demo_dataset(data_dir: pathlib.Path) -> None:

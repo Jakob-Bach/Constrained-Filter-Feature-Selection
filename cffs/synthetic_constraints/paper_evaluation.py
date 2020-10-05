@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-import evaluation_utility
+from cffs.utilities import evaluation_utility
 
 
 DATA_PATH = 'data/openml-results/results.csv'

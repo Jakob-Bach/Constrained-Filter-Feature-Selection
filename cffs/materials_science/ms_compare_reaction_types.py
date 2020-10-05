@@ -8,7 +8,7 @@ import os
 
 import matplotlib.pyplot as plt
 
-import ms_datasets
+from cffs.materials_science import ms_datasets
 
 SAVE_DIR = '../paper-cffs-material/Reaction-Fractions/'  # use None if plots should not be saved
 SPATIAL_AGGREGATES = ['mean', 'median']  # aggregate over voxels at each time step

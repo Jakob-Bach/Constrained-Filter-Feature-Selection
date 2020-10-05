@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-import evaluation_utility
+from cffs.evaluation import evaluation_utility
 
 results = pd.read_csv('data/openml-results/results.csv')
 evaluation_utility.add_normalized_objective(results)

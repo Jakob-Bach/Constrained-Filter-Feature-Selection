@@ -9,7 +9,7 @@ import itertools
 import random
 from typing import Sequence
 
-import expressions as expr
+from . import expressions as expr
 
 
 class Problem:

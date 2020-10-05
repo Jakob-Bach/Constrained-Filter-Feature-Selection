@@ -7,9 +7,9 @@ from abc import ABCMeta, abstractmethod
 import re
 from typing import Dict
 
-import combi_expressions as expr
-import combi_solving as solv
-import ms_datasets
+from cffs.core import combi_expressions as expr
+from cffs.core import combi_solving as solv
+from cffs.materials_science import ms_datasets
 
 
 SCHMID_GROUPS_100 = [[1, 2, 5, 6, 7, 8, 11, 12], [3, 4, 9, 10]]  # for (1 0 0) orientation

@@ -15,11 +15,11 @@ from typing import Any, Optional, Sequence
 import pandas as pd
 import tqdm
 
-import combi_solving
-import data_utility
-import feature_qualities
-import generation
-import prediction_utility
+from cffs.core import combi_solving
+from cffs.utilities import data_utility
+from cffs.utilities import feature_qualities
+from cffs.utilities import prediction_utility
+from cffs.synthetic_constraints import generation
 
 
 COMMON_GENERATOR_ARGS = {'num_iterations': 1000, 'min_num_constraints': 1, 'max_num_constraints': 10}

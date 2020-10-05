@@ -11,8 +11,8 @@ import pathlib
 
 import tqdm
 
-import data_utility
-import ms_datasets
+from cffs.utilities import data_utility
+from cffs.materials_science import ms_datasets
 
 
 MS_DATA_PATHS = {
