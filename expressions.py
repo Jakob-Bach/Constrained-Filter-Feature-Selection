@@ -24,6 +24,9 @@ class Variable(BooleanExpression):
     def is_true(self) -> bool:
         return self.value
 
+    def __bool__(self) -> bool:
+        return self.is_true()
+
     def get_name(self) -> str:
         return self.name
 
