@@ -115,7 +115,8 @@ def prepare_sampled_voxel_data(
 def predict_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = '',
                                 reaction_type: str = 'glissile', add_aggregates: bool = False) -> Dict[str, Any]:
     target = 'rho_' + reaction_type + '_sum'
-    features = [x for x in list(dataset) if reaction_type not in x]  # exclude features of target reaction type
+    # Exclude all reaction-type-related features (not only target, but also others, because very high correlation)
+    features = [x for x in list(dataset) if re.search('rho_(' + '|'.join(REACTION_TYPES) + ')', x) is None]
     features = [x for x in features if re.match('[0-9]+_', x) is None]  # exclude historic features
     features = [x for x in features if 'delta' not in x]  # exclude delta features
     dataset = dataset.loc[(dataset[target] != 0) & (~dataset[target].isna()), features + [target]]
@@ -128,7 +129,8 @@ def predict_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = '',
 def predict_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str = '',
                                 reaction_type: str = 'glissile', add_aggregates: bool = False) -> Dict[str, Any]:
     target = 'delta_rho_' + reaction_type + '_sum'
-    features = [x for x in list(dataset) if 'delta_rho_' + reaction_type not in x]  # exclude target reaction's deltas
+    # Exclude all reaction-type-related deltas (not only target, but also others, because rather high correlation)
+    features = [x for x in list(dataset) if re.search('delta_rho_(' + '|'.join(REACTION_TYPES) + ')', x) is None]
     features = [x for x in features if re.match('[0-9]+_', x) is None]  # exclude historic feature
     dataset = dataset.loc[(dataset[f'rho_{reaction_type}_sum'] != 0) & (~dataset[target].isna()), features + [target]]
     if add_aggregates:
