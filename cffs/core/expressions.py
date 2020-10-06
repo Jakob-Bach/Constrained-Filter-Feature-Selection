@@ -103,7 +103,7 @@ class Xor(BooleanExpression):
 class ArithmeticExpression(metaclass=ABCMeta):
 
     @abstractmethod
-    def value(self) -> float:
+    def get_value(self) -> float:
         raise NotImplementedError('Abstract method.')
 
 
@@ -112,7 +112,7 @@ class NumericConstant(ArithmeticExpression):
     def __init__(self, value: float):
         self.value = value
 
-    def value(self) -> float:
+    def get_value(self) -> float:
         return self.value
 
 
@@ -123,7 +123,7 @@ class Eq(BooleanExpression):
         self.arith_expression2 = arith_expression2
 
     def is_true(self) -> bool:
-        return self.arith_expression1.value() == self.arith_expression2.value()
+        return self.arith_expression1.get_value() == self.arith_expression2.get_value()
 
 
 class GtEq(BooleanExpression):
@@ -133,7 +133,7 @@ class GtEq(BooleanExpression):
         self.arith_expression2 = arith_expression2
 
     def is_true(self) -> bool:
-        return self.arith_expression1.value() >= self.arith_expression2.value()
+        return self.arith_expression1.get_value() >= self.arith_expression2.get_value()
 
 
 class LtEq(BooleanExpression):
@@ -143,7 +143,7 @@ class LtEq(BooleanExpression):
         self.arith_expression2 = arith_expression2
 
     def is_true(self) -> bool:
-        return self.arith_expression1.value() <= self.arith_expression2.value()
+        return self.arith_expression1.get_value() <= self.arith_expression2.get_value()
 
 
 class Sum(ArithmeticExpression):
@@ -151,7 +151,7 @@ class Sum(ArithmeticExpression):
     def __init__(self, bool_expressions: Sequence[BooleanExpression]):
         self.bool_expressions = bool_expressions
 
-    def value(self) -> float:
+    def get_value(self) -> float:
         result = 0
         for bool_expression in self.bool_expressions:
             if bool_expression.is_true():
@@ -165,7 +165,7 @@ class WeightedSum(ArithmeticExpression):
         self.bool_expressions = bool_expressions
         self.weights = weights
 
-    def value(self) -> float:
+    def get_value(self) -> float:
         result = 0
         for (bool_expression, weight) in zip(self.bool_expressions, self.weights):
             if bool_expression.is_true():
