@@ -31,7 +31,7 @@ DROP_CORRELATION_THRESHOLD = None  # number in [0,1] or None
 
 
 def evaluate_constraints(
-        evaluator_names: Sequence[str], dataset_name: str, data_dir: pathlib.Path,
+        evaluator_name: str, dataset_name: str, data_dir: pathlib.Path,
         quality_names: Sequence[str], model_names: Sequence[str] = None) -> pd.DataFrame:
     if model_names is None:
         model_names = []  # this is more Pythonic than using an empty list as default
@@ -48,28 +48,24 @@ def evaluate_constraints(
         X_train=X_train, X_test=X_test, threshold=DROP_CORRELATION_THRESHOLD)
     for quality_name in quality_names:
         qualities = feature_qualities.QUALITIES[quality_name](X_train, y_train)
-        evaluator_results = []
-        for evaluator_name in evaluator_names:
-            problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
-            evaluator_func = getattr(ms_constraints, EVALUATORS[evaluator_name]['func'])
-            evaluator_args = {'problem': problem, **EVALUATORS[evaluator_name]['args']}
-            evaluator = evaluator_func(**evaluator_args)
-            evaluator_result = evaluator.evaluate_constraints()
-            for model_name in model_names:
-                model_dict = prediction_utility.MODELS[model_name]
-                model = model_dict['func'](**model_dict['args'])
-                performances = prediction_utility.evaluate_prediction(
-                    X_train=X_train[evaluator_result['selected']], y_train=y_train,
-                    X_test=X_test[evaluator_result['selected']], y_test=y_test, model=model)
-                for key, value in performances.items():  # multiple eval metrics might be used
-                    evaluator_result[f'{model_name}_{key}'] = value
-            evaluator_result.pop('selected')
-            evaluator_result['constraint_name'] = evaluator_name
-            evaluator_results.append(evaluator_result)
-        quality_result = pd.DataFrame(evaluator_results)
-        quality_result['quality_name'] = quality_name
-        results.append(quality_result)
-    results = pd.concat(results)
+        problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
+        evaluator_func = getattr(ms_constraints, EVALUATORS[evaluator_name]['func'])
+        evaluator_args = {'problem': problem, **EVALUATORS[evaluator_name]['args']}
+        evaluator = evaluator_func(**evaluator_args)
+        result = evaluator.evaluate_constraints()  # a dict
+        for model_name in model_names:
+            model_dict = prediction_utility.MODELS[model_name]
+            model = model_dict['func'](**model_dict['args'])
+            performances = prediction_utility.evaluate_prediction(
+                X_train=X_train[result['selected']], y_train=y_train,
+                X_test=X_test[result['selected']], y_test=y_test, model=model)
+            for key, value in performances.items():  # multiple eval metrics might be used
+                result[f'{model_name}_{key}'] = value
+        result.pop('selected')
+        result['constraint_name'] = evaluator_name
+        result['quality_name'] = quality_name
+        results.append(result)
+    results = pd.DataFrame(results)
     results['dataset_name'] = dataset_name
     return results
 
@@ -82,12 +78,13 @@ def pipeline(evaluator_names: Sequence[str], data_dir: pathlib.Path, quality_nam
     def update_progress(x: Any):
         progress_bar.update(n=1)
 
-    progress_bar = tqdm.tqdm(total=len(datasets))
+    progress_bar = tqdm.tqdm(total=len(evaluator_names) * len(datasets))
 
     process_pool = multiprocessing.Pool(processes=n_processes)
     results = [process_pool.apply_async(evaluate_constraints, kwds={
-        **dataset_dict, 'evaluator_names': evaluator_names, 'quality_names': quality_names,
-        'model_names': model_names}, callback=update_progress) for dataset_dict in datasets]
+        **dataset_dict, 'evaluator_name': evaluator_name, 'quality_names': quality_names,
+        'model_names': model_names}, callback=update_progress)
+        for evaluator_name in evaluator_names for dataset_dict in datasets]
     process_pool.close()
     process_pool.join()
     progress_bar.close()
