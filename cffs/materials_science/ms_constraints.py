@@ -104,7 +104,7 @@ class SelectWholeSlipSystemsEvaluator(MSConstraintEvaluator):
     def add_constraints(self) -> None:
         for slip_system in range(1, 13):
             variable_group = [variable for variable in self.problem.get_variables()
-                              if variable.get_name().endswith('_' + slip_system)]
+                              if variable.get_name().endswith('_' + str(slip_system))]
             self.problem.add_constraint(expr.Iff(variable_group))
 
 
