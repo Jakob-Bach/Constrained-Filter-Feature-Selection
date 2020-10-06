@@ -15,7 +15,7 @@ from typing import Sequence
 import pandas as pd
 import tqdm
 
-from .data_utility import load_dataset, save_qualities
+from cffs.utilities.data_utility import load_dataset, save_qualities
 
 
 # Z3 uses rational number representation instead of float, so rounding leads to speed-up
