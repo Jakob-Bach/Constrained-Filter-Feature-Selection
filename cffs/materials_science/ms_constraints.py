@@ -4,6 +4,7 @@ Classes to evaluate specific constraints for materials science use cases.
 """
 
 from abc import ABCMeta, abstractmethod
+import random
 import re
 from typing import Dict, Iterable
 
@@ -25,6 +26,7 @@ class MSConstraintEvaluator(metaclass=ABCMeta):
         raise NotImplementedError('Abstract method.')
 
     def evaluate_constraints(self) -> Dict[str, float]:
+        random.seed(25)
         for constraint in self.get_constraints():
             self.problem.add_constraint(constraint)
         frac_solutions = self.problem.estimate_solution_fraction(iterations=10000)
