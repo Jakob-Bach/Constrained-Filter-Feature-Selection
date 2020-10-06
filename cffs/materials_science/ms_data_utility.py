@@ -128,7 +128,7 @@ def predict_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = '',
 def predict_voxel_data_relative(dataset: pd.DataFrame, dataset_name: str = '',
                                 reaction_type: str = 'glissile', add_aggregates: bool = False) -> Dict[str, Any]:
     target = 'delta_rho_' + reaction_type + '_sum'
-    features = [x for x in list(dataset) if 'delta_rho' + reaction_type not in x]  # exclude target reaction's deltas
+    features = [x for x in list(dataset) if 'delta_rho_' + reaction_type not in x]  # exclude target reaction's deltas
     features = [x for x in features if re.match('[0-9]+_', x) is None]  # exclude historic feature
     dataset = dataset.loc[(dataset[f'rho_{reaction_type}_sum'] != 0) & (~dataset[target].isna()), features + [target]]
     if add_aggregates:
