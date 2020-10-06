@@ -23,14 +23,13 @@ class ConstraintGenerator(metaclass=ABCMeta):
         self.min_num_variables = self.make_card_absolute(kwargs.get('min_num_variables', 2))
         self.max_num_variables = self.make_card_absolute(kwargs.get('max_num_variables', None))
         self.num_iterations = kwargs.get('num_iterations', 1)
-        self.seed = 25
 
     @abstractmethod
     def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         raise NotImplementedError('Abstract method.')
 
     def evaluate_constraints(self) -> pd.DataFrame:
-        random.seed(self.seed)
+        random.seed(25)
         results = []
         for _ in range(self.num_iterations):
             num_constraints = random.randint(self.min_num_constraints, self.max_num_constraints)
