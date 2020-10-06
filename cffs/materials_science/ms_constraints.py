@@ -26,7 +26,7 @@ class MSConstraintEvaluator(metaclass=ABCMeta):
 
     def evaluate_constraints(self) -> Dict[str, float]:
         self.add_constraints()
-        frac_solutions = self.problem.estimate_solution_fraction(iterations=1000)
+        frac_solutions = self.problem.estimate_solution_fraction(iterations=10000)
         result = self.problem.optimize()
         result['num_constraints'] = self.problem.get_num_constraints()
         result['frac_solutions'] = frac_solutions
