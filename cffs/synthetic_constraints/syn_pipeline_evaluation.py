@@ -4,13 +4,16 @@ Script to generate the plots for evaluating our experiments with synthetic const
 """
 
 
+import pathlib
+
 import matplotlib.pyplot as plt
-import pandas as pd
 import seaborn as sns
 
+from cffs.utilities import data_utility
 from cffs.evaluation import evaluation_utility
 
-results = pd.read_csv('data/openml-results/results.csv')
+
+results = data_utility.load_results(directory=pathlib.Path('data/openml-results/'))
 evaluation_utility.add_normalized_objective(results)
 evaluation_utility.add_normalized_num_constraints(results)
 

@@ -5,18 +5,20 @@ Script to compute all summary statistics and create all plots used in the paper.
 
 
 import os
+import pathlib
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+from cffs.utilities import data_utility
 from cffs.utilities import evaluation_utility
 
 
-DATA_PATH = 'data/openml-results/results.csv'
+RESULTS_PATH = pathlib.Path('data/openml-results/')
 PLOT_PATH = '../paper-cffs-text/plots/'
 
-results = pd.read_csv(DATA_PATH)
+results = data_utility.load_results(directory=RESULTS_PATH)
 evaluation_utility.add_normalized_objective(results)
 evaluation_utility.add_normalized_prediction_performance(results)
 evaluation_utility.add_normalized_num_constraints(results)
