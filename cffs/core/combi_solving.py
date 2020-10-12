@@ -14,8 +14,12 @@ from . import solving
 
 class Problem(solving.Problem):
 
+    z3.set_param('sat.cardinality.solver', False)  # improves (!) performance of cardinality constraints
+
     def __init__(self, variable_names: Sequence[str], qualities: Sequence[float]):
         assert len(variable_names) == len(qualities)
+        # Improve optimizer performance by sorting qualities decreasingly; order of variable names adapted accordingly
+        qualities, variable_names = zip(*sorted(zip(qualities, variable_names), key=lambda x: -x[0]))
         self.variables = [expr.Variable(name=x) for x in variable_names]
         self.constraints = []
         self.optimizer = z3.Optimize()
