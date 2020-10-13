@@ -43,6 +43,17 @@ class NoConstraintEvaluator(MSConstraintEvaluator):
         return []
 
 
+# From set of all features, select at most a certain amount (global cardinality constraint)
+class GlobalAtMostEvaluator(MSConstraintEvaluator):
+
+    def __init__(self, problem: solv.Problem, global_at_most: int = 10):
+        super().__init__(problem=problem)
+        self.global_at_most = global_at_most
+
+    def get_constraints(self) -> Iterable[expr.BooleanExpression]:
+        return [expr.AtMost(self.problem.get_variables(), self.global_at_most)]
+
+
 # For Schmid factor (1 0 0) grouping, select features from at most one group
 class SelectSchmidGroupEvaluator(MSConstraintEvaluator):
 
