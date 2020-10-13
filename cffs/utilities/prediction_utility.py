@@ -51,16 +51,17 @@ def drop_correlated_features(X_train: pd.DataFrame, X_test: Optional[pd.DataFram
 
 
 def drop_low_quality_features(qualities: Sequence[float], X_train: pd.DataFrame, X_test: Optional[pd.DataFrame] = None,
-                              threshold: float = 0.1) -> Tuple[pd.DataFrame, Optional[pd.DataFrame]]:
+                              threshold: float = 0.1) -> Tuple[Sequence[float], pd.DataFrame, Optional[pd.DataFrame]]:
     if len(qualities) != len(X_train.columns):
         raise ValueError('Number of qualities needs to match number of columns.')
     if threshold is None:
-        return X_train, X_test
+        return qualities, X_train, X_test
     keep_col = [x >= threshold for x in qualities]
+    qualities = [x for x in qualities if x >= threshold]
     X_train = X_train.loc[:, keep_col]
     if X_test is not None:
         X_test = X_test.loc[:, keep_col]
-    return X_train, X_test
+    return qualities, X_train, X_test
 
 
 def create_split_idx(X: pd.DataFrame, n_splits: Optional[int] = 1) ->\
