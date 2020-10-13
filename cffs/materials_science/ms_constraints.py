@@ -6,7 +6,7 @@ Classes to evaluate specific constraints for materials science use cases.
 from abc import ABCMeta, abstractmethod
 import random
 import re
-from typing import Dict, Iterable
+from typing import Any, Dict, Iterable, Type
 
 from cffs.core import combi_expressions as expr
 from cffs.core import combi_solving as solv
@@ -35,6 +35,33 @@ class MSConstraintEvaluator(metaclass=ABCMeta):
         result['frac_solutions'] = frac_solutions
         self.problem.clear_constraints()
         return result
+
+
+# Combines constraints from contained evaluators
+class ContainerEvaluator(MSConstraintEvaluator, metaclass=ABCMeta):
+
+    @abstractmethod
+    def get_member_evaluators(self) -> Iterable[MSConstraintEvaluator]:
+        raise NotImplementedError('Abstract method.')
+
+    def get_constraints(self) -> Iterable[expr.BooleanExpression]:
+        constraints = []
+        for evaluator in self.get_member_evaluators():
+            constraints.extend(evaluator.get_constraints())
+        return constraints
+
+
+# Implementation of CombinedEvaluator which stores member evaluators in an attribute
+class CombinedEvaluator(ContainerEvaluator):
+
+    # for member evaluators, pass type and initialization arguments
+    def __init__(self, problem: solv.Problem, evaluators: Dict[Type[MSConstraintEvaluator], Dict[str, Any]] = None):
+        super().__init__(problem=problem)
+        self.evaluators = [type_object(**{'problem': problem, **args_dict})
+                           for type_object, args_dict in evaluators.items()]
+
+    def get_member_evaluators(self) -> Iterable[MSConstraintEvaluator]:
+        return self.evaluators
 
 
 class NoConstraintEvaluator(MSConstraintEvaluator):
