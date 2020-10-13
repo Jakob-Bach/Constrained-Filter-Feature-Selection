@@ -10,6 +10,7 @@ import argparse
 import multiprocessing
 import pathlib
 import sys
+import time
 from typing import Any, Optional, Sequence
 
 import pandas as pd
@@ -74,7 +75,9 @@ def evaluate_constraints(
         evaluator_func = getattr(ms_constraints, EVALUATORS[evaluator_name]['func'])
         evaluator_args = {'problem': problem, **EVALUATORS[evaluator_name]['args']}
         evaluator = evaluator_func(**evaluator_args)
+        start_time = time.process_time()
         result = evaluator.evaluate_constraints()  # a dict
+        end_time = time.process_time()
         for model_name in model_names:
             model_dict = prediction_utility.MODELS[model_name]
             model = model_dict['func'](**model_dict['args'])
@@ -85,6 +88,7 @@ def evaluate_constraints(
                 result[f'{model_name}_{key}'] = value
         result['constraint_name'] = evaluator_name
         result['quality_name'] = quality_name
+        result['evaluation_time'] = end_time - start_time
         results.append(result)
     results = pd.DataFrame(results)
     results['dataset_name'] = dataset_name
