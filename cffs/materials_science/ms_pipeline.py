@@ -22,10 +22,29 @@ from cffs.utilities import feature_qualities
 from cffs.utilities import prediction_utility
 
 
-EVALUATORS = {
-    'Schmid-100': {'func': 'SchmidFactor100Evaluator', 'args': dict()},
-    'UNCONSTRAINED': {'func': 'NoConstraintEvaluator', 'args': dict()}
+BASE_EVALUATORS = {
+    'UNCONSTRAINED': {'func': 'NoConstraintEvaluator', 'args': {}},
+    'SelectSchmidGroup': {'func': 'SelectSchmidGroupEvaluator', 'args': {}},
+    'SelectQuantitySchmidGroup': {'func': 'SelectQuantitySchmidGroupEvaluator', 'args': {}},
+    'SelectSchmidGroupRepresentative': {'func': 'SelectSchmidGroupRepresentativeEvaluator', 'args': {}},
+    'SelectQuantitySchmidGroupRepresentative': {'func': 'SelectQuantitySchmidGroupRepresentativeEvaluator', 'args': {}},
+    # 'SelectWholeSlipSystems': {'func': 'SelectWholeSlipSystemsEvaluator', 'args': {}},  # does not combine well with cardinality
+    # 'SelectReactionType': {'func': 'SelectReactionTypeEvaluator', 'args': {}},  # we have removed reaction types from features
+    # 'SelectValueOrDelta': {'func': 'SelectValueOrDeltaEvaluator', 'args': {}},  # we use no delta features for predicting absolute quantities
+    'SelectStrainTensor': {'func': 'SelectStrainTensorEvaluator', 'args': {}},
+    'SelectDislocationDensity': {'func': 'SelectDislocationDensityEvaluator', 'args': {}},
+    'SelectStrainRate': {'func': 'SelectStrainRateEvaluator', 'args': {}},
+    'SelectAggregate': {'func': 'SelectAggregateEvaluator', 'args': {}},
+    'SelectQuantityAggregate': {'func': 'SelectQuantityAggregateEvaluator', 'args': {}},
+    'SelectAggregateOrOriginal': {'func': 'SelectAggregateOrOriginalEvaluator', 'args': {}}
 }
+# Combine all base evaluators with a global cardinality constraint
+EVALUATORS = {}
+for evaluator_name, evaluator_info in BASE_EVALUATORS.items():
+    EVALUATORS[evaluator_name + '_k10'] = {'func': 'CombinedEvaluator', 'args': {'evaluators': {
+        getattr(ms_constraints, evaluator_info['func']): evaluator_info['args'],  # base evaluator
+        ms_constraints.GlobalAtMostEvaluator: {'global_at_most': 10}  # cardinality
+    }}}  # "evaluators" is a dict of evaluator type and initialization arguments
 
 DROP_CORRELATION_THRESHOLD = None  # number in [0,1] or None
 
@@ -61,7 +80,6 @@ def evaluate_constraints(
                 X_test=X_test[result['selected']], y_test=y_test, model=model)
             for key, value in performances.items():  # multiple eval metrics might be used
                 result[f'{model_name}_{key}'] = value
-        result.pop('selected')
         result['constraint_name'] = evaluator_name
         result['quality_name'] = quality_name
         results.append(result)
