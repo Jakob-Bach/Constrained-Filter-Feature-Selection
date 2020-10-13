@@ -78,13 +78,14 @@ class SelectQuantitySchmidGroupEvaluator(MSConstraintEvaluator):
 class SelectSchmidGroupRepresentativeEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
-        variable_groups = []
+        constraints = []
         for slip_group in SCHMID_GROUPS_100:
             variable_group = [variable for variable in self.problem.get_variables()
                               if re.search('_(' + '|'.join([str(i) for i in slip_group]) + ')$',
                                            variable.get_name()) is not None]
-            variable_groups.append(variable_group)
-        return [expr.And([expr.AtMost(x, 1) for x in variable_groups])]
+            if len(variable_group) > 0:  # z3.AtMost not defined if applied to empty list
+                constraints.append(expr.AtMost(variable_group, 1))
+        return constraints
 
 
 # For each quantity, for Schmid factor (1 0 0) grouping, select at most one feature from each group
@@ -95,13 +96,12 @@ class SelectQuantitySchmidGroupRepresentativeEvaluator(MSConstraintEvaluator):
         base_quantities = [variable.get_name().replace('_1', '') for variable in self.problem.get_variables()
                            if variable.get_name().endswith('_1')]
         for quantity in base_quantities:
-            variable_groups = []
             for slip_group in SCHMID_GROUPS_100:
                 variable_group = [variable for variable in self.problem.get_variables()
                                   if re.search(quantity + '_(' + '|'.join([str(i) for i in slip_group]) + ')$',
                                                variable.get_name()) is not None]
-                variable_groups.append(variable_group)
-            constraints.append(expr.And([expr.AtMost(x, 1) for x in variable_groups]))
+                if len(variable_group) > 0:  # z3.AtMost not defined if applied to empty list
+                    constraints.append(expr.AtMost(variable_group, 1))
         return constraints
 
 
@@ -152,6 +152,8 @@ class SelectStrainTensorEvaluator(MSConstraintEvaluator):
         variable_groups = []
         directions = [variable.get_name().replace('eps_', '') for variable in self.problem.get_variables()
                       if re.match('eps_[a-z]{2}$', variable.get_name())]
+        if len(directions) == 0:
+            return []  # z3.AtMost not defined if applied to empty list
         for direction in directions:
             variable_group = [variable for variable in self.problem.get_variables()
                               if 'eps_' + direction in variable.get_name()]
@@ -166,6 +168,8 @@ class SelectDislocationDensityEvaluator(MSConstraintEvaluator):
         variable_groups = []
         quantity_patterns = ['rho_(' + '|'.join(ms_data_utility.AGGREGATES) + ')',
                              'mean_free_path', 'free_path_per_voxel']
+        if len(quantity_patterns) == 0:
+            return []  # z3.AtMost not defined if applied to empty list
         for pattern in quantity_patterns:
             variable_group = [variable for variable in self.problem.get_variables()
                               if re.search(pattern, variable.get_name()) is not None]
@@ -209,7 +213,7 @@ class SelectQuantityAggregateEvaluator(MSConstraintEvaluator):
             aggregate_variables = [variable for variable in self.problem.get_variables()
                                    if re.search(quantity + '_(' + '|'.join(ms_data_utility.AGGREGATES) + ')$',
                                                 variable.get_name()) is not None]
-            if len(aggregate_variables) > 0:
+            if len(aggregate_variables) > 0:  # z3.AtMost not defined if applied to empty list
                 constraints.append(expr.AtMost(aggregate_variables, 1))
         return constraints
 
@@ -227,6 +231,5 @@ class SelectAggregateOrOriginalEvaluator(MSConstraintEvaluator):
             aggregate_variables = [variable for variable in self.problem.get_variables()
                                    if re.search(quantity + '_(' + '|'.join(ms_data_utility.AGGREGATES) + ')$',
                                                 variable.get_name()) is not None]
-            if len(original_variables) > 0 and len(aggregate_variables) > 0:
-                constraints.append(expr.Not(expr.And([expr.Or(original_variables), expr.Or(aggregate_variables)])))
+            constraints.append(expr.Not(expr.And([expr.Or(original_variables), expr.Or(aggregate_variables)])))
         return constraints
