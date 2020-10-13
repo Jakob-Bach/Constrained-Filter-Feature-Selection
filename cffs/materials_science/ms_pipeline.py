@@ -47,6 +47,7 @@ for evaluator_name, evaluator_info in BASE_EVALUATORS.items():
     }}}  # "evaluators" is a dict of evaluator type and initialization arguments
 
 DROP_CORRELATION_THRESHOLD = None  # number in [0,1] or None
+DROP_LOW_QUALITY_THRESHOLD = 0.1  # number (sensible range depending on range of qualities) or None
 
 
 def evaluate_constraints(
@@ -67,6 +68,8 @@ def evaluate_constraints(
         X_train=X_train, X_test=X_test, threshold=DROP_CORRELATION_THRESHOLD)
     for quality_name in quality_names:
         qualities = feature_qualities.QUALITIES[quality_name](X_train, y_train)
+        X_train, X_test = prediction_utility.drop_low_quality_features(
+            qualities=qualities, X_train=X_train, X_test=X_test, threshold=DROP_LOW_QUALITY_THRESHOLD)
         problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
         evaluator_func = getattr(ms_constraints, EVALUATORS[evaluator_name]['func'])
         evaluator_args = {'problem': problem, **EVALUATORS[evaluator_name]['args']}
