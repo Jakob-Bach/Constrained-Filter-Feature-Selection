@@ -11,7 +11,7 @@ import multiprocessing
 import pathlib
 import sys
 import time
-from typing import Any, Optional, Sequence
+from typing import Any, Optional
 
 import pandas as pd
 import tqdm
@@ -54,11 +54,7 @@ for cardinality in CARDINALITIES:
 DROP_CORRELATION_THRESHOLD = None  # number in [0,1] or None
 
 
-def evaluate_constraints(
-        evaluator_name: str, dataset_name: str, data_dir: pathlib.Path,
-        quality_names: Sequence[str], model_names: Sequence[str] = None) -> pd.DataFrame:
-    if model_names is None:
-        model_names = []  # this is more Pythonic than using an empty list as default
+def evaluate_constraints(evaluator_name: str, dataset_name: str, data_dir: pathlib.Path) -> pd.DataFrame:
     results = []
     X, y = data_utility.load_dataset(dataset_name=dataset_name, directory=data_dir)
     max_train_time = X['time'].quantile(q=0.8)
@@ -70,7 +66,7 @@ def evaluate_constraints(
         return None
     X_train, X_test = prediction_utility.drop_correlated_features(
         X_train=X_train, X_test=X_test, threshold=DROP_CORRELATION_THRESHOLD)
-    for quality_name in quality_names:
+    for quality_name in feature_qualities.QUALITIES.keys():
         qualities = feature_qualities.QUALITIES[quality_name](X_train, y_train)
         problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
         evaluator_func = getattr(ms_constraints, EVALUATORS[evaluator_name]['func'])
@@ -79,7 +75,7 @@ def evaluate_constraints(
         start_time = time.process_time()
         result = evaluator.evaluate_constraints()  # a dict
         end_time = time.process_time()
-        for model_name in model_names:
+        for model_name in prediction_utility.MODELS.keys():
             model_dict = prediction_utility.MODELS[model_name]
             model = model_dict['func'](**model_dict['args'])
             performances = prediction_utility.evaluate_prediction(
@@ -96,21 +92,19 @@ def evaluate_constraints(
     return results
 
 
-def pipeline(evaluator_names: Sequence[str], data_dir: pathlib.Path, quality_names: Sequence[str],
-             model_names: Sequence[str] = None, n_processes: Optional[int] = None,
-             results_dir: Optional[pathlib.Path] = None) -> pd.DataFrame:
+def pipeline(data_dir: pathlib.Path, results_dir: Optional[pathlib.Path] = None,
+             n_processes: Optional[int] = None) -> pd.DataFrame:
     datasets = [{'dataset_name': x, 'data_dir': data_dir} for x in data_utility.list_datasets(data_dir)]
 
-    def update_progress(x: Any):
+    def update_progress(unused: Any):
         progress_bar.update(n=1)
 
-    progress_bar = tqdm.tqdm(total=len(evaluator_names) * len(datasets))
+    progress_bar = tqdm.tqdm(total=len(EVALUATORS) * len(datasets))
 
     process_pool = multiprocessing.Pool(processes=n_processes)
     results = [process_pool.apply_async(evaluate_constraints, kwds={
-        **dataset_dict, 'evaluator_name': evaluator_name, 'quality_names': quality_names,
-        'model_names': model_names}, callback=update_progress)
-        for evaluator_name in evaluator_names for dataset_dict in datasets]
+        **dataset_dict, 'evaluator_name': evaluator_name}, callback=update_progress)
+        for evaluator_name in EVALUATORS.keys() for dataset_dict in datasets]
     process_pool.close()
     process_pool.join()
     progress_bar.close()
@@ -128,17 +122,6 @@ if __name__ == '__main__':
                         help='Directory for output data. Is used for saving evaluation metrics.')
     parser.add_argument('-p', '--processes', type=int, default=None, dest='n_processes',
                         help='Number of processes for multi-processing (default: all cores).')
-    parser.add_argument('-e', '--evaluators', type=str, nargs='+', dest='evaluator_names',
-                        choices=list(EVALUATORS.keys()), default=list(EVALUATORS.keys()),
-                        help='Constraint generators to be used.')
-    parser.add_argument('-q', '--qualities', type=str, nargs='+', dest='quality_names',
-                        choices=list(feature_qualities.QUALITIES.keys()),
-                        default=list(feature_qualities.QUALITIES.keys()),
-                        help='Feature qualities to be computed.')
-    parser.add_argument('-m', '--models', type=str, nargs='*', dest='model_names',
-                        choices=list(prediction_utility.MODELS.keys()),
-                        default=list(prediction_utility.MODELS.keys()),
-                        help='Prediction models to be used.')
     args = parser.parse_args()
     if not args.data_dir.is_dir():
         print('Data directory does not exist.')

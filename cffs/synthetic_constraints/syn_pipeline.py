@@ -10,7 +10,7 @@ import argparse
 import multiprocessing
 import pathlib
 import sys
-from typing import Any, Optional, Sequence
+from typing import Any, Optional
 
 import pandas as pd
 import tqdm
@@ -40,11 +40,8 @@ GENERATORS = {
 
 
 def evaluate_constraint_type(
-        generator_name: str, n_iterations: int, dataset_name: str, data_dir: pathlib.Path,
-        quality_names: Sequence[str], model_names: Sequence[str] = None, n_splits: int = 1,
-        results_dir: Optional[pathlib.Path] = None) -> pd.DataFrame:
-    if model_names is None:
-        model_names = []  # this is more Pythonic than using an empty list as default
+        generator_name: str, dataset_name: str, data_dir: pathlib.Path, results_dir: Optional[pathlib.Path] = None,
+        n_iterations: int = 1000, n_splits: int = 1) -> pd.DataFrame:
     results = []
     X, y = data_utility.load_dataset(dataset_name=dataset_name, directory=data_dir)
     for split_idx, (train_idx, test_idx) in enumerate(prediction_utility.create_split_idx(X, n_splits=n_splits)):
@@ -56,7 +53,7 @@ def evaluate_constraint_type(
         else:
             X_test = None
             y_test = None
-        for quality_name in quality_names:
+        for quality_name in feature_qualities.QUALITIES.keys():
             qualities = feature_qualities.QUALITIES[quality_name](X_train, y_train)
             problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
             generator_func = getattr(syn_constraints, GENERATORS[generator_name]['func'])
@@ -66,7 +63,7 @@ def evaluate_constraint_type(
             result = generator.evaluate_constraints()
             result['quality_name'] = quality_name
             result['split_idx'] = split_idx
-            for model_name in model_names:
+            for model_name in prediction_utility.MODELS.keys():
                 model_dict = prediction_utility.MODELS[model_name]
                 model = model_dict['func'](**model_dict['args'])
                 if X_test is None:
@@ -91,22 +88,20 @@ def evaluate_constraint_type(
     return results
 
 
-def pipeline(generator_names: Sequence[str], n_iterations: int, data_dir: pathlib.Path,
-             quality_names: Sequence[str], model_names: Sequence[str] = None, n_splits: int = 1,
-             n_processes: Optional[int] = None, results_dir: Optional[pathlib.Path] = None) -> pd.DataFrame:
+def pipeline(data_dir: pathlib.Path, results_dir: Optional[pathlib.Path] = None,
+             n_iterations: int = 1000, n_splits: int = 1, n_processes: Optional[int] = None) -> pd.DataFrame:
     datasets = [{'dataset_name': x, 'data_dir': data_dir, 'results_dir': results_dir}
                 for x in data_utility.list_datasets(data_dir)]
 
-    def update_progress(x: Any):
+    def update_progress(unused: Any):
         progress_bar.update(n=1)
 
-    progress_bar = tqdm.tqdm(total=len(generator_names) * len(datasets))
+    progress_bar = tqdm.tqdm(total=len(GENERATORS) * len(datasets))
 
     process_pool = multiprocessing.Pool(processes=n_processes)
     results = [process_pool.apply_async(evaluate_constraint_type, kwds={
-        **dataset_dict, 'generator_name': generator_name, 'n_iterations': n_iterations,
-        'quality_names': quality_names, 'model_names': model_names, 'n_splits': n_splits},
-        callback=update_progress) for generator_name in generator_names for dataset_dict in datasets]
+        **dataset_dict, 'generator_name': generator_name, 'n_iterations': n_iterations, 'n_splits': n_splits},
+        callback=update_progress) for generator_name in GENERATORS.keys() for dataset_dict in datasets]
     process_pool.close()
     process_pool.join()
     progress_bar.close()
@@ -132,17 +127,6 @@ if __name__ == '__main__':
                         help='Number of repetitions for constraint generation (per constraint type and dataset).')
     parser.add_argument('-s', '--splits', type=int, default=10, dest='n_splits',
                         help='Number of splits used for prediction (at least 0).')
-    parser.add_argument('-g', '--generators', type=str, nargs='+', dest='generator_names',
-                        choices=list(GENERATORS.keys()), default=list(GENERATORS.keys()),
-                        help='Constraint generators to be used.')
-    parser.add_argument('-q', '--qualities', type=str, nargs='+', dest='quality_names',
-                        choices=list(feature_qualities.QUALITIES.keys()),
-                        default=list(feature_qualities.QUALITIES.keys()),
-                        help='Feature qualities to be computed.')
-    parser.add_argument('-m', '--models', type=str, nargs='*', dest='model_names',
-                        choices=list(prediction_utility.MODELS.keys()),
-                        default=list(prediction_utility.MODELS.keys()),
-                        help='Prediction models to be used.')
     args = parser.parse_args()
     if not args.data_dir.is_dir():
         print('Data directory does not exist.')
