@@ -15,17 +15,23 @@ class BooleanExpression(metaclass=ABCMeta):
         raise NotImplementedError('Abstract method.')
 
 
-class Variable(BooleanExpression):
+class BooleanValue(BooleanExpression):
 
-    def __init__(self, name: str):
-        self.name = name
-        self.value = False
+    def __init__(self, value: bool):
+        self.value = value
 
     def is_true(self) -> bool:
         return self.value
 
     def __bool__(self) -> bool:
         return self.is_true()
+
+
+class Variable(BooleanValue):
+
+    def __init__(self, name: str):
+        super().__init__(value=False)
+        self.name = name
 
     def get_name(self) -> str:
         return self.name
@@ -107,7 +113,7 @@ class ArithmeticExpression(metaclass=ABCMeta):
         raise NotImplementedError('Abstract method.')
 
 
-class NumericConstant(ArithmeticExpression):
+class NumericValue(ArithmeticExpression):
 
     def __init__(self, value: float):
         self.value = value
@@ -126,7 +132,7 @@ class Eq(BooleanExpression):
         return self.arith_expression1.get_value() == self.arith_expression2.get_value()
 
 
-class GtEq(BooleanExpression):
+class Ge(BooleanExpression):
 
     def __init__(self, arith_expression1: ArithmeticExpression, arith_expression2: ArithmeticExpression):
         self.arith_expression1 = arith_expression1
@@ -136,7 +142,7 @@ class GtEq(BooleanExpression):
         return self.arith_expression1.get_value() >= self.arith_expression2.get_value()
 
 
-class LtEq(BooleanExpression):
+class Le(BooleanExpression):
 
     def __init__(self, arith_expression1: ArithmeticExpression, arith_expression2: ArithmeticExpression):
         self.arith_expression1 = arith_expression1
