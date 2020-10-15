@@ -40,14 +40,16 @@ BASE_EVALUATORS = {
     'SelectAggregateOrOriginal': {'func': 'SelectAggregateOrOriginalEvaluator', 'args': {}}
 }
 # Combine all base evaluators with a global cardinality constraint and quality threshold
+CARDINALITIES = [5, 10]
 DROP_LOW_QUALITY_THRESHOLD = 0.2
 EVALUATORS = {}
-for evaluator_name, evaluator_info in BASE_EVALUATORS.items():
-    EVALUATORS[evaluator_name + '_k10'] = {'func': 'CombinedEvaluator', 'args': {'evaluators': {
-        getattr(ms_constraints, evaluator_info['func']): evaluator_info['args'],  # base evaluator
-        ms_constraints.GlobalAtMostEvaluator: {'global_at_most': 10},  # cardinality
-        ms_constraints.QualityThresholdEvaluator: {'threshold': DROP_LOW_QUALITY_THRESHOLD}
-    }}}  # "evaluators" is a dict of evaluator type and initialization arguments
+for cardinality in CARDINALITIES:
+    for evaluator_name, evaluator_info in BASE_EVALUATORS.items():
+        EVALUATORS[evaluator_name + '_k' + cardinality] = {'func': 'CombinedEvaluator', 'args': {'evaluators': {
+            getattr(ms_constraints, evaluator_info['func']): evaluator_info['args'],  # base evaluator
+            ms_constraints.GlobalAtMostEvaluator: {'global_at_most': cardinality},
+            ms_constraints.QualityThresholdEvaluator: {'threshold': DROP_LOW_QUALITY_THRESHOLD}
+        }}}  # "evaluators" is a dict of evaluator type and initialization arguments
 
 DROP_CORRELATION_THRESHOLD = None  # number in [0,1] or None
 
