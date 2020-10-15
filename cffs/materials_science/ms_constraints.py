@@ -8,6 +8,8 @@ import random
 import re
 from typing import Any, Dict, Iterable, Type
 
+import pandas as pd
+
 from cffs.core import combi_expressions as expr
 from cffs.core import combi_solving as solv
 from cffs.materials_science import ms_data_utility
@@ -91,6 +93,21 @@ class QualityThresholdEvaluator(MSConstraintEvaluator):
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         return [expr.Not(v) for v, q in zip(self.problem.get_variables(), self.problem.get_qualities())
                 if q < self.threshold]
+
+
+# Do not select two features at same time which are correlated over a certain amount
+class CorrelationRemovalEvaluator(MSConstraintEvaluator):
+
+    def __init__(self, problem: solv.Problem, corr_df: pd.DataFrame, threshold: float):
+        assert corr_df.shape[0] == len(problem.get_variables())
+        assert corr_df.shape[1] == len(problem.get_variables())
+        super().__init__(problem=problem)
+        self.correlation_pairs = [(i, j) for i in range(len(corr_df)) for j in range(i)
+                                  if corr_df.iat[i, j] >= threshold]
+
+    def get_constraints(self) -> Iterable[expr.BooleanExpression]:
+        return [expr.Not(expr.And([self.problem.get_variables()[i], self.problem.get_variables()[j]]))
+                for i, j in self.correlation_pairs]
 
 
 # For Schmid factor (1 0 0) grouping, select features from at most one group
