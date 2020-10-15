@@ -53,7 +53,7 @@ DROP_LOW_QUALITY_THRESHOLD = 0.2
 EVALUATORS = {}
 for cardinality in CARDINALITIES:
     for evaluator_name, evaluator_info in BASE_EVALUATORS.items():
-        EVALUATORS[evaluator_name + '_k' + cardinality] = {'func': 'CombinedEvaluator', 'args': {'evaluators': {
+        EVALUATORS[f'{evaluator_name}_k{cardinality}'] = {'func': 'CombinedEvaluator', 'args': {'evaluators': {
             getattr(ms_constraints, evaluator_info['func']): evaluator_info['args'],  # base evaluator
             ms_constraints.GlobalAtMostEvaluator: {'global_at_most': cardinality},
             ms_constraints.QualityThresholdEvaluator: {'threshold': DROP_LOW_QUALITY_THRESHOLD}
