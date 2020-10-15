@@ -81,6 +81,18 @@ class GlobalAtMostEvaluator(MSConstraintEvaluator):
         return [expr.AtMost(self.problem.get_variables(), self.global_at_most)]
 
 
+# Select only features with at least a certain quality
+class QualityThresholdEvaluator(MSConstraintEvaluator):
+
+    def __init__(self, problem: solv.Problem, threshold: float):
+        super().__init__(problem=problem)
+        self.threshold = threshold
+
+    def get_constraints(self) -> Iterable[expr.BooleanExpression]:
+        return [expr.Not(v) for v, q in zip(self.problem.get_variables(), self.problem.get_qualities())
+                if q < self.threshold]
+
+
 # For Schmid factor (1 0 0) grouping, select features from at most one group
 class SelectSchmidGroupEvaluator(MSConstraintEvaluator):
 

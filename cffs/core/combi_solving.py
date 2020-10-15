@@ -20,6 +20,7 @@ class Problem(solving.Problem):
         assert len(variable_names) == len(qualities)
         # Improve optimizer performance by sorting qualities decreasingly; order of variable names adapted accordingly
         qualities, variable_names = zip(*sorted(zip(qualities, variable_names), key=lambda x: -x[0]))
+        self.qualities = qualities
         self.variables = [expr.Variable(name=x) for x in variable_names]
         self.constraints = []
         self.optimizer = z3.Optimize()
@@ -28,6 +29,9 @@ class Problem(solving.Problem):
         objective = z3.Sum([z3.If(var.get_z3(), q, 0) for (q, var) in zip(qualities, self.get_variables())])
         self.objective = self.optimizer.maximize(objective)
         self.optimizer.push()  # restore point for state without constraints
+
+    def get_qualities(self) -> Sequence[float]:
+        return self.qualities
 
     def add_constraint(self, constraint: expr.BooleanExpression) -> None:
         super().add_constraint(constraint)
