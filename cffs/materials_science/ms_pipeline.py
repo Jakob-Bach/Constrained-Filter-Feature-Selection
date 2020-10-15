@@ -37,7 +37,15 @@ BASE_EVALUATORS = {
     'SelectStrainRate': {'func': 'SelectStrainRateEvaluator', 'args': {}},
     'SelectAggregate': {'func': 'SelectAggregateEvaluator', 'args': {}},
     'SelectQuantityAggregate': {'func': 'SelectQuantityAggregateEvaluator', 'args': {}},
-    'SelectAggregateOrOriginal': {'func': 'SelectAggregateOrOriginalEvaluator', 'args': {}}
+    'SelectAggregateOrOriginal': {'func': 'SelectAggregateOrOriginalEvaluator', 'args': {}},
+    'Mixed': {'func': 'CombinedEvaluator', 'args': {'evaluators': {
+        ms_constraints.SelectQuantitySchmidGroupRepresentativeEvaluator: {},
+        ms_constraints.SelectStrainTensorEvaluator: {},
+        ms_constraints.SelectDislocationDensityEvaluator: {},
+        ms_constraints.SelectStrainRateEvaluator: {},
+        ms_constraints.SelectQuantityAggregateEvaluator: {},
+        ms_constraints.SelectAggregateOrOriginalEvaluator: {}
+    }}}
 }
 # Combine all base evaluators with a global cardinality constraint and quality threshold
 CARDINALITIES = [5, 10]
