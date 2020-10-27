@@ -59,7 +59,7 @@ for cardinality in CARDINALITIES:
             ms_constraints.QualityThresholdEvaluator: {'threshold': DROP_LOW_QUALITY_THRESHOLD}
         }}}  # "evaluators" is a dict of evaluator type and initialization arguments
 
-DROP_CORRELATION_THRESHOLD = None  # number in [0,1] or None; evaluator added below, depends on X
+DROP_CORRELATION_THRESHOLD = 0.8  # number in [0,1] or None; evaluator added below, depends on X
 
 
 def evaluate_constraints(evaluator_name: str, dataset_name: str, data_dir: pathlib.Path) -> pd.DataFrame:
