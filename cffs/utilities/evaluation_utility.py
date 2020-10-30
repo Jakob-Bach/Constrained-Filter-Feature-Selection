@@ -4,6 +4,8 @@ Functions to be used to evaluate results of prediction pipelines.
 """
 
 
+from typing import Optional, Sequence
+
 import pandas as pd
 
 
@@ -28,9 +30,11 @@ def add_normalized_num_constraints(results: pd.DataFrame) -> None:
 
 
 # Transform prediction data from wide format to long format
-def reshape_prediction_data(results: pd.DataFrame) -> pd.DataFrame:
-    prediction_metrics = [x for x in results.columns if x.endswith('_r2')]
-    results = results[prediction_metrics].melt(var_name='model', value_name='r2')
+def reshape_prediction_data(results: pd.DataFrame, additional_columns: Optional[Sequence[str]] = None) -> pd.DataFrame:
+    if additional_columns is None:
+        additional_columns = []
+    keep_colums = [x for x in results.columns if x.endswith('_r2')] + additional_columns
+    results = results[keep_colums].melt(id_vars=additional_columns, var_name='model', value_name='r2')
     # apply() seems to be faster than Series.str operations
     results['split'] = results['model'].apply(lambda x: 'train' if 'train' in x else 'test')
     results['model'] = results['model'].apply(lambda x: x.replace('_train_r2', '').replace('_test_r2', ''))

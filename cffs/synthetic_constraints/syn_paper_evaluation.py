@@ -1,4 +1,4 @@
-"""Paper evaluation
+"""Paper evaluation for synthetic constraints
 
 Script to compute all summary statistics and create all plots used in the paper.
 """
@@ -37,7 +37,7 @@ sns.boxplot(x='model', y='r2', hue='split', data=prediction_data, fliersize=0)
 plt.xticks(rotation=20)
 plt.ylim(-0.1, 1.1)
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'prediction-performance-all.pdf')
+plt.savefig(PLOT_PATH + 'syn-prediction-performance-all.pdf')
 prediction_data = results.loc[results['constraint_name'] == 'UNCONSTRAINED', ORIGINAL_PRED_METRICS]
 prediction_data = evaluation_utility.reshape_prediction_data(prediction_data)
 plt.figure(figsize=(4, 3))
@@ -45,7 +45,7 @@ sns.boxplot(x='model', y='r2', hue='split', data=prediction_data, fliersize=0)
 plt.xticks(rotation=20)
 plt.ylim(-0.1, 1.1)
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'prediction-performance-unconstrained.pdf')
+plt.savefig(PLOT_PATH + 'syn-prediction-performance-unconstrained.pdf')
 
 # ---(Q2.1) Relationship between constraint evaluation metrics---
 
@@ -54,26 +54,26 @@ plt.figure(figsize=(5, 5))
 sns.heatmap(data=results[EVALUATION_METRICS].corr(method='spearman'), vmin=-1, vmax=1,
             cmap='RdYlGn', annot=True, square=True, cbar=False)
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'evaluation-metrics-correlation.pdf')
+plt.savefig(PLOT_PATH + 'syn-evaluation-metrics-correlation.pdf')
 
 # Figure 3
 scatter_plot_data = results.sample(n=1000, random_state=25)
 plt.figure(figsize=(4, 3))
 scatter_plot_data.plot.scatter(x='frac_selected', y='frac_objective', s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'selected-vs-objective.pdf')
+plt.savefig(PLOT_PATH + 'syn-selected-vs-objective.pdf')
 plt.figure(figsize=(4, 3))
 scatter_plot_data.plot.scatter(x='frac_solutions', y='frac_objective', s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'solutions-vs-objective.pdf')
+plt.savefig(PLOT_PATH + 'syn-solutions-vs-objective.pdf')
 plt.figure(figsize=(4, 3))
 sns.boxplot(x='frac_constraints', y='frac_objective', data=scatter_plot_data)
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'constraints-vs-objective.pdf')
+plt.savefig(PLOT_PATH + 'syn-constraints-vs-objective.pdf')
 plt.figure(figsize=(4, 3))
 scatter_plot_data.plot.scatter(x='frac_linear-regression_test_r2', y='frac_objective', s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'frac-linear-regression-r2-vs-objective.pdf')
+plt.savefig(PLOT_PATH + 'syn-frac-linear-regression-r2-vs-objective.pdf')
 
 # ---(Q2.2) Comparison of constraint types---
 
@@ -83,13 +83,13 @@ sns.boxplot(x='constraint_name', y='frac_solutions', data=results, fliersize=0)
 plt.xticks(rotation=60)
 plt.ylim(-0.1, 1.1)
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'constraint-type-vs-solutions.pdf')
+plt.savefig(PLOT_PATH + 'syn-constraint-type-vs-solutions.pdf')
 plt.figure(figsize=(4, 3))
 sns.boxplot(x='constraint_name', y='frac_objective', data=results, fliersize=0)
 plt.xticks(rotation=60)
 plt.ylim(-0.1, 1.1)
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'constraint-type-vs-objective.pdf')
+plt.savefig(PLOT_PATH + 'syn-constraint-type-vs-objective.pdf')
 
 # For comparison: average out repetitions, only show variation between datasets
 # agg_data = results.groupby(['constraint_name', 'dataset_name'])[EVALUATION_METRICS].mean().reset_index()
@@ -121,13 +121,13 @@ sns.boxplot(x='evaluation metric', y='mean per dataset', data=agg_data)
 plt.xticks(rotation=30)
 plt.ylim(-0.1, 1.1)
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'evaluation-metrics-mean-per-dataset.pdf')
+plt.savefig(PLOT_PATH + 'syn-evaluation-metrics-mean-per-dataset.pdf')
 plt.figure(figsize=(4, 3))
 sns.boxplot(x='dataset_name', y='frac_objective', data=results)
 plt.xticks([])
 plt.ylim(-0.1, 1.1)
 plt.tight_layout()
-plt.savefig(PLOT_PATH + 'objective-value-per-dataset.pdf')
+plt.savefig(PLOT_PATH + 'syn-objective-value-per-dataset.pdf')
 
 # For comparison: without aggregation (constraint types and generation mechanism not averaged out)
 # for evaluation_metric in EVALUATION_METRICS:
