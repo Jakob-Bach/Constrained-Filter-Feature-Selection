@@ -4,7 +4,7 @@ Combination of own SMT solution counter and Z3 optimizer.
 """
 
 
-from typing import Dict, Sequence
+from typing import Dict, Union, Sequence
 
 import z3
 
@@ -44,7 +44,7 @@ class Problem(solving.Problem):
         self.optimizer.push()  # create new restore point
 
     # Run optimization and return result dict
-    def optimize(self) -> Dict[str, float]:
+    def optimize(self) -> Dict[str, Union[float, Sequence[str]]]:
         self.optimizer.check()
         # Z3 returns different type, depending on whether result is a whole number
         if self.objective.value().is_int():
@@ -54,5 +54,4 @@ class Problem(solving.Problem):
                 self.objective.value().denominator_as_long()
         model = self.optimizer.model()
         selected = [var.get_name() for var in self.get_variables() if str(model[var.get_z3()]) == 'True']
-        return {'objective_value': value, 'num_selected': len(selected),
-                'frac_selected': len(selected) / len(self.get_variables()), 'selected': selected}
+        return {'objective_value': value, 'num_selected': len(selected), 'selected': selected}

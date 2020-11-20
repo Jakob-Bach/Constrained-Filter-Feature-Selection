@@ -20,6 +20,7 @@ PLOT_PATH = '../paper-cffs-text/plots/'
 
 results = data_utility.load_results(directory=RESULTS_PATH)
 evaluation_utility.add_normalized_objective(results)
+evaluation_utility.add_normalized_variable_counts(results)
 evaluation_utility.add_normalized_prediction_performance(results)
 evaluation_utility.add_normalized_num_constraints(results)
 os.makedirs(PLOT_PATH, exist_ok=True)

@@ -15,6 +15,7 @@ from cffs.evaluation import evaluation_utility
 
 results = data_utility.load_results(directory=pathlib.Path('data/openml-results/'))
 evaluation_utility.add_normalized_objective(results)
+evaluation_utility.add_normalized_variable_counts(results)
 evaluation_utility.add_normalized_num_constraints(results)
 
 CONSTRAINT_METRICS = ['frac_objective', 'frac_selected', 'frac_constraints', 'frac_solutions']

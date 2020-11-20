@@ -41,6 +41,7 @@ class ConstraintGenerator(metaclass=ABCMeta):
             constrained_variables = self.problem.get_constrained_variables()
             unique_constrained_variables = set(constrained_variables)
             result = self.problem.optimize()
+            result['num_variables'] = len(self.problem.get_variables())
             result['num_constrained_variables'] = len(constrained_variables)
             result['num_unique_constrained_variables'] = len(unique_constrained_variables)
             result['num_constraints'] = num_constraints
