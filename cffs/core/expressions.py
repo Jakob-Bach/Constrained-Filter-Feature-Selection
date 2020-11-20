@@ -228,5 +228,5 @@ def get_involved_variables(expression: Expression) -> Sequence[Variable]:
     else:
         result = []
         for child_expression in expression.get_children():
-            result = result.extend(get_involved_variables(child_expression))
+            result.extend(get_involved_variables(child_expression))
         return result
