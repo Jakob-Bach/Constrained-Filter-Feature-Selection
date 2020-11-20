@@ -21,6 +21,12 @@ class Problem:
     def get_variables(self) -> Sequence[expr.Variable]:
         return self.variables
 
+    def get_constrained_variables(self) -> Sequence[expr.Variable]:
+        result = []
+        for constraint in self.constraints:
+            result.extend(expr.get_involved_variables(constraint))
+        return result
+
     def add_constraint(self, constraint: expr.BooleanExpression) -> None:
         self.constraints.append(constraint)
 

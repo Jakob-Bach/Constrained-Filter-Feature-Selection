@@ -38,7 +38,11 @@ class ConstraintGenerator(metaclass=ABCMeta):
                 selected_variables = random.sample(self.problem.get_variables(), k=num_variables)
                 self.problem.add_constraint(self.generate(selected_variables))
             frac_solutions = self.problem.compute_solution_fraction()
+            constrained_variables = self.problem.get_constrained_variables()
+            unique_constrained_variables = set(constrained_variables)
             result = self.problem.optimize()
+            result['num_constrained_variables'] = len(constrained_variables)
+            result['num_unique_constrained_variables'] = len(unique_constrained_variables)
             result['num_constraints'] = num_constraints
             result['frac_solutions'] = frac_solutions
             results.append(result)

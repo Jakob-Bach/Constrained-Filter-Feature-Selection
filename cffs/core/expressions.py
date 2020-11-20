@@ -4,11 +4,19 @@ Logical and arithmetic expressions which allow to formulate constraints.
 """
 
 
+from __future__ import annotations  # to use a class as a type hint within its own definition
+
 from abc import ABCMeta, abstractmethod
 from typing import Sequence
 
 
-class BooleanExpression(metaclass=ABCMeta):
+class Expression(metaclass=ABCMeta):
+
+    def get_children(self) -> Sequence[Expression]:
+        return []
+
+
+class BooleanExpression(Expression, metaclass=ABCMeta):
 
     @abstractmethod
     def is_true(self) -> bool:
@@ -51,6 +59,9 @@ class And(BooleanExpression):
                 return False
         return True
 
+    def get_children(self) -> Sequence[Expression]:
+        return self.bool_expressions
+
 
 class Iff(BooleanExpression):
 
@@ -64,6 +75,9 @@ class Iff(BooleanExpression):
                 return False
         return True
 
+    def get_children(self) -> Sequence[Expression]:
+        return self.bool_expressions
+
 
 class Implies(BooleanExpression):
 
@@ -74,6 +88,9 @@ class Implies(BooleanExpression):
     def is_true(self) -> bool:
         return not (self.bool_expression1.is_true() and not self.bool_expression2.is_true())
 
+    def get_children(self) -> Sequence[Expression]:
+        return [self.bool_expression1, self.bool_expression2]
+
 
 class Not(BooleanExpression):
 
@@ -82,6 +99,9 @@ class Not(BooleanExpression):
 
     def is_true(self) -> bool:
         return not self.expression.is_true()
+
+    def get_children(self) -> Sequence[Expression]:
+        return [self.expression]
 
 
 class Or(BooleanExpression):
@@ -95,6 +115,9 @@ class Or(BooleanExpression):
                 return True
         return False
 
+    def get_children(self) -> Sequence[Expression]:
+        return self.bool_expressions
+
 
 class Xor(BooleanExpression):
 
@@ -105,8 +128,11 @@ class Xor(BooleanExpression):
     def is_true(self) -> bool:
         return self.bool_expression1.is_true() != self.bool_expression2.is_true()
 
+    def get_children(self) -> Sequence[Expression]:
+        return [self.bool_expression1, self.bool_expression2]
 
-class ArithmeticExpression(metaclass=ABCMeta):
+
+class ArithmeticExpression(Expression, metaclass=ABCMeta):
 
     @abstractmethod
     def get_value(self) -> float:
@@ -131,6 +157,9 @@ class Eq(BooleanExpression):
     def is_true(self) -> bool:
         return self.arith_expression1.get_value() == self.arith_expression2.get_value()
 
+    def get_children(self) -> Sequence[Expression]:
+        return [self.arith_expression1, self.arith_expression2]
+
 
 class Ge(BooleanExpression):
 
@@ -141,6 +170,9 @@ class Ge(BooleanExpression):
     def is_true(self) -> bool:
         return self.arith_expression1.get_value() >= self.arith_expression2.get_value()
 
+    def get_children(self) -> Sequence[Expression]:
+        return [self.arith_expression1, self.arith_expression2]
+
 
 class Le(BooleanExpression):
 
@@ -150,6 +182,9 @@ class Le(BooleanExpression):
 
     def is_true(self) -> bool:
         return self.arith_expression1.get_value() <= self.arith_expression2.get_value()
+
+    def get_children(self) -> Sequence[Expression]:
+        return [self.arith_expression1, self.arith_expression2]
 
 
 class Sum(ArithmeticExpression):
@@ -164,6 +199,9 @@ class Sum(ArithmeticExpression):
                 result += 1
         return result
 
+    def get_children(self) -> Sequence[Expression]:
+        return self.bool_expressions
+
 
 class WeightedSum(ArithmeticExpression):
 
@@ -176,4 +214,19 @@ class WeightedSum(ArithmeticExpression):
         for (bool_expression, weight) in zip(self.bool_expressions, self.weights):
             if bool_expression.is_true():
                 result += weight
+        return result
+
+    def get_children(self) -> Sequence[Expression]:
+        return self.bool_expressions
+
+
+def get_involved_variables(expression: Expression) -> Sequence[Variable]:
+    if isinstance(expression, Variable):
+        return [expression]
+    elif len(expression.get_children()) == 0:
+        return []
+    else:
+        result = []
+        for child_expression in expression.get_children():
+            result = result.extend(get_involved_variables(child_expression))
         return result
