@@ -23,6 +23,8 @@ from cffs.utilities import feature_qualities
 from cffs.utilities import prediction_utility
 
 
+MS_FEATURE_QUALITIES = {'abs_corr': feature_qualities.abs_corr}
+
 BASE_EVALUATORS = {
     'UNCONSTRAINED': {'func': 'NoConstraintEvaluator', 'args': {}},
     'SelectSchmidGroup': {'func': 'SelectSchmidGroupEvaluator', 'args': {}},
@@ -72,8 +74,8 @@ def evaluate_constraints(evaluator_name: str, dataset_name: str, data_dir: pathl
     y_test = y[X['time'] > max_train_time]
     if (len(X_train) == 0) or (len(X_test) == 0):
         return None
-    for quality_name in feature_qualities.QUALITIES.keys():
-        qualities = feature_qualities.QUALITIES[quality_name](X_train, y_train)
+    for quality_name in MS_FEATURE_QUALITIES.keys():
+        qualities = MS_FEATURE_QUALITIES[quality_name](X_train, y_train)
         problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
         evaluator_func = getattr(ms_constraints, EVALUATORS[evaluator_name]['func'])
         evaluator_args = {'problem': problem, **EVALUATORS[evaluator_name]['args']}

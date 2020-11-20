@@ -13,6 +13,7 @@ import sys
 from typing import Sequence
 
 import pandas as pd
+import sklearn.feature_selection
 import tqdm
 
 from cffs.utilities.data_utility import load_dataset, save_qualities
@@ -24,7 +25,13 @@ def abs_corr(X: pd.DataFrame, y: pd.Series) -> Sequence[float]:
     return [0 if math.isnan(x) else x for x in result]
 
 
-QUALITIES = {'abs_corr': abs_corr}
+def mut_info(X: pd.DataFrame, y: pd.Series) -> Sequence[float]:
+    result = sklearn.feature_selection.mutual_info_regression(
+        X=X, y=y, discrete_features=False, n_neighbors=3, random_state=25)
+    return [round(x, 2) for x in result]
+
+
+QUALITIES = {'abs_corr': abs_corr, 'mut_info': mut_info}
 
 
 def compute_qualities(data_dir: pathlib.Path, qualities: Sequence[str]) -> None:
