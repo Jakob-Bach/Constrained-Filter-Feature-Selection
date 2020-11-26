@@ -25,7 +25,7 @@ def add_normalized_prediction_performance(results: pd.DataFrame) -> None:
 
 
 # Make several metrics relative to number of variables; in place
-def add_normalized_variable_counts(results: pd.DataFame) -> None:
+def add_normalized_variable_counts(results: pd.DataFrame) -> None:
     results['frac_selected'] = results['num_selected'] / results['num_variables']
     results['frac_constrained_variables'] = results['num_constrained_variables'] / results['num_variables']
     results['frac_unique_constrained_variables'] = results['num_unique_constrained_variables'] / results['num_variables']
