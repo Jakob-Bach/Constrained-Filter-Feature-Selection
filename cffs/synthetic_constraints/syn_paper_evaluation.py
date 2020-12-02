@@ -19,6 +19,7 @@ RESULTS_PATH = pathlib.Path('data/openml-results/')
 PLOT_PATH = '../paper-cffs-text/plots/'
 
 results = data_utility.load_results(directory=RESULTS_PATH)
+results = results[results['quality_name'] == 'abs_corr']
 evaluation_utility.add_normalized_objective(results)
 evaluation_utility.add_normalized_variable_counts(results)
 evaluation_utility.add_normalized_prediction_performance(results)
@@ -26,7 +27,8 @@ evaluation_utility.add_normalized_num_constraints(results)
 os.makedirs(PLOT_PATH, exist_ok=True)
 
 ORIGINAL_PRED_METRICS = [x for x in results.columns if x.endswith('_r2') and not x.startswith('frac_')]
-EVALUATION_METRICS = ['frac_constraints', 'frac_solutions', 'frac_selected', 'frac_objective',
+EVALUATION_METRICS = ['frac_constraints', 'frac_constrained_variables', 'frac_unique_constrained_variables',
+                      'frac_solutions', 'frac_selected', 'frac_objective',
                       'frac_linear-regression_test_r2', 'frac_xgb-tree_test_r2']
 
 # ---Comparison of prediction models---
@@ -51,7 +53,7 @@ plt.savefig(PLOT_PATH + 'syn-prediction-performance-unconstrained.pdf')
 # ---(Q2.1) Relationship between constraint evaluation metrics---
 
 # Figure 2
-plt.figure(figsize=(5, 5))
+plt.figure(figsize=(6, 6))
 sns.heatmap(data=results[EVALUATION_METRICS].corr(method='spearman'), vmin=-1, vmax=1,
             cmap='RdYlGn', annot=True, square=True, cbar=False)
 plt.tight_layout()
@@ -116,6 +118,7 @@ plt.savefig(PLOT_PATH + 'syn-constraint-type-vs-objective.pdf')
 
 # Figure 5
 agg_data = results.groupby('dataset_name')[EVALUATION_METRICS].mean()
+agg_data = agg_data.drop(columns='frac_constrained_variables')  # not in [0,1]
 agg_data = pd.melt(agg_data, var_name='evaluation metric', value_name='mean per dataset')
 plt.figure(figsize=(4, 3))
 sns.boxplot(x='evaluation metric', y='mean per dataset', data=agg_data)

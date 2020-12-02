@@ -18,7 +18,8 @@ evaluation_utility.add_normalized_objective(results)
 evaluation_utility.add_normalized_variable_counts(results)
 evaluation_utility.add_normalized_num_constraints(results)
 
-CONSTRAINT_METRICS = ['frac_objective', 'frac_selected', 'frac_constraints', 'frac_solutions']
+CONSTRAINT_METRICS = ['frac_constraints', 'frac_constrained_variables', 'frac_unique_constrained_variables',
+                      'frac_solutions', 'frac_selected', 'frac_objective']
 PREDICTION_METRICS = [x for x in results.columns if x.endswith('_r2')]
 EVALUATION_METRICS = CONSTRAINT_METRICS + ['linear-regression_test_r2', 'xgb-tree_test_r2']
 
