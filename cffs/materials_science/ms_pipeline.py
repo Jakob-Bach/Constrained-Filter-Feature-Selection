@@ -94,9 +94,9 @@ def evaluate_constraints(evaluator_name: str, dataset_name: str, data_dir: pathl
                 X_test=X_test[result['selected']], y_test=y_test, model=model)
             for key, value in performances.items():  # multiple eval metrics might be used
                 result[f'{model_name}_{key}'] = value
-        result['constraint_name'] = evaluator_name
-        result['quality_name'] = quality_name
         result['evaluation_time'] = end_time - start_time
+        result['quality_name'] = quality_name
+        result['constraint_name'] = evaluator_name
         results.append(result)
     results = pd.DataFrame(results)
     results['dataset_name'] = dataset_name

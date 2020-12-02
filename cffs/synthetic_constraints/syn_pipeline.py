@@ -61,8 +61,6 @@ def evaluate_constraint_type(
             generator_args['num_iterations'] = n_iterations
             generator = generator_func(**generator_args)
             result = generator.evaluate_constraints()
-            result['quality_name'] = quality_name
-            result['split_idx'] = split_idx
             for model_name in prediction_utility.MODELS.keys():
                 model_dict = prediction_utility.MODELS[model_name]
                 model = model_dict['func'](**model_dict['args'])
@@ -78,10 +76,12 @@ def evaluate_constraint_type(
                 performances.rename(columns={x: model_name + '_' + x for x in list(performances)}, inplace=True)
                 result = pd.concat([result, performances], axis='columns')
             result.drop(columns='selected', inplace=True)
+            result['split_idx'] = split_idx
+            result['quality_name'] = quality_name
             results.append(result)
     results = pd.concat(results)
-    results['dataset_name'] = dataset_name
     results['constraint_name'] = generator_name
+    results['dataset_name'] = dataset_name
     if results_dir is not None:
         data_utility.save_results(results, dataset_name=dataset_name,
                                   constraint_name=generator_name, directory=results_dir)
