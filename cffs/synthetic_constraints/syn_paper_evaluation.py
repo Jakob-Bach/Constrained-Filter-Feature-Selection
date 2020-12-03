@@ -19,7 +19,7 @@ RESULTS_PATH = pathlib.Path('data/openml-results/')
 PLOT_PATH = '../paper-cffs-text/plots/'
 
 results = data_utility.load_results(directory=RESULTS_PATH)
-results = results[results['quality_name'] == 'abs_corr']
+results = results[results['quality_name'] == 'abs_corr']  # results for MI very similar
 evaluation_utility.add_normalized_objective(results)
 evaluation_utility.add_normalized_variable_counts(results)
 evaluation_utility.add_normalized_prediction_performance(results)

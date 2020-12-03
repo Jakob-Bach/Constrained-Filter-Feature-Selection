@@ -23,6 +23,20 @@ CONSTRAINT_METRICS = ['frac_constraints', 'frac_constrained_variables', 'frac_un
 PREDICTION_METRICS = [x for x in results.columns if x.endswith('_r2')]
 EVALUATION_METRICS = CONSTRAINT_METRICS + ['linear-regression_test_r2', 'xgb-tree_test_r2']
 
+# ---Relationship between feature qualities (for multiple evaluation metrics)---
+
+id_cols = ['dataset_name', 'split_idx', 'quality_name', 'constraint_name']
+results['repetition'] = results.groupby(id_cols).cumcount()  # add numbers to rows within each group
+id_cols.append('repetition')
+assert len(results.groupby(id_cols).size()) == len(results)  # really a unique id?
+id_cols.remove('quality_name')
+# Transform to wide format with multi-indexed colums (1st level: metric; 2nd level: feature quality):
+reshaped_results = results.pivot(index=id_cols, columns='quality_name', values=EVALUATION_METRICS)
+for evaluation_metric in EVALUATION_METRICS:
+    print(f'---{evaluation_metric}---')
+    print(reshaped_results[evaluation_metric].corr(method='spearman'))  # correlate columns belonging to same metric
+    # print((reshaped_results[evaluation_metric].diff(axis='columns').iloc[:, 1]).describe())  # difference
+
 # ---Distribution of constraint evaluation metrics, comparing constraint types---
 
 for evaluation_metric in EVALUATION_METRICS:
