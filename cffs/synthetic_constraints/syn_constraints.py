@@ -169,6 +169,9 @@ class NoConstraintGenerator(ConstraintGenerator):
     # If we have no constraints, looping for different solutions does not make sense
     def evaluate_constraints(self) -> pd.DataFrame():
         result = self.problem.optimize()  # without constraints added
+        result['num_variables'] = len(self.problem.get_variables())
+        result['num_constrained_variables'] = 0
+        result['num_unique_constrained_variables'] = 0
         result['num_constraints'] = 0
         result['frac_solutions'] = 1
         return pd.DataFrame([result])
