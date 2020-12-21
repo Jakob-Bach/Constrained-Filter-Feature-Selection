@@ -104,15 +104,22 @@ class QualityThresholdEvaluator(MSConstraintEvaluator):
 class CorrelationRemovalEvaluator(MSConstraintEvaluator):
 
     def __init__(self, problem: solv.Problem, corr_df: pd.DataFrame, threshold: float):
-        assert corr_df.shape[0] == len(problem.get_variables())
-        assert corr_df.shape[1] == len(problem.get_variables())
+        # Make sure that correlation matrix refers to the same features as variables in "problem"
+        # (though "problem" might change variable order for efficiency reasons)
+        sorted_variable_names = sorted([variable.get_name() for variable in problem.get_variables()])
+        assert sorted_variable_names == sorted(corr_df.columns)
+        assert sorted_variable_names == sorted(corr_df.index)
         super().__init__(problem=problem)
-        self.correlation_pairs = [(i, j) for i in range(len(corr_df)) for j in range(i)
-                                  if corr_df.iat[i, j] >= threshold]
+        self.correlation_pairs = []
+        for i in range(len(corr_df)):
+            variable_1 = problem.get_variables()[i]
+            for j in range(i):
+                variable_2 = problem.get_variables()[j]
+                if corr_df.loc[variable_1.get_name(), variable_2.get_name()] >= threshold:
+                    self.correlation_pairs.append((variable_1, variable_2))
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
-        return [expr.Not(expr.And([self.problem.get_variables()[i], self.problem.get_variables()[j]]))
-                for i, j in self.correlation_pairs]
+        return [expr.Not(expr.And([v1, v2])) for v1, v2 in self.correlation_pairs]
 
 
 # For Schmid factor (1 0 0) grouping, select features from at most one group
