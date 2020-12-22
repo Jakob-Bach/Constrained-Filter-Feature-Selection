@@ -85,7 +85,7 @@ assert (results['cardinality'].diff() != 0).sum() == results['cardinality'].nuni
 similarity_matrix = np.zeros(shape=(len(results), len(results)))
 for i in range(len(results)):
     for j in range(len(results)):
-        similarity_matrix[i, j] = len(set(results['selected'][i]).intersection(results['selected'][j]))
+        similarity_matrix[i, j] = len(set(results['selected'].iloc[i]).intersection(results['selected'].iloc[j]))
 # Use names from paper:
 constraint_names = [f'(D{i+1})' for i in range(results['constraint_name'].nunique())] * results['cardinality'].nunique()
 similarity_matrix = pd.DataFrame(similarity_matrix, index=constraint_names, columns=constraint_names)
