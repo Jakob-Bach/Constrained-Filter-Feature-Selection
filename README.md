@@ -12,46 +12,69 @@ The code is organized as a Python package `cffs` with multiple sub-packages:
 ## Setup
 
 Our code is implemented in Python (version 3.7).
-We use [`pipenv`](https://pypi.org/project/pipenv/) (version 2020.6.2) for dependency management.
+We use [`virtualenv`](https://virtualenv.pypa.io/) (version 20.4.0) for dependency management.
 If already using `conda`, run
 
 ```bash
 > conda create --name cffs python=3.7
 > conda activate cffs
-> python -m pip install pipenv==2020.6.2
+> python -m pip install virtualenv==20.4.0
 ```
 
-to get the right Python version together with `pipenv`.
+to get the right Python version together with `virtualenv`.
 
+To setup the actual environment, go into the top-level folder of this project and run
+
+```bash
+virtualenv -p <<path/to/python/executable>> <<path/to/env/dest>>
+```
+
+Activate the environment in Linux with
+
+```bash
+source <<path/to/env/dest>>/bin/activate
+```
+
+Activate the environment in Windows (note the back-slashes) with
+
+```
+<<path\to\env\dest>>\Scripts\activate
+```
+
+After activating the environment, you can use `python` and `pip` as usual.
 To install all dependencies, simply run
 
 ```bash
-pipenv install
+pip install -r requirements.txt
 ```
 
-If `pipenv` is not picking up the right Python from your computer (e.g., if Python is in a `conda` environment),
-you can also specify the exact path or version number, e.g.:
+If you want to install new packages or run updates, use pip as usual.
+You can change the requirements file, if you like.
 
 ```bash
-pipenv install --python C:/Anaconda3/envs/cffs/python.exe
+pip freeze > requirements.txt
 ```
 
-If you want to install new packages (not necessary for executing the code), use
+To leave the environment, run
 
 ```bash
-pipenv install <<package_name>>
+deactivate
 ```
 
-To run or create notebooks from the environment, you need first to install a kernel for it:
+### Extended Setup
+
+To use the environment in the `Spyder` IDE, you need to install `spyder-kernels` into the environment.
+To run or create notebooks from the environment, you first need to install `juypter` into the environment.
+Next, you need to install a kernel for the environment:
 
 ```bash
-pipenv run ipython kernel install --user --name=cffs_kernel
+ipython kernel install --user --name=cffs_kernel
 ```
 
 After that, you should see the kernel when running Juypter notebook with
 
 ```bash
-pipenv run jupyter notebook
+jupyter notebook
 ```
 
 ## Reproducing the Experiments
