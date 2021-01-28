@@ -55,7 +55,9 @@ plt.savefig(PLOT_PATH + 'ms-prediction-performance-cardinality.pdf')
 
 # ---Objective value---
 
+print('Objective value aggregated over constraint types:')
 print(results.groupby('cardinality')['objective_value'].describe())
+print('Objective value aggregated over constraint types, excluding "Mixed":')
 print(results[results['constraint_name'] != 'Mixed'].groupby('cardinality')['objective_value'].describe())
 
 # For comparison: box plot
@@ -76,7 +78,8 @@ print(results[results['constraint_name'] != 'Mixed'].groupby('cardinality')['obj
 # ---Selected features---
 
 # Test whether always the maximum number of possible features is selected:
-print((results['num_selected'] == results['cardinality']).all())
+print('Always maximum number of features selected? ' +
+      str((results['num_selected'] == results['cardinality']).all()))
 
 # Prepare Figure 7:
 # Make sure results belonging to same cardinality follow each other (is assumed in naming below):
@@ -103,5 +106,6 @@ plt.tight_layout()
 plt.savefig(PLOT_PATH + 'ms-selected-similarity-card10.pdf')
 
 # Compute drop in objective value if adding the hardest combination of constraints
+print('Maximum drop in objective value over constraint types:')
 grouping = results.groupby('cardinality')
 print(1 - grouping['objective_value'].min() / grouping['objective_value'].max())
