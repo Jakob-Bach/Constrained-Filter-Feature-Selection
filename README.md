@@ -95,10 +95,10 @@ It saves the plots as PDFs in a specified directory.
 Execute scripts from the top-level directory of the repo like this:
 
 ```bash
-pipenv run python -m cffs.synthetic_constraints.prepare_demo_dataset <<options>>
+python -m cffs.synthetic_constraints.prepare_demo_dataset <<options>>
 ```
 
-`pipenv run python` makes sure Python uses our environment.
+Don't forget to activate the environment first.
 `-m <<module.import.syntax>>` makes sure imports of sub-packages work.
 Note we leave out the file ending `.py`.
 Passing `--help` as option gives you an overview of a script's options.
