@@ -46,3 +46,37 @@ def reshape_prediction_data(results: pd.DataFrame, additional_columns: Optional[
     results['split'] = results['model'].apply(lambda x: 'train' if 'train' in x else 'test')
     results['model'] = results['model'].apply(lambda x: x.replace('_train_r2', '').replace('_test_r2', ''))
     return results
+
+
+def rename_for_plots(results: pd.DataFrame, long_metric_names: bool = False) -> pd.DataFrame:
+    results = results.copy()
+    if 'split' in results.columns:
+        results['split'] = results['split'].replace({'train': 'Train', 'test': 'Test'})
+    if 'model' in results.columns:
+        results['model'] = results['model'].replace(
+            {'linear-regression': 'Linear regression', 'regression-tree': 'Regression tree',
+             'xgb-linear': 'Boosted linear', 'xgb-tree': 'Boosted trees'}
+        )
+    if 'cardinality' in results.columns:
+        results['cardinality'] = results['cardinality'].apply(lambda x: '$n_{se}$=' + str(x))
+    results.rename(columns={'model': 'Prediction model', 'split': 'Split', 'r2': '$R^2$',
+                            'constraint_name': 'Constraint type', 'dataset_name': 'Dataset name',
+                            'cardinality': 'Cardinality'}, inplace=True)
+    if long_metric_names:
+        results.rename(columns={
+            'frac_constraints': 'Number of constraints $n_{co}^{norm}$',
+            'frac_solutions': 'Number of solutions $n_{so}^{norm}$',
+            'frac_selected': 'Number of selected features $n_{se}^{norm}$',
+            'frac_objective': 'Objective value $Q^{norm}$',
+            'frac_linear-regression_test_r2': 'Prediction $R^{2, norm}_{lreg}$',
+            'frac_xgb-tree_test_r2': 'Prediction $R^{2, norm}_{btree}$'
+        }, inplace=True)
+    else:
+        results.rename(columns={
+            'frac_constraints': '$n_{co}^{norm}$', 'frac_constrained_variables': '$n_{cf}^{norm}$',
+            'frac_unique_constrained_variables': '$n_{ucf}^{norm}$', 'frac_solutions': '$n_{so}^{norm}$',
+            'frac_selected': '$n_{se}^{norm}$', 'frac_objective': '$Q^{norm}$',
+            'frac_linear-regression_test_r2': '$R^{2, norm}_{lreg}$',
+            'frac_xgb-tree_test_r2': '$R^{2, norm}_{btree}$'
+        }, inplace=True)
+    return results

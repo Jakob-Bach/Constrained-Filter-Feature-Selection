@@ -19,6 +19,7 @@ from cffs.utilities import evaluation_utility
 
 RESULTS_PATH = pathlib.Path('data/ms-results/')
 PLOT_PATH = '../paper-cffs-text/plots/'
+plt.rcParams['font.family'] = 'Linux Biolinum'
 
 results = data_utility.load_results(directory=RESULTS_PATH)
 results['cardinality'] = results['constraint_name'].str.extract('_k([0-9]+)$').astype(int)
@@ -32,16 +33,23 @@ ORIGINAL_PRED_METRICS = [x for x in results.columns if x.endswith('_r2') and not
 
 # Figure 6
 prediction_data = evaluation_utility.reshape_prediction_data(results, additional_columns=['cardinality'])
+prediction_data = evaluation_utility.rename_for_plots(prediction_data)
 plt.figure(figsize=(4, 3))
-sns.boxplot(x='model', y='r2', hue='split', data=prediction_data.drop(columns='cardinality'))
+plt.rcParams['font.size'] = 14
+sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', palette='Paired',
+            data=prediction_data.drop(columns='Cardinality'))
 plt.xticks(rotation=20)
 plt.ylim(0.8, 1.01)
+plt.legend(loc='lower left', bbox_to_anchor=(0, 1), ncol=2, borderpad=0, edgecolor='white')
 plt.tight_layout()
 plt.savefig(PLOT_PATH + 'ms-prediction-performance-split.pdf')
 plt.figure(figsize=(4, 3))
-sns.boxplot(x='model', y='r2', hue='cardinality', data=prediction_data[prediction_data['split'] == 'test'].drop(columns='split'))
+plt.rcParams['font.size'] = 14
+sns.boxplot(x='Prediction model', y='$R^2$', hue='Cardinality', palette='Paired',
+            data=prediction_data[prediction_data['Split'] == 'Test'].drop(columns='Split'))
 plt.xticks(rotation=20)
 plt.ylim(0.8, 1.01)
+plt.legend(loc='lower left', bbox_to_anchor=(0, 1), ncol=2, borderpad=0, edgecolor='white')
 plt.tight_layout()
 plt.savefig(PLOT_PATH + 'ms-prediction-performance-cardinality.pdf')
 
@@ -95,12 +103,14 @@ similarity_matrix = pd.DataFrame(similarity_matrix, index=constraint_names, colu
 
 # Figure 7
 plt.figure(figsize=(5, 5))
-sns.heatmap(similarity_matrix.iloc[:12, :12], vmin=0, vmax=5, cmap='RdYlGn',
+plt.rcParams['font.size'] = 14
+sns.heatmap(similarity_matrix.iloc[:12, :12], vmin=0, vmax=5, cmap='YlGnBu',
             annot=True, square=True, cbar=False)
 plt.tight_layout()
 plt.savefig(PLOT_PATH + 'ms-selected-similarity-card5.pdf')
 plt.figure(figsize=(5, 5))
-sns.heatmap(similarity_matrix.iloc[12:, 12:], vmin=0, vmax=10, cmap='RdYlGn',
+plt.rcParams['font.size'] = 14
+sns.heatmap(similarity_matrix.iloc[12:, 12:], vmin=0, vmax=10, cmap='YlGnBu',
             annot=True, square=True, cbar=False)
 plt.tight_layout()
 plt.savefig(PLOT_PATH + 'ms-selected-similarity-card10.pdf')
