@@ -15,8 +15,10 @@ import seaborn as sns
 
 from cffs.utilities import data_utility
 from cffs.utilities import evaluation_utility
+from cffs.utilities import feature_qualities
 
 
+DATA_PATH = pathlib.Path('data/ms/')
 RESULTS_PATH = pathlib.Path('data/ms-results/')
 PLOT_PATH = '../paper-cffs-text/plots/'
 plt.rcParams['font.family'] = 'Linux Biolinum'
@@ -82,6 +84,19 @@ print(results[results['constraint_name'] != 'Mixed'].groupby('cardinality')['obj
 # plt.xticks(rotation=20)
 # plt.ylim(0, 10)
 # plt.tight_layout()
+
+# For comparison: distribution of feature qualities
+X, y = data_utility.load_dataset(dataset_name=data_utility.list_datasets(directory=DATA_PATH)[0],
+                                 directory=DATA_PATH)
+max_train_time = X['time'].quantile(q=0.8)  # split from ms_pipeline.py
+X_train = X[X['time'] <= max_train_time].drop(columns=['pos_x', 'pos_y', 'pos_z', 'time'])
+y_train = y[X['time'] <= max_train_time]
+qualities = pd.Series(feature_qualities.abs_corr(X=X_train, y=y_train), index=X_train.columns)
+# Make sure we have the correct qualities by computing one objective value with them:
+assert results.loc[0, 'objective_value'] == qualities[results.loc[0, 'selected']].sum()
+print('Distribution of feature qualities:')
+print(qualities.describe())
+print(f'Fraction of feature qualities >= 0.8: {(qualities >= 0.8).sum() / len(qualities):.2}')
 
 # ---Selected features---
 
