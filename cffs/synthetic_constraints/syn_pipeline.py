@@ -25,16 +25,16 @@ from cffs.synthetic_constraints import syn_constraints
 COMMON_GENERATOR_ARGS = {'num_iterations': 1000, 'min_num_constraints': 1, 'max_num_constraints': 10}
 
 GENERATORS = {
-    'group-AT-LEAST': {'func': 'AtLeastGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 0.5}},
-    'group-AT-MOST': {'func': 'AtMostGenerator', 'args': COMMON_GENERATOR_ARGS},
-    'global-AT-MOST': {'func': 'GlobalAtMostGenerator', 'args': COMMON_GENERATOR_ARGS},
-    'single-IFF': {'func': 'IffGenerator',
+    'Global AT-MOST': {'func': 'GlobalAtMostGenerator', 'args': COMMON_GENERATOR_ARGS},
+    'Group AT-MOST': {'func': 'AtMostGenerator', 'args': COMMON_GENERATOR_ARGS},
+    'Group AT-LEAST': {'func': 'AtLeastGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 0.5}},
+    'Single IFF': {'func': 'IffGenerator',
                    'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 0.5, 'max_num_variables': 2}},
-    'group-IFF': {'func': 'IffGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 0.5}},
-    'single-NAND': {'func': 'NandGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'max_num_variables': 2}},
-    'group-NAND': {'func': 'NandGenerator', 'args': COMMON_GENERATOR_ARGS},
-    'single-XOR': {'func': 'XorGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'max_num_variables': 2}},
-    'MIXED': {'func': 'MixedGenerator', 'args': COMMON_GENERATOR_ARGS},
+    'Group IFF': {'func': 'IffGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'global_at_most': 0.5}},
+    'Single NAND': {'func': 'NandGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'max_num_variables': 2}},
+    'Group NAND': {'func': 'NandGenerator', 'args': COMMON_GENERATOR_ARGS},
+    'Single XOR': {'func': 'XorGenerator', 'args': {**COMMON_GENERATOR_ARGS, 'max_num_variables': 2}},
+    'Group MIXED': {'func': 'MixedGenerator', 'args': COMMON_GENERATOR_ARGS},
     'UNCONSTRAINED': {'func': 'NoConstraintGenerator', 'args': COMMON_GENERATOR_ARGS}
 }
 
