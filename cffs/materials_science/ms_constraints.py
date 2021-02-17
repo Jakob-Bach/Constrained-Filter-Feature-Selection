@@ -71,7 +71,7 @@ class CombinedEvaluator(ContainerEvaluator):
         return self.evaluators
 
 
-class NoConstraintEvaluator(MSConstraintEvaluator):
+class UnconstrainedEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         return []
@@ -123,7 +123,7 @@ class CorrelationRemovalEvaluator(MSConstraintEvaluator):
 
 
 # For Schmid factor (1 0 0) grouping, select features from at most one group
-class SelectSchmidGroupEvaluator(MSConstraintEvaluator):
+class SchmidGroupEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         variable_groups = []
@@ -136,7 +136,7 @@ class SelectSchmidGroupEvaluator(MSConstraintEvaluator):
 
 
 # For each quantity, for Schmid factor (1 0 0) grouping, select features from at most one group
-class SelectQuantitySchmidGroupEvaluator(MSConstraintEvaluator):
+class QuantitySchmidGroupEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         constraints = []
@@ -154,7 +154,7 @@ class SelectQuantitySchmidGroupEvaluator(MSConstraintEvaluator):
 
 
 # For Schmid factor (1 0 0) grouping, select at most one feature from each group
-class SelectSchmidGroupRepresentativeEvaluator(MSConstraintEvaluator):
+class SchmidGroupRepresentativeEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         constraints = []
@@ -168,7 +168,7 @@ class SelectSchmidGroupRepresentativeEvaluator(MSConstraintEvaluator):
 
 
 # For each quantity, for Schmid factor (1 0 0) grouping, select at most one feature from each group
-class SelectQuantitySchmidGroupRepresentativeEvaluator(MSConstraintEvaluator):
+class QuantitySchmidGroupRepresentativeEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         constraints = []
@@ -185,7 +185,7 @@ class SelectQuantitySchmidGroupRepresentativeEvaluator(MSConstraintEvaluator):
 
 
 # For each slip system, select either all quantities from that slip system or none
-class SelectWholeSlipSystemsEvaluator(MSConstraintEvaluator):
+class WholeSlipSystemsEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         constraints = []
@@ -197,7 +197,7 @@ class SelectWholeSlipSystemsEvaluator(MSConstraintEvaluator):
 
 
 # From reaction features, select features belonging to at most one reaction type
-class SelectReactionTypeEvaluator(MSConstraintEvaluator):
+class ReactionTypeEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         variable_groups = []
@@ -209,7 +209,7 @@ class SelectReactionTypeEvaluator(MSConstraintEvaluator):
 
 
 # For each quantity, select either absolute value or delta value or none
-class SelectValueOrDeltaEvaluator(MSConstraintEvaluator):
+class ValueOrDeltaEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         constraints = []
@@ -225,7 +225,7 @@ class SelectValueOrDeltaEvaluator(MSConstraintEvaluator):
 
 
 # From plastic strain tensor, select at most three directions
-class SelectStrainTensorEvaluator(MSConstraintEvaluator):
+class PlasticStrainTensorEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         variable_groups = []
@@ -241,7 +241,7 @@ class SelectStrainTensorEvaluator(MSConstraintEvaluator):
 
 
 # For dislocation density, select at most one from three feature groups which all describe it
-class SelectDislocationDensityEvaluator(MSConstraintEvaluator):
+class DislocationDensityEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         variable_groups = []
@@ -256,8 +256,8 @@ class SelectDislocationDensityEvaluator(MSConstraintEvaluator):
         return [expr.AtMost([expr.Or(x) for x in variable_groups], 1)]
 
 
-# For strain rate computation, select at most one type
-class SelectStrainRateEvaluator(MSConstraintEvaluator):
+# From methods to compute plastic strain rate, select at most one type
+class PlasticStrainRateEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         gamma_variables = [variable for variable in self.problem.get_variables()
@@ -270,7 +270,7 @@ class SelectStrainRateEvaluator(MSConstraintEvaluator):
 
 
 # Over all quantities, select at most one type of aggregate
-class SelectAggregateEvaluator(MSConstraintEvaluator):
+class AggregateEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         variable_groups = []
@@ -282,7 +282,7 @@ class SelectAggregateEvaluator(MSConstraintEvaluator):
 
 
 # For each quantity, select at most one type of aggregate
-class SelectQuantityAggregateEvaluator(MSConstraintEvaluator):
+class QuantityAggregateEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         constraints = []
@@ -298,7 +298,7 @@ class SelectQuantityAggregateEvaluator(MSConstraintEvaluator):
 
 
 # For each quantity, select either aggregates or orignal values or none
-class SelectAggregateOrOriginalEvaluator(MSConstraintEvaluator):
+class AggregateOrOriginalEvaluator(MSConstraintEvaluator):
 
     def get_constraints(self) -> Iterable[expr.BooleanExpression]:
         constraints = []
