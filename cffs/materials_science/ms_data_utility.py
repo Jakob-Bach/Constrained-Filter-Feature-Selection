@@ -77,3 +77,17 @@ def summarize_voxel_data(dataset: pd.DataFrame, outfile: Optional[str] = None) -
     if outfile is not None:
         overviewTable.to_csv(outfile)
     return overviewTable
+
+
+# (Diagnostic function)
+# Determine Schmid-factor grouping by observing evolution of plastic strain rate over time;
+# slip systems within the same group exhibit similar values for the plastic strain rate,
+# while slip systems in different groups differ by large amount;
+# routine is not fully automated, i.e., you need to compare values yourself
+def determine_Schmid_groups(dataset: pd.DataFrame) -> None:
+    features = ['gamma_abs_' + str(i) for i in range(1, 13)]
+    plot_data = dataset[features + ['time']]
+    plot_data = plot_data.groupby('time', sort=True).mean().reset_index()
+    plot_data[features] = plot_data[features].abs().cumsum()  # take absolute value and cummulate over time
+    plot_data.plot.line(x='time')
+    print(plot_data[features].tail(1).transpose())
