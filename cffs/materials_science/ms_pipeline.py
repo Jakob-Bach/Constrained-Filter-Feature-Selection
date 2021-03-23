@@ -26,20 +26,19 @@ from cffs.utilities import prediction_utility
 MS_FEATURE_QUALITIES = {'abs_corr': feature_qualities.abs_corr}
 
 BASE_EVALUATORS = {
-    'Unconstrained': {'func': 'UnconstrainedEvaluator', 'args': {}},
-    'Schmid group': {'func': 'SchmidGroupEvaluator', 'args': {}},
-    'Quantity Schmid group': {'func': 'QuantitySchmidGroupEvaluator', 'args': {}},
-    'Schmid group representative': {'func': 'SchmidGroupRepresentativeEvaluator', 'args': {}},
-    'Quantity Schmid group representative': {'func': 'QuantitySchmidGroupRepresentativeEvaluator', 'args': {}},
-    # 'Whole slip systems': {'func': 'WholeSlipSystemsEvaluator', 'args': {}},  # does not combine well with cardinality
-    # 'Reaction type': {'func': 'ReactionTypeEvaluator', 'args': {}},  # we have removed reaction types from features
-    # 'Value or delta': {'func': 'ValueOrDeltaEvaluator', 'args': {}},  # we use no delta features for predicting absolute quantities
-    'Plastic strain tensor': {'func': 'PlasticStrainTensorEvaluator', 'args': {}},
-    'Dislocation density': {'func': 'DislocationDensityEvaluator', 'args': {}},
-    'Plastic strain rate': {'func': 'PlasticStrainRateEvaluator', 'args': {}},
+    'Schmid-group': {'func': 'SchmidGroupEvaluator', 'args': {}},
+    'Quantity-Schmid-group': {'func': 'QuantitySchmidGroupEvaluator', 'args': {}},
+    'Schmid-group-representative': {'func': 'SchmidGroupRepresentativeEvaluator', 'args': {}},
+    'Quantity-Schmid-group-representative': {'func': 'QuantitySchmidGroupRepresentativeEvaluator', 'args': {}},
+    # 'Whole-slip-systems': {'func': 'WholeSlipSystemsEvaluator', 'args': {}},  # does not combine well with cardinality
+    # 'Reaction-type': {'func': 'ReactionTypeEvaluator', 'args': {}},  # we have removed reaction types from features
+    # 'Value-or-delta': {'func': 'ValueOrDeltaEvaluator', 'args': {}},  # we use no delta features for predicting absolute quantities
+    'Plastic-strain-tensor': {'func': 'PlasticStrainTensorEvaluator', 'args': {}},
+    'Dislocation-density': {'func': 'DislocationDensityEvaluator', 'args': {}},
+    'Plastic-strain-rate': {'func': 'PlasticStrainRateEvaluator', 'args': {}},
     'Aggregate': {'func': 'AggregateEvaluator', 'args': {}},
-    'Quantity aggregate': {'func': 'QuantityAggregateEvaluator', 'args': {}},
-    'Aggregate or original': {'func': 'AggregateOrOriginalEvaluator', 'args': {}},
+    'Quantity-aggregate': {'func': 'QuantityAggregateEvaluator', 'args': {}},
+    'Aggregate-or-original': {'func': 'AggregateOrOriginalEvaluator', 'args': {}},
     'Mixed': {'func': 'CombinedEvaluator', 'args': {'evaluators': {
         ms_constraints.QuantitySchmidGroupRepresentativeEvaluator: {},
         ms_constraints.PlasticStrainTensorEvaluator: {},
@@ -47,7 +46,8 @@ BASE_EVALUATORS = {
         ms_constraints.PlasticStrainRateEvaluator: {},
         ms_constraints.QuantityAggregateEvaluator: {},
         ms_constraints.AggregateOrOriginalEvaluator: {}
-    }}}
+    }}},
+    'Unconstrained': {'func': 'UnconstrainedEvaluator', 'args': {}}
 }
 # Combine all base evaluators with a global cardinality constraint and quality threshold
 CARDINALITIES = [5, 10]
