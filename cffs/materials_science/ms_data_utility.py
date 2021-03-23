@@ -29,7 +29,7 @@ def add_slip_system_aggregates(dataset: pd.DataFrame) -> None:
                 dataset[[f'{quantity}_{i}' for i in range(1, 13)]].agg(agg_func, axis='columns')
 
 
-def prepare_voxel_data(path: str) -> pd.DataFrame:
+def prepare_voxel_data(path: pathlib.Path) -> pd.DataFrame:
     dataset = pd.read_csv(path, dtype='float64')  # specifying dtype makes reading faster
     dataset.drop(columns=dataset.columns[0], inplace=True)  # drop 1st column (unnamed id column)
     # String matching functions are more difficult to use if name of one reaction type is substring
@@ -61,22 +61,23 @@ def predict_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = '',
     return {'dataset_name': dataset_name, 'target': target, 'features': features, 'dataset': dataset}
 
 
+# (Diagnostic function)
 # Create overview of physical quantities in dataset (including info if quantity is available
 # for multiple slip systems and/or neighboring voxels at previous time step)
 def summarize_voxel_data(dataset: pd.DataFrame, outfile: Optional[str] = None) -> pd.DataFrame:
-    featureTable = pd.DataFrame({'Feature': dataset.columns})
+    feature_table = pd.DataFrame({'Feature': dataset.columns})
     # Neighboring voxels are indicated like "3_feature", slip systems like "feature_3"
-    featureTable['Quantity'] = featureTable['Feature'].str.replace('(^[0-9]+_)|(_[0-9]+$)', '')
-    featureTable['Slip_System'] = featureTable['Feature'].str.extract('_([0-9]+)$', expand=False)
-    featureTable['History_Neighbors'] = featureTable['Feature'].str.extract('^([0-9]+)_', expand=False)
-    overviewTable = featureTable.groupby('Quantity').agg(
+    feature_table['Quantity'] = feature_table['Feature'].str.replace('(^[0-9]+_)|(_[0-9]+$)', '')
+    feature_table['Slip_System'] = feature_table['Feature'].str.extract('_([0-9]+)$', expand=False)
+    feature_table['History_Neighbors'] = feature_table['Feature'].str.extract('^([0-9]+)_', expand=False)
+    overview_table = feature_table.groupby('Quantity').agg(
         Slip_Systems=('Slip_System', 'nunique'),
         Neighbors=('History_Neighbors', 'nunique'),
         Total=('Quantity', 'size'))
-    overviewTable.sort_values(by='Quantity')
+    overview_table.sort_values(by='Quantity')
     if outfile is not None:
-        overviewTable.to_csv(outfile)
-    return overviewTable
+        overview_table.to_csv(outfile)
+    return overview_table
 
 
 # (Diagnostic function)
