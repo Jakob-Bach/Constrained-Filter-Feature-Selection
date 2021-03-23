@@ -184,46 +184,6 @@ class QuantitySchmidGroupRepresentativeEvaluator(MSConstraintEvaluator):
         return constraints
 
 
-# For each slip system, select either all quantities from that slip system or none
-class WholeSlipSystemsEvaluator(MSConstraintEvaluator):
-
-    def get_constraints(self) -> Iterable[expr.BooleanExpression]:
-        constraints = []
-        for slip_system in range(1, 13):
-            variable_group = [variable for variable in self.problem.get_variables()
-                              if variable.get_name().endswith('_' + str(slip_system))]
-            constraints.append(expr.Iff(variable_group))
-        return constraints
-
-
-# From reaction features, select features belonging to at most one reaction type
-class ReactionTypeEvaluator(MSConstraintEvaluator):
-
-    def get_constraints(self) -> Iterable[expr.BooleanExpression]:
-        variable_groups = []
-        for reaction_type in ms_data_utility.REACTION_TYPES:
-            variable_group = [variable for variable in self.problem.get_variables()
-                              if reaction_type in variable.get_name()]
-            variable_groups.append(variable_group)
-        return [expr.AtMost([expr.Or(x) for x in variable_groups], 1)]
-
-
-# For each quantity, select either absolute value or delta value or none
-class ValueOrDeltaEvaluator(MSConstraintEvaluator):
-
-    def get_constraints(self) -> Iterable[expr.BooleanExpression]:
-        constraints = []
-        delta_variables = [variable for variable in self.problem.get_variables()
-                           if 'delta_' in variable.get_name()]
-        for delta_variable in delta_variables:
-            variable_name = delta_variable.get_name().replace('delta_', '')
-            for variable in self.problem.get_variables():
-                if variable.get_name() == variable_name:
-                    constraints.append(expr.Not(expr.And([variable, delta_variable])))
-                    break
-        return constraints
-
-
 # From plastic strain tensor, select at most three directions
 class PlasticStrainTensorEvaluator(MSConstraintEvaluator):
 

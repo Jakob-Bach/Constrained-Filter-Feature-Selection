@@ -30,9 +30,6 @@ BASE_EVALUATORS = {
     'Quantity-Schmid-group': {'func': 'QuantitySchmidGroupEvaluator', 'args': {}},
     'Schmid-group-representative': {'func': 'SchmidGroupRepresentativeEvaluator', 'args': {}},
     'Quantity-Schmid-group-representative': {'func': 'QuantitySchmidGroupRepresentativeEvaluator', 'args': {}},
-    # 'Whole-slip-systems': {'func': 'WholeSlipSystemsEvaluator', 'args': {}},  # does not combine well with cardinality
-    # 'Reaction-type': {'func': 'ReactionTypeEvaluator', 'args': {}},  # we have removed reaction types from features
-    # 'Value-or-delta': {'func': 'ValueOrDeltaEvaluator', 'args': {}},  # we use no delta features for predicting absolute quantities
     'Plastic-strain-tensor': {'func': 'PlasticStrainTensorEvaluator', 'args': {}},
     'Dislocation-density': {'func': 'DislocationDensityEvaluator', 'args': {}},
     'Plastic-strain-rate': {'func': 'PlasticStrainRateEvaluator', 'args': {}},
