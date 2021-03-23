@@ -1,9 +1,10 @@
 """'Interactive' evaluation of the study with synthetic constraints
 
 Script to demonstrate plots for evaluating our experiments with synthetic constraints.
-The script does not re-produce the plots from the paper, but rather show-cases different plots,
-usually simply looping over all evaluation metrics. The script is intended for interactive use
-(i.e., block-by-block execution) and manual inspection of plots; it does not save any plots.
+The script does not re-produce the exact plots from the paper, but rather show-cases different
+plots types, usually simply looping over all evaluation metrics. The script is intended for
+'interactive' use (i.e., block-by-block execution in some IDE) and manual inspection of plots;
+it does not save any plots.
 """
 
 import pathlib

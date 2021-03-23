@@ -1,9 +1,8 @@
 """SMT solving
 
-Description of a constraint satisfcation problem with boolean variables,
-including functions to count solutions (not to efficiently find them).
+A class representing a constraint-satisfcation problem with boolean variables,
+including functions to count the number of solutions (but not to efficiently find them).
 """
-
 
 import itertools
 import random

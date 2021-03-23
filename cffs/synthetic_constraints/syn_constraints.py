@@ -1,8 +1,8 @@
-"""Constraint generators
+"""Constraints for the study with synthetic constraints
 
-Different generator classes for synthetic SMT constraints.
+Classes representing generators of certain types of constraints.
+Each class is able to evaluate its constraint type on a given feature-selection problem.
 """
-
 
 from abc import ABCMeta, abstractmethod
 import random

@@ -1,9 +1,9 @@
-"""OpenML dataset preparation
+"""Preparation of OpenML datasets for the study with synthetic constraints
 
-Script which downloads datasets from OpenML and saves them in a format suitable
-for the experiment pipeline.
+Script which downloads datasets from OpenML and saves them in a format suitable for the
+synthetic-constraints pipeline.
 
-Usage: python prepare_openml_datasets.py --help
+Usage: python -m cffs.synthetic_constraints.prepare_openml_datasets --help
 """
 
 import argparse
@@ -14,15 +14,18 @@ import numpy as np
 import openml
 import tqdm
 
-from cffs.utilities.data_utility import save_dataset
+from cffs.utilities import data_utility
 
 
+# Store OpenML datasets as prediction-ready (X-y format) CSVs.
+# Either retrieve datasets by "data_ids" or search according to fixed dataset characteristics.
 def prepare_openml_datasets(data_dir: pathlib.Path, data_ids=Sequence[int]) -> None:
     if not data_dir.is_dir():
-        print('Directory does not exist. We create it.')
+        print('Data directory does not exist. We create it.')
         data_dir.mkdir(parents=True)
-    if len(list(data_dir.glob('*'))) > 0:
-        print('Data directory is not empty. Files might be overwritten, but not deleted.')
+    if len(data_utility.list_datasets(data_dir)) > 0:
+        print('Data directory already contains prediction-ready datasets. ' +
+              'Files might be overwritten, but not deleted.')
     if len(data_ids) == 0:
         print('Getting an overview of datasets ...')
         dataset_overview = openml.datasets.list_datasets(status='active', output_format='dataframe')
@@ -52,7 +55,7 @@ def prepare_openml_datasets(data_dir: pathlib.Path, data_ids=Sequence[int]) -> N
         assert len(numeric_cols) == dataset_overview.loc[dataset_name].NumberOfNumericFeatures
         # "dataset.features" also includes target and might include non-existing columns
         X = X[[col for col in numeric_cols if col in list(X)]]  # drop other column types
-        save_dataset(X, y, dataset_name=dataset_name, directory=data_dir)
+        data_utility.save_dataset(X, y, dataset_name=dataset_name, directory=data_dir)
 
 
 if __name__ == '__main__':

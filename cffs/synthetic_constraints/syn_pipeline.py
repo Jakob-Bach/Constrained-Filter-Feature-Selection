@@ -1,15 +1,14 @@
-"""Synthetic constraints pipeline
+"""Experimental pipeline for the study with synthetic constraints
 
-Main script for our experiments with synthetic constraints.
+Main script (experimental pipeline) for our study with synthetic constraints.
+Should be run after preparing one or more dataset(s).
 
-Usage: python syn_pipeline.py --help
+Usage: python -m cffs.synthetic_constraints.syn_pipeline --help
 """
-
 
 import argparse
 import multiprocessing
 import pathlib
-import sys
 from typing import Any, Optional
 
 import pandas as pd
@@ -90,6 +89,15 @@ def evaluate_constraint_type(
 
 def pipeline(data_dir: pathlib.Path, results_dir: Optional[pathlib.Path] = None,
              n_iterations: int = 1000, n_splits: int = 1, n_processes: Optional[int] = None) -> pd.DataFrame:
+    if not data_dir.is_dir():
+        raise FileNotFoundError('Data directory does not exist.')
+    if len(list(data_dir.glob('*'))) == 0:
+        raise FileNotFoundError('Data directory is empty.')
+    if not results_dir.is_dir():
+        print('Results directory does not exist. We create it.')
+        results_dir.mkdir(parents=True)
+    if len(list(results_dir.glob('*'))) > 0:
+        print('Results directory is not empty. Files might be overwritten, but not deleted.')
     datasets = [{'dataset_name': x, 'data_dir': data_dir, 'results_dir': results_dir}
                 for x in data_utility.list_datasets(data_dir)]
 
@@ -117,9 +125,9 @@ if __name__ == '__main__':
         description='Evaluates multiple constraint types on multiple datasets with one or more ' +
         'feature quality measures for each dataset.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-d', '--data', type=pathlib.Path, default='data/demo/', dest='data_dir',
-                        help='Directory for input data. Should contain datasets with two files each (X, y).')
-    parser.add_argument('-r', '--results', type=pathlib.Path, default='data/demo-results/', dest='results_dir',
+    parser.add_argument('-d', '--data', type=pathlib.Path, default='data/openml/', dest='data_dir',
+                        help='Directory with input data. Should contain datasets with two files each (X, y).')
+    parser.add_argument('-r', '--results', type=pathlib.Path, default='data/openml-results/', dest='results_dir',
                         help='Directory for output data. Is used for saving evaluation metrics.')
     parser.add_argument('-p', '--processes', type=int, default=None, dest='n_processes',
                         help='Number of processes for multi-processing (default: all cores).')
@@ -128,17 +136,6 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--splits', type=int, default=10, dest='n_splits',
                         help='Number of splits used for prediction (at least 0).')
     args = parser.parse_args()
-    if not args.data_dir.is_dir():
-        print('Data directory does not exist.')
-        sys.exit(1)
-    if len(list(args.data_dir.glob('*'))) == 0:
-        print('Data directory is empty.')
-        sys.exit(1)
-    if not args.results_dir.is_dir():
-        print('Results directory does not exist. We create it.')
-        args.results_dir.mkdir(parents=True)
-    if len(list(args.results_dir.glob('*'))) > 0:
-        print('Results directory is not empty. Files might be overwritten, but not deleted.')
     results = pipeline(**vars(args))  # extract dict from Namspace and then unpack for call
     data_utility.save_results(results, directory=args.results_dir)
     print('Pipeline executed successfully.')

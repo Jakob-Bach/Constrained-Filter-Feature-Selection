@@ -1,9 +1,9 @@
-"""Feature quality computation
+"""Utility for computing feature qualities
 
 Functions to compute feature qualities for datasets.
-You can also run it as a script.
+You can also run the file as a script.
 
-Usage: python feature_qualities.py --help
+Usage: python -m cffs.utilities.feature_qualities --help
 """
 
 import argparse
@@ -16,7 +16,7 @@ import pandas as pd
 import sklearn.feature_selection
 import tqdm
 
-from cffs.utilities.data_utility import load_dataset, save_qualities
+import cffs.utilities.data_utility
 
 
 # Z3 uses rational number representation instead of float, so rounding leads to speed-up
@@ -52,11 +52,11 @@ def compute_qualities(data_dir: pathlib.Path, qualities: Sequence[str]) -> None:
         print('Dataset names in data files and target variable files differ.')
         sys.exit(1)
     for dataset_name in tqdm.tqdm(X_dataset_names):
-        X, y = load_dataset(dataset_name=dataset_name, directory=data_dir)
+        X, y = cffs.utilities.data_utility.load_dataset(dataset_name=dataset_name, directory=data_dir)
         quality_table = pd.DataFrame({'Feature': list(X)})
         for quality in qualities:
             quality_table[quality] = QUALITIES[quality](X, y)
-        save_qualities(quality_table, dataset_name=dataset_name, directory=data_dir)
+        cffs.utilities.data_utility.save_qualities(quality_table, dataset_name=dataset_name, directory=data_dir)
 
 
 if __name__ == '__main__':

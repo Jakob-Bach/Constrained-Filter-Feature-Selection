@@ -1,15 +1,14 @@
-"""Materials science pipeline
+"""Experimental pipeline for the case study in materials science
 
-Prediction script for our case study in materials science.
+Main script (experimental pipeline) for our case study in materials science.
+Should be run after preparing a dataset.
 
-Usage: python ms_pipeline.py --help
+Usage: python -m cffs.materials_science.ms_pipeline --help
 """
-
 
 import argparse
 import multiprocessing
 import pathlib
-import sys
 import time
 from typing import Any, Optional
 
@@ -102,6 +101,15 @@ def evaluate_constraints(evaluator_name: str, dataset_name: str, data_dir: pathl
 
 def pipeline(data_dir: pathlib.Path, results_dir: Optional[pathlib.Path] = None,
              n_processes: Optional[int] = None) -> pd.DataFrame:
+    if not data_dir.is_dir():
+        raise FileNotFoundError('Data directory does not exist.')
+    if len(list(data_dir.glob('*'))) == 0:
+        raise FileNotFoundError('Data directory is empty.')
+    if not results_dir.is_dir():
+        print('Results directory does not exist. We create it.')
+        results_dir.mkdir(parents=True)
+    if len(list(results_dir.glob('*'))) > 0:
+        print('Results directory is not empty. Files might be overwritten, but not deleted.')
     datasets = [{'dataset_name': x, 'data_dir': data_dir} for x in data_utility.list_datasets(data_dir)]
 
     def update_progress(unused: Any):
@@ -125,23 +133,12 @@ if __name__ == '__main__':
         'feature quality measures for each dataset.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--data', type=pathlib.Path, default='data/ms/', dest='data_dir',
-                        help='Directory for input data. Should contain datasets with two files each (X, y).')
+                        help='Directory with input data. Should contain datasets with two files each (X, y).')
     parser.add_argument('-r', '--results', type=pathlib.Path, default='data/ms-results/', dest='results_dir',
                         help='Directory for output data. Is used for saving evaluation metrics.')
     parser.add_argument('-p', '--processes', type=int, default=None, dest='n_processes',
                         help='Number of processes for multi-processing (default: all cores).')
     args = parser.parse_args()
-    if not args.data_dir.is_dir():
-        print('Data directory does not exist.')
-        sys.exit(1)
-    if len(list(args.data_dir.glob('*'))) == 0:
-        print('Data directory is empty.')
-        sys.exit(1)
-    if not args.results_dir.is_dir():
-        print('Results directory does not exist. We create it.')
-        args.results_dir.mkdir(parents=True)
-    if len(list(args.results_dir.glob('*'))) > 0:
-        print('Results directory is not empty. Files might be overwritten, but not deleted.')
     results = pipeline(**vars(args))  # extract dict from Namspace and then unpack for call
     data_utility.save_results(results, directory=args.results_dir)
     print('Pipeline executed successfully.')

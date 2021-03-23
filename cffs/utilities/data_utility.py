@@ -1,4 +1,4 @@
-"""Data utility functions
+"""Utility for working with datasets
 
 Functions for reading and writing data. Although the individual functions are quite short,
 having a central I/O makes changes of file formats and naming schemes easier.

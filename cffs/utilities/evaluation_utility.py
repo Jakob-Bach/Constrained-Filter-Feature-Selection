@@ -1,6 +1,6 @@
-"""Evaluation utility functions
+"""Utility for evaluating pipeline results
 
-Functions to be used to evaluate results of prediction pipelines.
+Functions for transforming experimental results of the prediction pipelines to enable evaluation.
 """
 
 

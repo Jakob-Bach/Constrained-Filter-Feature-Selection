@@ -1,6 +1,7 @@
-"""MS constraints
+"""Constraints for the case study in materials science
 
-Classes to evaluate specific constraints for materials science use cases.
+Classes representing manually-defined constraints for our case study in materials science.
+Each class is able to evaluate its constraint set on a given feature-selection problem.
 """
 
 from abc import ABCMeta, abstractmethod

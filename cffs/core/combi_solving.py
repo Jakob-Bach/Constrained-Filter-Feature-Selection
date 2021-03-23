@@ -1,8 +1,8 @@
 """SMT solving and optimization
 
-Combination of own SMT solution counter and Z3 optimizer.
+A class combining our own SMT solution counter with the Z3 optimizer, to represent the problem of
+constrained, univariate filter feature selection.
 """
-
 
 from typing import Dict, Union, Sequence
 

@@ -1,8 +1,8 @@
 """SMT expressions
 
-Logical and arithmetic expressions which allow to formulate constraints.
+Classes representing logical and arithmetic expressions that allow to formulate constraints.
+We use an object-oriented design, so constraint evaluation can be dispatched dynamically.
 """
-
 
 from __future__ import annotations  # to use a class as a type hint within its own definition
 

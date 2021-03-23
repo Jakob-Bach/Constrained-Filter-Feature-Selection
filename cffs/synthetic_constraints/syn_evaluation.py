@@ -1,6 +1,7 @@
 """Evaluation of the study with synthetic constraints
 
-Script to compute all summary statistics and create all plots used in the paper.
+Script to compute all summary statistics and create all plots used in the paper to evaluate the
+study with synthetic constraints. Should be run after the experimental pipeline.
 
 Usage: python -m cffs.synthetic_constraints.syn_paper_evaluation --help
 """

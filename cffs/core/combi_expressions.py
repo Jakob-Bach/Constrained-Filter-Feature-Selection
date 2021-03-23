@@ -1,9 +1,8 @@
 """SMT expressions based on Z3
 
-Combination of own expressions (used for model counting) and Z3 expressions
-(used for optimization) to have a uniform interface and avoid inconsistencies.
+Classes combining our own expressions (used for counting number of solutions) and equivalent
+Z3 expressions (used for optimization) to have a uniform interface and avoid inconsistencies.
 """
-
 
 from abc import ABCMeta
 from typing import Sequence

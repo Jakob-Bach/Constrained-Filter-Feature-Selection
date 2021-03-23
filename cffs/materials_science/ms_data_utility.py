@@ -1,8 +1,7 @@
-"""Materials science datasets
+"""Utility for materials-science datasets
 
-Utility functions for loading datasets for our case study in materials science.
+Functions for pre-processing datasets for our case study in materials science.
 """
-
 
 import pathlib
 import re
@@ -29,7 +28,7 @@ def add_slip_system_aggregates(dataset: pd.DataFrame) -> None:
                 dataset[[f'{quantity}_{i}' for i in range(1, 13)]].agg(agg_func, axis='columns')
 
 
-def prepare_voxel_data(path: pathlib.Path) -> pd.DataFrame:
+def preprocess_voxel_data(path: pathlib.Path) -> pd.DataFrame:
     dataset = pd.read_csv(path, dtype='float64')  # specifying dtype makes reading faster
     dataset.drop(columns=dataset.columns[0], inplace=True)  # drop 1st column (unnamed id column)
     # String matching functions are more difficult to use if name of one reaction type is substring
@@ -44,7 +43,7 @@ def prepare_voxel_data(path: pathlib.Path) -> pd.DataFrame:
     return dataset
 
 
-def predict_voxel_data_absolute(dataset: pd.DataFrame, dataset_name: str = '',
+def prepare_prediction_scenario(dataset: pd.DataFrame, dataset_name: str = '',
                                 reaction_type: str = 'glissile', add_aggregates: bool = False) -> Dict[str, Any]:
     target = 'rho_' + reaction_type + '_sum'
     # Exclude all reaction-type-related features (as reaction density is our target):

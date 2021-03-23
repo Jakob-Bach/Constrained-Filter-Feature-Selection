@@ -1,6 +1,7 @@
 """Evaluation of the case study in materials science
 
-Script to compute all summary statistics and create all plots used in the paper.
+Script to compute all summary statistics and create all plots used in the paper to evaluate the
+case study in materials science. Should be run after the experimental pipeline.
 
 Usage: python -m cffs.materials_science.ms_evaluation --help
 """
