@@ -18,14 +18,14 @@ class Problem(solving.Problem):
 
     def __init__(self, variable_names: Sequence[str], qualities: Sequence[float]):
         assert len(variable_names) == len(qualities)
-        # Improve optimizer performance by sorting qualities decreasingly; order of variable names adapted accordingly
+        # Improve optimizer performance by sorting qualities decreasingly; adapt order of variable names accordingly:
         qualities, variable_names = zip(*sorted(zip(qualities, variable_names), key=lambda x: -x[0]))
         self.qualities = qualities
         self.variables = [expr.Variable(name=x) for x in variable_names]
         self.constraints = []
         self.optimizer = z3.Optimize()
         # Direct multiplication between bool var and real quality returns wrong type (BoolRef) if quality is 1,
-        # so we use "If" instead (to which that multiplication is transformed anyway)
+        # so we use "If" instead (multiplication is transformed to such an expression anyway):
         objective = z3.Sum([z3.If(var.get_z3(), q, 0) for (q, var) in zip(qualities, self.get_variables())])
         self.objective = self.optimizer.maximize(objective)
         self.optimizer.push()  # restore point for state without constraints
@@ -35,23 +35,22 @@ class Problem(solving.Problem):
 
     def add_constraint(self, constraint: expr.BooleanExpression) -> None:
         super().add_constraint(constraint)
-        self.optimizer.add(constraint.get_z3())  # AttributeError if "z3" not set in BooleanExpression object
+        self.optimizer.add(constraint.get_z3())  # AttributeError if attribute "z3_expr" not set in "constraint"
 
     # Remove all constraints
     def clear_constraints(self) -> None:
         super().clear_constraints()
-        self.optimizer.pop()  # go to restore point (no constraints)
-        self.optimizer.push()  # create new restore point
+        self.optimizer.pop()  # go to restore point (state with no constraints)
+        self.optimizer.push()  # create new restore point (again, with no constraints)
 
     # Run optimization and return result dict
     def optimize(self) -> Dict[str, Union[float, Sequence[str]]]:
         self.optimizer.check()
-        # Z3 returns different type, depending on whether result is a whole number
-        if self.objective.value().is_int():
+        # Object value can have different types, depending on whether result is a whole number
+        if self.objective.value().is_int():  # type IntNumRef
             value = self.objective.value().as_long()
-        else:
-            value = self.objective.value().numerator_as_long() /\
-                self.objective.value().denominator_as_long()
+        else:  # type RatNumRef
+            value = self.objective.value().numerator_as_long() / self.objective.value().denominator_as_long()
         model = self.optimizer.model()
         selected = [var.get_name() for var in self.get_variables() if str(model[var.get_z3()]) == 'True']
         return {'objective_value': value, 'num_selected': len(selected), 'selected': selected}

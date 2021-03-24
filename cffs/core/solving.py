@@ -14,7 +14,7 @@ from . import expressions as expr
 class Problem:
 
     def __init__(self, variable_names: Sequence[str]):
-        self.variables = [expr.Variable(name=x) for x in variable_names]
+        self.variables = [expr.Variable(name=x) for x in variable_names]  # boolean variables
         self.constraints = []  # several constraints allowed, will be combined by AND
 
     def get_variables(self) -> Sequence[expr.Variable]:
@@ -36,7 +36,10 @@ class Problem:
     def get_num_constraints(self) -> int:
         return len(self.constraints)
 
-    # Exact procedure for determining fraction of solutions (valid assignments given constraints)
+    # Exact procedure to determine the fraction of solutions (i.e., fraction of valid assignments
+    # of values to the boolean variables, given the constraints). Loops over all assignments,
+    # whose number increases exponentially with the number of variables, and check constraint
+    # satisfaction.
     def compute_solution_fraction(self) -> float:
         solutions = 0
         for assignment in itertools.product([False, True], repeat=len(self.variables)):
@@ -52,7 +55,7 @@ class Problem:
             solutions = solutions + satisfied
         return solutions / 2 ** len(self.variables)
 
-    # Probabilistic procedure for determining fraction of solutions (valid assignments given constraints)
+    # Probabilistic procedure to estimate the fraction of solutions. Samples random assignments.
     def estimate_solution_fraction(self, iterations: int = 1000) -> float:
         solutions = 0
         for _ in range(iterations):

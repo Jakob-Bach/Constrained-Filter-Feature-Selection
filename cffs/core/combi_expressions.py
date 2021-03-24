@@ -14,8 +14,9 @@ from . import expressions as expr
 
 class BooleanExpression(expr.BooleanExpression, metaclass=ABCMeta):
 
+    # Sub-classes need to set the attribute "z3_expr" so this method works properly.
     def get_z3(self) -> z3.BoolRef:
-        return self.z3_expr  # sub-classes need to set this value
+        return self.z3_expr
 
 
 class BooleanValue(expr.BooleanValue, BooleanExpression):
@@ -39,16 +40,18 @@ class And(expr.And, BooleanExpression):
         self.z3_expr = z3.And([x.get_z3() for x in bool_expressions])
 
 
+# Cardinality constraint -- a sum over boolean expressions is compared to a number.
 class AtLeast(expr.Ge, BooleanExpression):
 
-    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], value: float):
+    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], value: int):
         super().__init__(expr.Sum(bool_expressions), expr.NumericValue(value))
         self.z3_expr = z3.AtLeast(*[e.get_z3() for e in bool_expressions], value)
 
 
+# Cardinality constraint -- a sum over boolean expressions is compared to a number.
 class AtMost(expr.Le, BooleanExpression):
 
-    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], value: float):
+    def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], value: int):
         super().__init__(expr.Sum(bool_expressions), expr.NumericValue(value))
         self.z3_expr = z3.AtMost(*[e.get_z3() for e in bool_expressions], value)
 
@@ -82,6 +85,7 @@ class Or(expr.Or, BooleanExpression):
         self.z3_expr = z3.Or([x.get_z3() for x in bool_expressions])
 
 
+# Linear equality w_1 * x_1 + ... + w_n * x_n == value
 class WeightedSumEq(expr.Eq, BooleanExpression):
 
     def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], weights: Sequence[float], value: float):
@@ -89,6 +93,7 @@ class WeightedSumEq(expr.Eq, BooleanExpression):
         self.z3_expr = z3.PbEq([(e.get_z3(), w) for (e, w) in zip(bool_expressions, weights)], value)
 
 
+# Linear inequality w_1 * x_1 + ... + w_n * x_n >= value
 class WeightedSumGe(expr.Ge, BooleanExpression):
 
     def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], weights: Sequence[float], value: float):
@@ -96,6 +101,7 @@ class WeightedSumGe(expr.Ge, BooleanExpression):
         self.z3_expr = z3.PbGe([(e.get_z3(), w) for (e, w) in zip(bool_expressions, weights)], value)
 
 
+# Linear inequality w_1 * x_1 + ... + w_n * x_n <= value
 class WeightedSumLe(expr.Le, BooleanExpression):
 
     def __init__(self, bool_expressions: Sequence[expr.BooleanExpression], weights: Sequence[float], value: float):
