@@ -3,7 +3,6 @@
 Functions for preparing, conducting and evaluating predictions.
 """
 
-
 from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
@@ -16,7 +15,7 @@ import sklearn.tree
 import xgboost
 
 
-METRICS = {'r2': sklearn.metrics.r2_score}
+METRICS = {'r2': sklearn.metrics.r2_score}  # defaults for experimental pipeline
 
 MODELS = {
     'linear-regression': {'func': sklearn.linear_model.LinearRegression, 'args': dict()},
@@ -27,13 +26,15 @@ MODELS = {
     'xgb-tree': {'func': xgboost.XGBRegressor,
                  'args': {'booster': 'gbtree', 'n_estimators': 20, 'objective': 'reg:squarederror',
                           'verbosity': 0, 'n_jobs': 1, 'random_state': 25}}
-}
+}  # defaults for experimental pipeline
 
 
+# Wrapper around sklearn train-test splitting routines, which is able to handle zero splits
+# (just train set), one split (train-test) and more splits (k-fold cross-validation).
 def create_split_idx(X: pd.DataFrame, n_splits: Optional[int] = 1) ->\
         Sequence[Tuple[Sequence[int], Sequence[int]]]:
     if n_splits < 0:
-        raise ValueError('Need to split at least once.')
+        raise ValueError('Need to split at least zero times.')
     if n_splits == 0:
         return [(np.array(range(len(X))), np.array([], dtype='int32'))]
     if n_splits == 1:
@@ -44,6 +45,7 @@ def create_split_idx(X: pd.DataFrame, n_splits: Optional[int] = 1) ->\
     return list(splitter.split(X))
 
 
+# Train model, make prediction, and compute all "METRICS" for train set and optionally for test set.
 def evaluate_prediction(
         model: sklearn.base.BaseEstimator, X_train: pd.DataFrame, y_train: pd.DataFrame,
         X_test: Optional[pd.DataFrame] = None, y_test: Optional[pd.DataFrame] = None) -> Dict[str, float]:
