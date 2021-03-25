@@ -29,10 +29,13 @@ def prepare_demo_dataset(data_dir: pathlib.Path) -> None:
     data_utility.save_dataset(X, y, dataset_name='boston', directory=data_dir)
 
 
+# Parse some command-line arguments, prepare dataset, and save the results.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Prepares a demo dataset for the experiment pipeline and stores it ' +
         'in the specified directory.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--directory', type=str, default='.', help='Output directory for data.')
-    prepare_demo_dataset(data_dir=pathlib.Path(parser.parse_args().directory))
+    args = parser.parse_args()
+    print('Dataset preparation started.')
+    prepare_demo_dataset(data_dir=pathlib.Path(args.directory))
     print('Dataset prepared and saved.')

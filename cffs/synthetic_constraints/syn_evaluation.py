@@ -20,7 +20,8 @@ from cffs.utilities import evaluation_utility
 plt.rcParams['font.family'] = 'Linux Biolinum'
 
 
-# Create and save plots for the paper.
+# Create and save all plots to evaluate the study with synthetic constraints for the paper.
+# To that end, read a results file from the "results_dir" and save plots to the "plot_dir".
 def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     if not plot_dir.is_dir():
         print('Plot directory does not exist. We create it.')
@@ -28,6 +29,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     if len(list(plot_dir.glob('*.pdf'))) > 0:
         print('Plot directory is not empty. Files might be overwritten, but not deleted.')
 
+    # Load results and add normalized versions of evaluation metrics
     results = data_utility.load_results(directory=results_dir)
     results = results[results['quality_name'] == 'abs_corr']  # results for MI very similar
     evaluation_utility.add_normalized_objective(results)
@@ -35,14 +37,15 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     evaluation_utility.add_normalized_prediction_performance(results)
     evaluation_utility.add_normalized_num_constraints(results)
 
+    # Prepare sub-lists of evaluation metrics for certain plots
     ORIGINAL_PRED_METRICS = [x for x in results.columns if x.endswith('_r2') and not x.startswith('frac_')]
     EVALUATION_METRICS = ['frac_constraints', 'frac_constrained_variables', 'frac_unique_constrained_variables',
                           'frac_solutions', 'frac_selected', 'frac_objective',
                           'frac_linear-regression_test_r2', 'frac_xgb-tree_test_r2']
 
-    # ---Comparison of prediction models---
+    # ---5.1.1 Comparison of Prediction Performance---
 
-    # Figure 1
+    # Figure 1a
     prediction_data = evaluation_utility.reshape_prediction_data(results[ORIGINAL_PRED_METRICS])
     prediction_data = evaluation_utility.rename_for_plots(prediction_data)
     plt.figure(figsize=(4, 3))
@@ -53,6 +56,8 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     plt.legend(loc='lower left', bbox_to_anchor=(0, 1), ncol=2, borderpad=0, edgecolor='white')
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-prediction-performance-all.pdf')
+
+    # Figure 1b
     prediction_data = results.loc[results['constraint_name'] == 'UNCONSTRAINED', ORIGINAL_PRED_METRICS]
     prediction_data = evaluation_utility.reshape_prediction_data(prediction_data)
     prediction_data = evaluation_utility.rename_for_plots(prediction_data)
@@ -65,7 +70,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-prediction-performance-unconstrained.pdf')
 
-    # ---(Q2.1) Relationship between constraint evaluation metrics---
+    # ---5.1.2 Relationship Between Evaluation Metrics (Q1)---
 
     # Figure 2
     plt.figure(figsize=(5, 5))
@@ -75,7 +80,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-evaluation-metrics-correlation.pdf')
 
-    # Figure 3
+    # Figure 3a
     scatter_plot_data = results.sample(n=1000, random_state=25)
     scatter_plot_data = evaluation_utility.rename_for_plots(scatter_plot_data, long_metric_names=True)
     plt.figure(figsize=(4, 3))
@@ -84,18 +89,24 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
                                    s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-selected-vs-objective.pdf')
+
+    # Figure 3b
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 20
     scatter_plot_data.plot.scatter(x='Number of solutions $n_{so}^{norm}$', y='Objective value $Q^{norm}$',
                                    s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-solutions-vs-objective.pdf')
+
+    # Figure 3c
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 14
     sns.boxplot(x='Number of constraints $n_{co}^{norm}$', y='Objective value $Q^{norm}$',
                 data=scatter_plot_data, color='black', boxprops={'facecolor': plt.get_cmap('Paired')(0)})
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-constraints-vs-objective.pdf')
+
+    # Figure 3d
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 20
     scatter_plot_data.plot.scatter(x='Prediction $R^{2, norm}_{lreg}$', y='Objective value $Q^{norm}$',
@@ -103,9 +114,9 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-frac-linear-regression-r2-vs-objective.pdf')
 
-    # ---(Q2.2) Comparison of constraint types---
+    # ---5.1.3 Comparison of Constraint Types (Q2)---
 
-    # Figure 4
+    # Figure 4a
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 14
     sns.boxplot(x='Constraint type', y='$n_{so}^{norm}$', fliersize=0, color='black',
@@ -115,6 +126,8 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     plt.ylim(-0.1, 1.1)
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-constraint-type-vs-solutions.pdf')
+
+    # Figure 4b
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 14
     sns.boxplot(x='Constraint type', y='$Q^{norm}$', fliersize=0, color='black',
@@ -145,9 +158,21 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     # plt.ylim(-0.1, 1.1)
     # plt.tight_layout()
 
-    # ---(Q2.3) Comparison of datasets---
+    # ---5.1.4 Comparison of Datasets (Q3)---
 
-    # Figure 5
+    # Figure 5a
+    plt.figure(figsize=(4, 3))
+    plt.rcParams['font.size'] = 14
+    sns.boxplot(x='Dataset name', y='Objective value $Q^{norm}$', color='black',
+                data=evaluation_utility.rename_for_plots(results[['dataset_name', 'frac_objective']],
+                                                         long_metric_names=True),
+                boxprops={'facecolor': plt.get_cmap('Paired')(0)})
+    plt.xticks([])
+    plt.ylim(-0.1, 1.1)
+    plt.tight_layout()
+    plt.savefig(plot_dir / 'syn-objective-value-per-dataset.pdf')
+
+    # Figure 5b
     agg_data = results.groupby('dataset_name')[EVALUATION_METRICS].mean()
     agg_data = agg_data.drop(columns='frac_constrained_variables')  # not in [0,1]
     agg_data = evaluation_utility.rename_for_plots(agg_data)
@@ -160,16 +185,6 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     plt.ylim(-0.1, 1.1)
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-evaluation-metrics-mean-per-dataset.pdf')
-    plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 14
-    sns.boxplot(x='Dataset name', y='Objective value $Q^{norm}$', color='black',
-                data=evaluation_utility.rename_for_plots(results[['dataset_name', 'frac_objective']],
-                                                         long_metric_names=True),
-                boxprops={'facecolor': plt.get_cmap('Paired')(0)})
-    plt.xticks([])
-    plt.ylim(-0.1, 1.1)
-    plt.tight_layout()
-    plt.savefig(plot_dir / 'syn-objective-value-per-dataset.pdf')
 
     # For comparison: without aggregation (constraint types and generation mechanism not averaged out)
     # for evaluation_metric in EVALUATION_METRICS:
@@ -179,14 +194,16 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     #     plt.show()
 
 
+# Parse some command line argument and run evaluation.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Creates the paper\'s plots to evaluate the study with synthetic constraints.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-r', '--results', type=pathlib.Path, default='data/openml-results/',
                         dest='results_dir', help='Directory with experimental results.')
-    parser.add_argument('-p', '--plots', type=pathlib.Path, default='../paper-cffs-text/plots/',
+    parser.add_argument('-p', '--plots', type=pathlib.Path, default='data/openml-plots/',
                         dest='plot_dir', help='Output directory for plots.')
     args = parser.parse_args()
-    evaluate(**vars(parser.parse_args()))
+    print('Evaluation started.')
+    evaluate(**vars(args))
     print('Plots created and saved.')
