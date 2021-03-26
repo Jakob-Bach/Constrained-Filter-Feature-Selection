@@ -199,6 +199,7 @@ class UnconstrainedGenerator(ConstraintGenerator):
     # The number of constraints is fixed. We can safely ignore the other generation parameters,
     # so calling the super initializer is unnecessary.
     def __init__(self, problem: solv.Problem, **kwargs):
+        self.problem = problem
         self.num_iterations = 1
         self.min_num_constraints = 0
         self.max_num_constraints = 0
