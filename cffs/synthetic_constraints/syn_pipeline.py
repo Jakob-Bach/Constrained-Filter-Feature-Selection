@@ -103,11 +103,6 @@ def pipeline(data_dir: pathlib.Path, results_dir: Optional[pathlib.Path] = None,
         raise FileNotFoundError('Data directory does not exist.')
     if len(list(data_dir.glob('*'))) == 0:
         raise FileNotFoundError('Data directory is empty.')
-    if not results_dir.is_dir():
-        print('Results directory does not exist. We create it.')
-        results_dir.mkdir(parents=True)
-    if len(list(results_dir.glob('*'))) > 0:
-        print('Results directory is not empty. Files might be overwritten, but not deleted.')
     datasets = [{'dataset_name': x, 'data_dir': data_dir, 'results_dir': results_dir}
                 for x in data_utility.list_datasets(data_dir)]
 
@@ -142,6 +137,11 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--splits', type=int, default=10, dest='n_splits',
                         help='Number of splits used for evaluating predictions (at least 0).')
     args = parser.parse_args()
+    if not args.results_dir.is_dir():
+        print('Results directory does not exist. We create it.')
+        args.results_dir.mkdir(parents=True)
+    if len(list(args.results_dir.glob('*'))) > 0:
+        print('Results directory is not empty. Files might be overwritten, but not deleted.')
     print('Pipeline started.')
     pipeline_results = pipeline(**vars(args))  # extract dict from Namspace and then unpack for call
     data_utility.save_results(pipeline_results, directory=args.results_dir)
