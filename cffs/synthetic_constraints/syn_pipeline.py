@@ -65,7 +65,7 @@ def evaluate_constraint_type(
             generator_args = {'problem': problem, **GENERATORS[generator_name]['args']}
             generator_args['num_iterations'] = n_iterations
             generator = generator_func(**generator_args)
-            result = generator.evaluate_constraints()
+            result = generator.evaluate_constraints()  # a data frame, one row per iteration of generation
             for model_name, model_dict in prediction_utility.MODELS.items():
                 model = model_dict['func'](**model_dict['args'])
                 if X_test is None:

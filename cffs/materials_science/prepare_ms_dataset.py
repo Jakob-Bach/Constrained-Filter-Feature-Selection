@@ -24,7 +24,7 @@ def prepare_ms_dataset(input_file: pathlib.Path, data_dir: pathlib.Path) -> None
     if len(data_utility.list_datasets(data_dir)) > 0:
         print('Data directory already contains prediction-ready datasets. ' +
               'Files might be overwritten, but not deleted.')
-    dataset = ms_data_utility.preprocess_voxel_data(input_file)
+    dataset = ms_data_utility.preprocess_voxel_data(path=input_file)
     prediction_scenario = ms_data_utility.prepare_prediction_scenario(
         dataset=dataset, reaction_type=REACTION_TYPE, add_aggregates=True)
     data_utility.save_dataset(X=prediction_scenario['dataset'][prediction_scenario['features']],
@@ -33,6 +33,7 @@ def prepare_ms_dataset(input_file: pathlib.Path, data_dir: pathlib.Path) -> None
                               directory=data_dir)
 
 
+# Parse some command-line arguments, prepare dataset, and save the results.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Prepares a materials science dataset for the MS pipeline and stores the ' +
@@ -42,5 +43,7 @@ if __name__ == '__main__':
                         dest='input_file', help='Input CSV file.')
     parser.add_argument('-d', '--directory', type=pathlib.Path, default='data/ms/',
                         dest='data_dir', help='Output directory for data.')
-    prepare_ms_dataset(**vars(parser.parse_args()))
+    args = parser.parse_args()
+    print('Dataset preparation started.')
+    prepare_ms_dataset(**vars(args))
     print('Dataset prepared and saved.')

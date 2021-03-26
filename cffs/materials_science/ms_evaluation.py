@@ -23,7 +23,9 @@ from cffs.utilities import feature_qualities
 plt.rcParams['font.family'] = 'Linux Biolinum'
 
 
-# Create and save plots for the paper. Also, print some statistics that are used in the paper as well.
+# Create and save all plots to evaluate the case study in materials science for the paper.
+# To that end, read a results file from the "results_dir" and save plots to the "plot_dir".
+# Also, print some statistics that are used in the paper as well.
 def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     if not plot_dir.is_dir():
         print('Plot directory does not exist. We create it.')
@@ -34,13 +36,14 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     results = data_utility.load_results(directory=results_dir)
     results['cardinality'] = results['constraint_name'].str.extract('_k([0-9]+)$').astype(int)
     results['constraint_name'] = results['constraint_name'].str.replace('_k[0-9]+$', '', regex=True)
-    results['selected'] = results['selected'].apply(ast.literal_eval)  # make list string a list
+    results['selected'] = results['selected'].apply(ast.literal_eval)  # make list string a proper list
 
-    # ---Prediction performance---
+    # ---5.2.1 Solution Quality---
 
-    # Figure 6
     prediction_data = evaluation_utility.reshape_prediction_data(results, additional_columns=['cardinality'])
     prediction_data = evaluation_utility.rename_for_plots(prediction_data)
+
+    # Figure 6a
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 14
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', palette='Paired',
@@ -50,6 +53,8 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.legend(loc='lower left', bbox_to_anchor=(0, 1), ncol=2, borderpad=0, edgecolor='white')
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-prediction-performance-split.pdf')
+
+    # Figure 6b
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 14
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Cardinality', palette='Paired',
@@ -59,16 +64,6 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.legend(loc='lower left', bbox_to_anchor=(0, 1), ncol=2, borderpad=0, edgecolor='white')
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-prediction-performance-cardinality.pdf')
-
-    # For comparison: Aggregate statistics
-    # print(results[ORIGINAL_PRED_METRICS].describe().transpose()[['min', '50%', 'max']])
-    # assert (results.loc[results['cardinality'] == 5, 'constraint_name'].reset_index(drop=True) ==
-    #         results.loc[results['cardinality'] == 10, 'constraint_name'].reset_index(drop=True)).all()
-    # print((results.loc[results['cardinality'] == 10, ORIGINAL_PRED_METRICS].reset_index(drop=True) -
-    #        results.loc[results['cardinality'] == 5, ORIGINAL_PRED_METRICS].reset_index(drop=True)).
-    #       describe().transpose()[['min', '50%', 'max']])
-
-    # ---Objective value---
 
     print('Objective value aggregated over constraint types:')
     print(results.groupby('cardinality')['objective_value'].describe())
@@ -93,7 +88,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     X, y = data_utility.load_dataset(dataset_name=data_utility.list_datasets(directory=data_dir)[0],
                                      directory=data_dir)
     max_train_time = X['time'].quantile(q=0.8)  # split from ms_pipeline.py
-    X_train = X[X['time'] <= max_train_time].drop(columns=['pos_x', 'pos_y', 'pos_z', 'time'])
+    X_train = X[X['time'] <= max_train_time].drop(columns=['pos_x', 'pos_y', 'pos_z', 'time', 'step'])
     y_train = y[X['time'] <= max_train_time]
     qualities = pd.Series(feature_qualities.abs_corr(X=X_train, y=y_train), index=X_train.columns)
     # Make sure we have the correct qualities by computing one objective value with them:
@@ -102,15 +97,15 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     print(qualities.describe())
     print(f'Fraction of feature qualities >= 0.8: {(qualities >= 0.8).sum() / len(qualities):.2}')
 
-    # ---Selected features---
+    # ---5.2.2 Selected Features---
 
     # Test whether always the maximum number of possible features is selected:
     print('Always maximum number of features selected? ' +
           str((results['num_selected'] == results['cardinality']).all()))
 
     # Prepare Figure 7:
-    # Make sure results belonging to same cardinality follow each other (is assumed in naming below):
-    assert (results['cardinality'].diff() != 0).sum() == results['cardinality'].nunique()
+    # Make sure results have the cardinalities assumed below in the order assumed below:
+    assert (([5] * 12 + [10] * 12) == results['cardinality']).all()
     # Compute similarity between feature sets:
     similarity_matrix = np.zeros(shape=(len(results), len(results)))
     for i in range(len(results)):
@@ -120,13 +115,15 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     constraint_names = [f'(D{i+1})' for i in range(results['constraint_name'].nunique())] * results['cardinality'].nunique()
     similarity_matrix = pd.DataFrame(similarity_matrix, index=constraint_names, columns=constraint_names)
 
-    # Figure 7
+    # Figure 7a
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 14
     sns.heatmap(similarity_matrix.iloc[:12, :12], vmin=0, vmax=5, cmap='YlGnBu',
                 annot=True, square=True, cbar=False)
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-selected-similarity-card5.pdf')
+
+    # Figure 7b
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 14
     sns.heatmap(similarity_matrix.iloc[12:, 12:], vmin=0, vmax=10, cmap='YlGnBu',
@@ -140,6 +137,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     print(1 - grouping['objective_value'].min() / grouping['objective_value'].max())
 
 
+# Parse some command line arguments and run evaluation.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Creates the paper\'s plots to evaluate the case study in materials science.',
@@ -148,8 +146,9 @@ if __name__ == '__main__':
                         help='Directory with input data. Should contain datasets with two files each (X, y).')
     parser.add_argument('-r', '--results', type=pathlib.Path, default='data/ms-results/',
                         dest='results_dir', help='Directory with experimental results.')
-    parser.add_argument('-p', '--plots', type=pathlib.Path, default='../paper-cffs-text/plots/',
+    parser.add_argument('-p', '--plots', type=pathlib.Path, default='data/ms-plots/',
                         dest='plot_dir', help='Output directory for plots.')
     args = parser.parse_args()
-    evaluate(**vars(parser.parse_args()))
+    print('Evaluation started.')
+    evaluate(**vars(args))
     print('Plots created and saved.')
