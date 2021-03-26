@@ -140,6 +140,11 @@ if __name__ == '__main__':
                         help='Number of processes for multi-processing (default: all cores).')
     args = vars(parser.parse_args())  # extract dict from Namspace
     results_dir = args.pop('results_dir')
+    if not results_dir.is_dir():
+        print('Results directory does not exist. We create it.')
+        results_dir.mkdir(parents=True)
+    if len(list(results_dir.glob('*'))) > 0:
+        print('Results directory is not empty. Files might be overwritten, but not deleted.')
     print('Pipeline started.')
     pipeline_results = pipeline(**args)
     data_utility.save_results(pipeline_results, directory=results_dir)
