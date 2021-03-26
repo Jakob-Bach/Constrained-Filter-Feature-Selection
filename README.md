@@ -47,7 +47,7 @@ To set up an environment with `virtualenv`, run
 
 
 ```bash
-virtualenv -p <path/to/right/python/executable> <path/to/env/destination>
+python -m virtualenv -p <path/to/right/python/executable> <path/to/env/destination>
 ```
 
 Activate the environment in Linux with
