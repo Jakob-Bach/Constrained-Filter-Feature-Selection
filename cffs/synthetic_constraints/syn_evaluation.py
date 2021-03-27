@@ -117,23 +117,23 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     # ---5.1.3 Comparison of Constraint Types (Q2)---
 
     # Figure 4a
-    plt.figure(figsize=(4, 3))
+    plt.figure(figsize=(4, 4))
     plt.rcParams['font.size'] = 14
     sns.boxplot(x='Constraint type', y='$n_{so}^{norm}$', fliersize=0, color='black',
                 data=evaluation_utility.rename_for_plots(results),
                 boxprops={'facecolor': plt.get_cmap('Paired')(0)})
-    plt.xticks(rotation=60)
+    plt.xticks(rotation=70)
     plt.ylim(-0.1, 1.1)
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-constraint-type-vs-solutions.pdf')
 
     # Figure 4b
-    plt.figure(figsize=(4, 3))
+    plt.figure(figsize=(4, 4))
     plt.rcParams['font.size'] = 14
     sns.boxplot(x='Constraint type', y='$Q^{norm}$', fliersize=0, color='black',
                 data=evaluation_utility.rename_for_plots(results),
                 boxprops={'facecolor': plt.get_cmap('Paired')(0)})
-    plt.xticks(rotation=60)
+    plt.xticks(rotation=70)
     plt.ylim(-0.1, 1.1)
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-constraint-type-vs-objective.pdf')
