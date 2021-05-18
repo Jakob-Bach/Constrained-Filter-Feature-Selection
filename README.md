@@ -5,7 +5,7 @@ This repository contains the code to reproduce the experiments of the paper
 > Bach, Jakob, et al. "Evaluating the Impact of Constraints on Feature Selection"
 
 This document describes the repo structure and the steps to reproduce the experiments.
-Input data and results data of the experimental pipelines are also available [online](https://bwdatadiss.kit.edu/dataset/xxx).
+Input data and results data of the experimental pipelines are also available [online](https://www.ipd.kit.edu/mitarbeiter/bach/cffs-data-for-review.tar.gz).
 
 ## Repo Structure
 
@@ -107,6 +107,7 @@ You can reproduces the results of both studies with the same three steps, i.e., 
 
 1. **Prepare datasets:**
 Run the script `prepare_openml_datasets.py` or `prepare_ms_dataset.py` to prepare input data for the experimental pipeline.
+(If you use experimental data linked above, you can skip this step for the materials-science dataset.)
 These scripts apply some pre-processing and then save feature data (`X`) and prediction target (`y`) as CSVs for each dataset.
 You can specify the output directory.
 We recommend `data/openml/` and `data/ms/` as output directories, so the following pipeline scripts work without specifying a directory.
