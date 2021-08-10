@@ -17,7 +17,7 @@ from cffs.utilities import data_utility
 from cffs.utilities import evaluation_utility
 
 
-plt.rcParams['font.family'] = 'Linux Biolinum'
+plt.rcParams['font.family'] = 'Arial'
 
 
 # Create and save all plots to evaluate the study with synthetic constraints for the paper.
@@ -49,7 +49,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     prediction_data = evaluation_utility.reshape_prediction_data(results[ORIGINAL_PRED_METRICS])
     prediction_data = evaluation_utility.rename_for_plots(prediction_data)
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 11
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', data=prediction_data, palette='Paired', fliersize=0)
     plt.xticks(rotation=20)
     plt.ylim(-0.1, 1.1)
@@ -62,7 +62,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     prediction_data = evaluation_utility.reshape_prediction_data(prediction_data)
     prediction_data = evaluation_utility.rename_for_plots(prediction_data)
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 11
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', data=prediction_data, palette='Paired', fliersize=0)
     plt.xticks(rotation=20)
     plt.ylim(-0.1, 1.1)
@@ -74,7 +74,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
 
     # Figure 2
     plt.figure(figsize=(5, 5))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 13
     sns.heatmap(data=evaluation_utility.rename_for_plots(results[EVALUATION_METRICS]).corr(method='spearman'),
                 vmin=-1, vmax=1, cmap='PRGn', annot=True, square=True, cbar=False)
     plt.tight_layout()
@@ -84,7 +84,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     scatter_plot_data = results.sample(n=1000, random_state=25)
     scatter_plot_data = evaluation_utility.rename_for_plots(scatter_plot_data, long_metric_names=True)
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 20
+    plt.rcParams['font.size'] = 18
     scatter_plot_data.plot.scatter(x='Number of selected features $n_{se}^{norm}$', y='Objective value $Q^{norm}$',
                                    s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
     plt.tight_layout()
@@ -92,7 +92,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
 
     # Figure 3b
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 20
+    plt.rcParams['font.size'] = 18
     scatter_plot_data.plot.scatter(x='Number of solutions $n_{so}^{norm}$', y='Objective value $Q^{norm}$',
                                    s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
     plt.tight_layout()
@@ -100,7 +100,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
 
     # Figure 3c
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 11
     sns.boxplot(x='Number of constraints $n_{co}^{norm}$', y='Objective value $Q^{norm}$',
                 data=scatter_plot_data, color='black', boxprops={'facecolor': plt.get_cmap('Paired')(0)})
     plt.tight_layout()
@@ -108,7 +108,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
 
     # Figure 3d
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 20
+    plt.rcParams['font.size'] = 18
     scatter_plot_data.plot.scatter(x='Prediction $R^{2, norm}_{lreg}$', y='Objective value $Q^{norm}$',
                                    s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
     plt.tight_layout()
@@ -118,7 +118,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
 
     # Figure 4a
     plt.figure(figsize=(4, 4))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 11
     sns.boxplot(x='Constraint type', y='$n_{so}^{norm}$', fliersize=0, color='black',
                 data=evaluation_utility.rename_for_plots(results),
                 boxprops={'facecolor': plt.get_cmap('Paired')(0)})
@@ -129,7 +129,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
 
     # Figure 4b
     plt.figure(figsize=(4, 4))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 11
     sns.boxplot(x='Constraint type', y='$Q^{norm}$', fliersize=0, color='black',
                 data=evaluation_utility.rename_for_plots(results),
                 boxprops={'facecolor': plt.get_cmap('Paired')(0)})
@@ -162,7 +162,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
 
     # Figure 5a
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 11
     sns.boxplot(x='Dataset name', y='Objective value $Q^{norm}$', color='black',
                 data=evaluation_utility.rename_for_plots(results[['dataset_name', 'frac_objective']],
                                                          long_metric_names=True),
@@ -178,7 +178,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     agg_data = evaluation_utility.rename_for_plots(agg_data)
     agg_data = pd.melt(agg_data, var_name='Evaluation metric', value_name='Mean per dataset')
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 11
     sns.boxplot(x='Evaluation metric', y='Mean per dataset', data=agg_data,
                 color='black', boxprops={'facecolor': plt.get_cmap('Paired')(0)})
     plt.xticks(rotation=30)

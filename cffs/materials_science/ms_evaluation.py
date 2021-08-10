@@ -20,7 +20,7 @@ from cffs.utilities import evaluation_utility
 from cffs.utilities import feature_qualities
 
 
-plt.rcParams['font.family'] = 'Linux Biolinum'
+plt.rcParams['font.family'] = 'Arial'
 
 
 # Create and save all plots to evaluate the case study in materials science for the paper.
@@ -45,7 +45,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     # Figure 6a
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 11
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', palette='Paired',
                 data=prediction_data.drop(columns='Cardinality'))
     plt.xticks(rotation=20)
@@ -56,7 +56,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     # Figure 6b
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 11
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Cardinality', palette='Paired',
                 data=prediction_data[prediction_data['Split'] == 'Test'].drop(columns='Split'))
     plt.xticks(rotation=20)
@@ -117,7 +117,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     # Figure 7a
     plt.figure(figsize=(5, 5))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 13
     sns.heatmap(similarity_matrix.iloc[:12, :12], vmin=0, vmax=5, cmap='YlGnBu',
                 annot=True, square=True, cbar=False)
     plt.tight_layout()
@@ -125,7 +125,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     # Figure 7b
     plt.figure(figsize=(5, 5))
-    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.size'] = 13
     sns.heatmap(similarity_matrix.iloc[12:, 12:], vmin=0, vmax=10, cmap='YlGnBu',
                 annot=True, square=True, cbar=False)
     plt.tight_layout()
