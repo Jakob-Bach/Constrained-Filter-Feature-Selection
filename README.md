@@ -1,11 +1,13 @@
-# Constrained Filter Feature Selection
+# An Empirical Evaluation of Constrained Feature Selection
 
 This repository contains the code to reproduce the experiments of the paper
 
-> Bach, Jakob, et al. "Evaluating the Impact of Constraints on Feature Selection"
+> Bach, Jakob, et al. "An Empirical Evaluation of Constrained Feature Selection"
 
+(The paper is not published yet.
+Once it's published, we'll add a link to it here.)
 This document describes the repo structure and the steps to reproduce the experiments.
-Input data and results data of the experimental pipelines are also available [online](https://www.ipd.kit.edu/mitarbeiter/bach/cffs-data-for-review.tar.gz).
+(Input data and results data of the experimental pipelines will also be available online.)
 
 ## Repo Structure
 
