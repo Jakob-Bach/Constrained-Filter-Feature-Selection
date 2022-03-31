@@ -43,7 +43,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
                           'frac_solutions', 'frac_selected', 'frac_objective',
                           'frac_linear-regression_test_r2', 'frac_xgb-tree_test_r2']
 
-    # ---5.1.1 Comparison of Prediction Performance---
+    # ---4.2.1 Comparison of Prediction Performance---
 
     # Figure 1a
     prediction_data = evaluation_utility.reshape_prediction_data(results[ORIGINAL_PRED_METRICS])
@@ -70,7 +70,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-prediction-performance-unconstrained.pdf')
 
-    # ---5.1.2 Relationship Between Evaluation Metrics (Q1)---
+    # ---4.2.2 Relationship Between Evaluation Metrics (Q1)---
 
     # Figure 2
     plt.figure(figsize=(5, 5))
@@ -114,7 +114,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-frac-linear-regression-r2-vs-objective.pdf')
 
-    # ---5.1.3 Comparison of Constraint Types (Q2)---
+    # ---4.2.3 Comparison of Constraint Types (Q2)---
 
     # Figure 4a
     plt.figure(figsize=(4, 4))
@@ -158,7 +158,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     # plt.ylim(-0.1, 1.1)
     # plt.tight_layout()
 
-    # ---5.1.4 Comparison of Datasets (Q3)---
+    # ---4.2.4 Comparison of Datasets (Q3)---
 
     # Figure 5a
     plt.figure(figsize=(4, 3))
