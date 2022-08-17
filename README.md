@@ -4,10 +4,10 @@ This repository contains the code to reproduce the experiments of the paper
 
 > Bach, Jakob, et al. "An Empirical Evaluation of Constrained Feature Selection"
 
-(The paper is not published yet.
-Once it's published, we'll add a link to it here.)
+published at the journal [*SN Computer Science*](https://www.springer.com/journal/42979).
+You can find the paper [here](https://doi.org/10.1007/s42979-022-01338-z).
+You can find the corresponding complete experimental data (inputs as well as results) on [KITopenData](https://doi.org/10.5445/IR/1000148891).
 This document describes the repo structure and the steps to reproduce the experiments.
-(Input data and results data of the experimental pipelines will also be available online.)
 
 ## Repo Structure
 
