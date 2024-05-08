@@ -7,7 +7,11 @@ This repository contains the code to reproduce the experiments of the paper
 published at the journal [*SN Computer Science*](https://www.springer.com/journal/42979).
 You can find the paper [here](https://doi.org/10.1007/s42979-022-01338-z).
 You can find the corresponding complete experimental data (inputs as well as results) on [KITopenData](https://doi.org/10.5445/IR/1000148891).
-This document describes the repo structure and the steps to reproduce the experiments.
+This document describes:
+
+- An outline of the [repo structure](#repo-structure).
+- A [demo](#demo) of the core functionality.
+- Steps for [setting up](#setup) a virtual environment and [reproducing](#reproducing-the-experiments) the experiments.
 
 ## Repo Structure
 
@@ -19,6 +23,78 @@ The code is organized as a Python package called `cffs`, with multiple sub-packa
 - `utilities`: Code for the experimental pipelines, like data I/O, computing feature qualities and predicting.
 
 You can find more information on individual files below, where we describe the steps to reproduce the experiments.
+
+## Demo
+
+For constrained filter feature selection, we first need to compute an individual quality score for each feature.
+(We only consider univariate feature selection, so we ignore interactions between features.)
+To this end, `cffs.utilities.feature_qualities` provides functions for
+
+- the absolute value of Pearson correlation between feature and prediction target (`abs_corr()`)
+- the mutual information between feature and prediction target (`mut_info()`)
+
+Both functions round the qualities to two digits to speed up solving.
+(We found that the solver becomes slower the more precise the floats are,
+as they are represented as rational numbers.)
+As inputs, the quality functions require a dataset in X-y form (as used in `sklearn`).
+
+After computing feature qualities, we set up an SMT optimization problem from `cffs.core.combi_solving`.
+It's "combi" in the sense that our code wraps an existing SMT solver (`Z3`).
+We retrieve the problem's decision variables (one binary variable for each feature) and use them to
+formulate constraints with `cffs.core.combi_expressions`.
+These constraints are added to `Z3` but also to our own expression tree,
+which we use to count the number of valid solutions in the search space.
+Finally, we start optimization.
+
+```python
+from cffs.core.combi_expressions import And, AtMost, Xor
+from cffs.core.combi_solving import Problem
+from cffs.utilities.feature_qualities import mut_info
+import sklearn.datasets
+
+X, y = sklearn.datasets.load_iris(as_frame=True, return_X_y=True)
+feature_qualities = mut_info(X=X, y=y)
+problem = Problem(variable_names=X.columns, qualities=feature_qualities)
+
+print('--- -Constrained problem ---')
+variables = problem.get_variables()
+problem.add_constraint(AtMost(variables, 2))
+problem.add_constraint(And([Xor(variables[0], variables[1]), Xor(variables[2], variables[3])]))
+print(problem.optimize())
+print('Number of constraints:', problem.get_num_constraints())
+print('Fraction of valid solution', problem.compute_solution_fraction())
+
+print('\n--- Unconstrained problem ---')
+problem.clear_constraints()
+print(problem.optimize())
+print('Number of constraints:', problem.get_num_constraints())
+print('Fraction of valid solution', problem.compute_solution_fraction())
+```
+
+The output is the following:
+
+```
+--- -Constrained problem ---
+{'objective_value': 1.48, 'num_selected': 2, 'selected': ['petal width (cm)', 'sepal length (cm)']}
+Number of constraints: 2
+Fraction of valid solution 0.25
+
+--- Unconstrained problem ---
+{'objective_value': 2.71, 'num_selected': 4, 'selected': ['petal width (cm)', 'petal length (cm)', 'sepal length (cm)', 'sepal width (cm)']}
+Number of constraints: 0
+Fraction of valid solution 1.0
+```
+
+The optimization procedure returns the objective value (summed quality of selected features)
+and the feature selection.
+To assess how strongly the constraints cut down the space of valid solutions,
+we can use `compute_solution_fraction()`.
+However, this function iterates over each solution candidate and checks whether it is valid or not.
+Alternatively, `estimate_solution_fraction()` randomly samples solutions to estimate this quantity.
+
+Our code snippet also shows that you can remove all constraints without setting up a new optimization problem.
+You can also add further constraints after optimization and then optimize again.
+The optimizer keeps its state between optimizations, so you may benefit from a warm start.
 
 ## Setup
 
