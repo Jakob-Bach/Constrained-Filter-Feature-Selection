@@ -20,7 +20,7 @@ The code is organized as a Python package called `cffs`, with multiple sub-packa
 - `core`: Code for SMT expressions (to formulate constraints), solving and optimization.
 - `materials_science`: Code for our case study with manually-defined constraints in materials science.
 - `synthetic_constraints`: Code for our study with synthetically generated constraints on arbitrary datasets.
-- `utilities`: Code for the experimental pipelines, like data I/O, computing feature qualities and predicting.
+- `utilities`: Code for the experimental pipelines, like data I/O, computing feature qualities, and predicting.
 
 You can find more information on individual files below, where we describe the steps to reproduce the experiments.
 
@@ -30,8 +30,8 @@ For constrained filter feature selection, we first need to compute an individual
 (We only consider univariate feature selection, so we ignore interactions between features.)
 To this end, `cffs.utilities.feature_qualities` provides functions for
 
-- the absolute value of Pearson correlation between feature and prediction target (`abs_corr()`)
-- the mutual information between feature and prediction target (`mut_info()`)
+- the absolute value of Pearson correlation between each feature and the prediction target (`abs_corr()`)
+- the mutual information between each feature and the prediction target (`mut_info()`)
 
 Both functions round the qualities to two digits to speed up solving.
 (We found that the solver becomes slower the more precise the floats are,
@@ -62,13 +62,13 @@ problem.add_constraint(AtMost(variables, 2))
 problem.add_constraint(And([Xor(variables[0], variables[1]), Xor(variables[2], variables[3])]))
 print(problem.optimize())
 print('Number of constraints:', problem.get_num_constraints())
-print('Fraction of valid solution', problem.compute_solution_fraction())
+print('Fraction of valid solutions:', problem.compute_solution_fraction())
 
 print('\n--- Unconstrained problem ---')
 problem.clear_constraints()
 print(problem.optimize())
 print('Number of constraints:', problem.get_num_constraints())
-print('Fraction of valid solution', problem.compute_solution_fraction())
+print('Fraction of valid solutions:', problem.compute_solution_fraction())
 ```
 
 The output is the following:
@@ -77,12 +77,12 @@ The output is the following:
 --- -Constrained problem ---
 {'objective_value': 1.48, 'num_selected': 2, 'selected': ['petal width (cm)', 'sepal length (cm)']}
 Number of constraints: 2
-Fraction of valid solution 0.25
+Fraction of valid solutions: 0.25
 
 --- Unconstrained problem ---
 {'objective_value': 2.71, 'num_selected': 4, 'selected': ['petal width (cm)', 'petal length (cm)', 'sepal length (cm)', 'sepal width (cm)']}
 Number of constraints: 0
-Fraction of valid solution 1.0
+Fraction of valid solutions: 1.0
 ```
 
 The optimization procedure returns the objective value (summed quality of selected features)
@@ -181,24 +181,24 @@ jupyter notebook
 ## Reproducing the Experiments
 
 After setting up and activating an environment, you are ready to run the code.
-You can reproduces the results of both studies with the same three steps, i.e., by running three scripts each:
+You can reproduce the results of both studies with the same three steps, i.e., by running three scripts each:
 
 1. **Prepare datasets:**
 Run the script `prepare_openml_datasets.py` or `prepare_ms_dataset.py` to prepare input data for the experimental pipeline.
-(If you use experimental data linked above, you can skip this step for the materials-science dataset.)
+(If you use the experimental data linked above, you can skip this step for the materials-science dataset.)
 These scripts apply some pre-processing and then save feature data (`X`) and prediction target (`y`) as CSVs for each dataset.
 You can specify the output directory.
 We recommend `data/openml/` and `data/ms/` as output directories, so the following pipeline scripts work without specifying a directory.
 For the materials-science pre-processing, you need to provide the raw voxel dataset `voxel_data.csv` as an input.
 For the OpenML pre-processing, you need an internet connection, as the datasets are downloaded first.
-`prepare_demo_dataset.py` is a light-weight alternative to test the pipeline for synthetic constraints,
+`prepare_demo_dataset.py` is a lightweight alternative to test the pipeline for synthetic constraints,
 as it just prepares one dataset, which is already part of `sklearn`.
 2. **Run experimental pipeline:**
 Run the script `syn_pipeline.py` or `ms_pipeline.py` to execute the experimental pipeline.
 These scripts save the results as one or more CSV file(s).
 A merged results file is available as `results.csv`.
-You can specify various options, e.g., output directory, number of cores, number of repetitions etc.
-We recommend to use the default output directories `data/openml-results/` and `data/ms-results/`,
+You can specify various options, e.g., output directory, number of cores, number of repetitions, etc.
+We recommend using the default output directories `data/openml-results/` and `data/ms-results/`,
 so the following evaluation scripts work without specifying a directory.
 3. **Run evaluation:**
 Run the script `syn_evaluation.py` or `ms_evaluation.py` to create the paper's plots.
