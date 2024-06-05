@@ -3,7 +3,7 @@
 Script which downloads datasets from OpenML and saves them in a format suitable for the
 synthetic-constraints pipeline.
 
-Usage: python -m cffs.synthetic_constraints.prepare_openml_datasets --help
+Usage: python -m synthetic_constraints.prepare_openml_datasets --help
 """
 
 import argparse
@@ -14,7 +14,7 @@ import numpy as np
 import openml
 import tqdm
 
-from cffs.utilities import data_utility
+from utilities import data_utility
 
 
 # Download and store OpenML datasets as prediction-ready (X-y format) CSVs.

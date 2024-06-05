@@ -12,8 +12,8 @@ import pathlib
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from cffs.utilities import data_utility
-from cffs.utilities import evaluation_utility
+from utilities import data_utility
+from utilities import evaluation_utility
 
 
 results = data_utility.load_results(directory=pathlib.Path('data/openml-results/'))

@@ -3,14 +3,14 @@
 Script which pre-processes and saves a materials-science dataset in a format suitable for the
 materials-science pipeline.
 
-Usage: python -m cffs.materials_science.prepare_ms_dataset --help
+Usage: python -m materials_science.prepare_ms_dataset --help
 """
 
 import argparse
 import pathlib
 
-from cffs.utilities import data_utility
-from cffs.materials_science import ms_data_utility
+from materials_science import ms_data_utility
+from utilities import data_utility
 
 
 REACTION_TYPE = 'glissile'  # focus on one type of dislocation reactions

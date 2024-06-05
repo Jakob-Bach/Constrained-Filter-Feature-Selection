@@ -3,7 +3,7 @@
 Script to compute all summary statistics and create all plots used in the paper to evaluate the
 study with synthetic constraints. Should be run after the experimental pipeline.
 
-Usage: python -m cffs.synthetic_constraints.syn_paper_evaluation --help
+Usage: python -m synthetic_constraints.syn_paper_evaluation --help
 """
 
 import argparse
@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from cffs.utilities import data_utility
-from cffs.utilities import evaluation_utility
+from utilities import data_utility
+from utilities import evaluation_utility
 
 
 plt.rcParams['font.family'] = 'Arial'

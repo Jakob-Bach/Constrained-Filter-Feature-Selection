@@ -10,91 +10,25 @@ You can find the corresponding complete experimental data (inputs as well as res
 This document describes:
 
 - An outline of the [repo structure](#repo-structure).
-- A [demo](#demo) of the core functionality.
 - Steps for [setting up](#setup) a virtual environment and [reproducing](#reproducing-the-experiments) the experiments.
 
 ## Repo Structure
 
-The code is organized as a Python package called `cffs`, with multiple sub-packages:
+On the top level, there are the following (non-code) files:
 
-- `core`: Code for SMT expressions (to formulate constraints), solving and optimization.
-- `materials_science`: Code for our case study with manually-defined constraints in materials science.
+- `.gitignore`: For Python development.
+- `LICENSE`: The software is MIT-licensed, so feel free to use the code.
+- `README.md`: You are here :upside_down_face:
+- `requirements.txt`: To set up an environment with all necessary dependencies; see below for details.
+
+The folder `src` contains the code in multiple sub-directories:
+
+- `cffs_package`: Code for SMT expressions (to formulate constraints), solving and optimization.
+  Organized as the standalone Python package `cffs` (i.e., can be used without the remaining code).
+  See the [corresponding README](src/cffs_package/README.md) for more information.
+- `materials_science`: Code for our case study with manually defined constraints in materials science.
 - `synthetic_constraints`: Code for our study with synthetically generated constraints on arbitrary datasets.
 - `utilities`: Code for the experimental pipelines, like data I/O, computing feature qualities, and predicting.
-
-You can find more information on individual files below, where we describe the steps to reproduce the experiments.
-
-## Demo
-
-For constrained filter feature selection, we first need to compute an individual quality score for each feature.
-(We only consider univariate feature selection, so we ignore interactions between features.)
-To this end, `cffs.utilities.feature_qualities` provides functions for
-
-- the absolute value of Pearson correlation between each feature and the prediction target (`abs_corr()`)
-- the mutual information between each feature and the prediction target (`mut_info()`)
-
-Both functions round the qualities to two digits to speed up solving.
-(We found that the solver becomes slower the more precise the floats are,
-as they are represented as rational numbers.)
-As inputs, the quality functions require a dataset in X-y form (as used in `sklearn`).
-
-After computing feature qualities, we set up an SMT optimization problem from `cffs.core.combi_solving`.
-It's "combi" in the sense that our code wraps an existing SMT solver (`Z3`).
-We retrieve the problem's decision variables (one binary variable for each feature) and use them to
-formulate constraints with `cffs.core.combi_expressions`.
-These constraints are added to `Z3` but also to our own expression tree,
-which we use to count the number of valid solutions in the search space.
-Finally, we start optimization.
-
-```python
-from cffs.core.combi_expressions import And, AtMost, Xor
-from cffs.core.combi_solving import Problem
-from cffs.utilities.feature_qualities import mut_info
-import sklearn.datasets
-
-X, y = sklearn.datasets.load_iris(as_frame=True, return_X_y=True)
-feature_qualities = mut_info(X=X, y=y)
-problem = Problem(variable_names=X.columns, qualities=feature_qualities)
-
-print('--- -Constrained problem ---')
-variables = problem.get_variables()
-problem.add_constraint(AtMost(variables, 2))
-problem.add_constraint(And([Xor(variables[0], variables[1]), Xor(variables[2], variables[3])]))
-print(problem.optimize())
-print('Number of constraints:', problem.get_num_constraints())
-print('Fraction of valid solutions:', problem.compute_solution_fraction())
-
-print('\n--- Unconstrained problem ---')
-problem.clear_constraints()
-print(problem.optimize())
-print('Number of constraints:', problem.get_num_constraints())
-print('Fraction of valid solutions:', problem.compute_solution_fraction())
-```
-
-The output is the following:
-
-```
---- -Constrained problem ---
-{'objective_value': 1.48, 'num_selected': 2, 'selected': ['petal width (cm)', 'sepal length (cm)']}
-Number of constraints: 2
-Fraction of valid solutions: 0.25
-
---- Unconstrained problem ---
-{'objective_value': 2.71, 'num_selected': 4, 'selected': ['petal width (cm)', 'petal length (cm)', 'sepal length (cm)', 'sepal width (cm)']}
-Number of constraints: 0
-Fraction of valid solutions: 1.0
-```
-
-The optimization procedure returns the objective value (summed quality of selected features)
-and the feature selection.
-To assess how strongly the constraints cut down the space of valid solutions,
-we can use `compute_solution_fraction()`.
-However, this function iterates over each solution candidate and checks whether it is valid or not.
-Alternatively, `estimate_solution_fraction()` randomly samples solutions to estimate this quantity.
-
-Our code snippet also shows that you can remove all constraints without setting up a new optimization problem.
-You can also add further constraints after optimization and then optimize again.
-The optimizer keeps its state between optimizations, so you may benefit from a warm start.
 
 ## Setup
 
@@ -161,23 +95,6 @@ To leave the environment, run
 deactivate
 ```
 
-### Optional Dependencies
-
-To use the environment in the IDE `Spyder`, you need to install `spyder-kernels` into the environment.
-
-To run or create notebooks from the environment, you need to install `juypter` into the environment.
-Next, you need to install a kernel for the environment:
-
-```bash
-ipython kernel install --user --name=<kernel-name>
-```
-
-After that, you should see (and be able to select) the kernel when running `Juypter Notebook` with
-
-```bash
-jupyter notebook
-```
-
 ## Reproducing the Experiments
 
 After setting up and activating an environment, you are ready to run the code.
@@ -205,10 +122,10 @@ Run the script `syn_evaluation.py` or `ms_evaluation.py` to create the paper's p
 These scripts save the plots as PDFs.
 You can specify the input and output directory.
 
-Execute all scripts from the top-level directory of this repo like this:
+Execute all scripts from the `src` directory of this repo like this:
 
 ```bash
-python -m cffs.synthetic_constraints.prepare_demo_dataset <options>
+python -m synthetic_constraints.prepare_demo_dataset <options>
 ```
 
 `-m <module.import.syntax>` makes sure imports of sub-packages work.

@@ -10,8 +10,8 @@ from typing import Optional, Sequence
 
 import pandas as pd
 
-from cffs.core import combi_expressions as expr
-from cffs.core import combi_solving as solv
+from cffs import combi_expressions as expr
+from cffs import combi_solving as solv
 
 
 # Super-class containing the generation and evaluation procedure for constraints, without defining

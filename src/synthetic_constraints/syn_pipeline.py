@@ -3,7 +3,7 @@
 Main script (experimental pipeline) for our study with synthetic constraints.
 Should be run after preparing one or more dataset(s).
 
-Usage: python -m cffs.synthetic_constraints.syn_pipeline --help
+Usage: python -m synthetic_constraints.syn_pipeline --help
 """
 
 import argparse
@@ -14,14 +14,16 @@ from typing import Any, Optional
 import pandas as pd
 import tqdm
 
-from cffs.core import combi_solving
-from cffs.utilities import data_utility
-from cffs.utilities import feature_qualities
-from cffs.utilities import prediction_utility
-from cffs.synthetic_constraints import syn_constraints
+from cffs import combi_solving
+from cffs import feature_qualities
+from utilities import data_utility
+from utilities import prediction_utility
+from synthetic_constraints import syn_constraints
 
+FEATURE_QUALITIES = {'abs_corr': feature_qualities.abs_corr,
+                     'mut_info': feature_qualities.mut_info}
 
-COMMON_GENERATOR_ARGS = {'num_iterations': 1000, 'min_num_constraints': 1, 'max_num_constraints': 10}
+COMMON_GENERATOR_ARGS = {'min_num_constraints': 1, 'max_num_constraints': 10}
 
 GENERATORS = {  # constraint types
     'Global-AT-MOST': {'func': 'GlobalAtMostGenerator', 'args': COMMON_GENERATOR_ARGS},  # args will have no effect
@@ -58,7 +60,7 @@ def evaluate_constraint_type(
         else:
             X_test = None
             y_test = None
-        for quality_name, quality_func in feature_qualities.QUALITIES.items():
+        for quality_name, quality_func in FEATURE_QUALITIES.items():
             qualities = quality_func(X_train, y_train)
             problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
             generator_func = getattr(syn_constraints, GENERATORS[generator_name]['func'])
@@ -124,7 +126,7 @@ def pipeline(data_dir: pathlib.Path, results_dir: Optional[pathlib.Path] = None,
 # Parse some command-line arguments, run the pipeline, and save the results.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Evaluates generated constraints from multiple constraint types on arbitary' +
+        description='Evaluates generated constraints from multiple constraint types on arbitary ' +
         'datasets.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--data', type=pathlib.Path, default='data/openml/', dest='data_dir',
                         help='Directory with input data. Should contain datasets with two files each (X, y).')

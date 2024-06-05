@@ -3,7 +3,7 @@
 Main script (experimental pipeline) for our case study in materials science.
 Should be run after preparing a dataset.
 
-Usage: python -m cffs.materials_science.ms_pipeline --help
+Usage: python -m materials_science.ms_pipeline --help
 """
 
 import argparse
@@ -15,14 +15,14 @@ from typing import Any, Optional
 import pandas as pd
 import tqdm
 
-from cffs.core import combi_solving
-from cffs.materials_science import ms_constraints
-from cffs.utilities import data_utility
-from cffs.utilities import feature_qualities
-from cffs.utilities import prediction_utility
+from cffs import combi_solving
+from cffs import feature_qualities
+from materials_science import ms_constraints
+from utilities import data_utility
+from utilities import prediction_utility
 
 
-MS_FEATURE_QUALITIES = {'abs_corr': feature_qualities.abs_corr}
+FEATURE_QUALITIES = {'abs_corr': feature_qualities.abs_corr}
 
 BASE_EVALUATORS = {  # domain-specific constraint types
     'Schmid-group': {'func': 'SchmidGroupEvaluator', 'args': {}},
@@ -73,7 +73,7 @@ def evaluate_constraints(evaluator_name: str, dataset_name: str, data_dir: pathl
     y_test = y[X['time'] > max_train_time]
     if (len(X_train) == 0) or (len(X_test) == 0):
         raise RuntimeError('Splitting caused empty training or empty test set.')
-    for quality_name, quality_func in MS_FEATURE_QUALITIES.items():
+    for quality_name, quality_func in FEATURE_QUALITIES.items():
         qualities = quality_func(X_train, y_train)
         problem = combi_solving.Problem(variable_names=list(X_train), qualities=qualities)
         evaluator_func = getattr(ms_constraints, EVALUATORS[evaluator_name]['func'])
@@ -130,7 +130,7 @@ def pipeline(data_dir: pathlib.Path, n_processes: Optional[int] = None) -> pd.Da
 # Parse some command-line arguments, run the pipeline, and save the results.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Evaluates multiple types of manually-defined constraints on one or more' +
+        description='Evaluates multiple types of manually-defined constraints on one or more ' +
         'materials-science datasets.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--data', type=pathlib.Path, default='data/ms/', dest='data_dir',
                         help='Directory with input data. Should contain datasets with two files each (X, y).')

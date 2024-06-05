@@ -2,7 +2,7 @@
 
 Script which saves one demo dataset in a format suitable for the synthetic-constraints pipeline.
 
-Usage: python -m cffs.synthetic_constraints.prepare_demo_dataset --help
+Usage: python -m synthetic_constraints.prepare_demo_dataset --help
 """
 
 import argparse
@@ -11,7 +11,7 @@ import pathlib
 import pandas as pd
 import sklearn.datasets
 
-from cffs.utilities import data_utility
+from utilities import data_utility
 
 
 # Store a sklearn demo dataset as prediction-ready (X-y format) CSVs.

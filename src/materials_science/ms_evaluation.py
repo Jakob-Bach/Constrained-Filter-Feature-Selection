@@ -3,7 +3,7 @@
 Script to compute all summary statistics and create all plots used in the paper to evaluate the
 case study in materials science. Should be run after the experimental pipeline.
 
-Usage: python -m cffs.materials_science.ms_evaluation --help
+Usage: python -m materials_science.ms_evaluation --help
 """
 
 import argparse
@@ -15,9 +15,9 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from cffs.utilities import data_utility
-from cffs.utilities import evaluation_utility
-from cffs.utilities import feature_qualities
+from cffs import feature_qualities
+from utilities import data_utility
+from utilities import evaluation_utility
 
 
 plt.rcParams['font.family'] = 'Arial'

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cffs"
+version = "0.0.1"
+authors = [
+    {name="Jakob Bach"},
+]
+description = "Constrained feature selection"
+keywords = ["feature selection", "constraints"]
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "pandas>=1.1.3",
+    "scikit-learn>=0.23.2",
+    "z3-solver>=4.8.9.0",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/Jakob-Bach/Constrained-Filter-Feature-Selection/"
+Issues = "hhttps://github.com/Jakob-Bach/Constrained-Filter-Feature-Selection/issues"
