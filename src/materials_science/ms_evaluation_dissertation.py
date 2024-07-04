@@ -1,9 +1,9 @@
 """Evaluation of the case study in materials science
 
-Script to compute all summary statistics and create all plots used in the paper to evaluate the
-case study in materials science. Should be run after the experimental pipeline.
+Script to compute all summary statistics and create all plots used in the dissertation to evaluate
+the case study in materials science. Should be run after the experimental pipeline.
 
-Usage: python -m materials_science.ms_evaluation --help
+Usage: python -m materials_science.ms_evaluation_dissertation --help
 """
 
 import argparse
@@ -23,9 +23,9 @@ from utilities import evaluation_utility
 plt.rcParams['font.family'] = 'Arial'
 
 
-# Create and save all plots to evaluate the case study in materials science for the paper.
+# Create and save all plots to evaluate the case study in materials science for the dissertation.
 # To that end, read a results file from the "results_dir" and save plots to the "plot_dir".
-# Also, print some statistics that are used in the paper as well.
+# Also, print some statistics that are used in the dissertation as well.
 def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     if not plot_dir.is_dir():
         print('Plot directory does not exist. We create it.')
@@ -111,7 +111,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     for i in range(len(results)):
         for j in range(len(results)):
             similarity_matrix[i, j] = len(set(results['selected'].iloc[i]).intersection(results['selected'].iloc[j]))
-    # Use names from paper:
+    # Use names from dissertation:
     constraint_names = [f'(D{i+1})' for i in range(results['constraint_name'].nunique())] * results['cardinality'].nunique()
     similarity_matrix = pd.DataFrame(similarity_matrix, index=constraint_names, columns=constraint_names)
 
@@ -140,7 +140,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 # Parse some command line arguments and run evaluation.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Creates the paper\'s plots to evaluate the case study in materials science.',
+        description='Creates the dissertation\'s plots to evaluate the case study in materials science.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--data', type=pathlib.Path, default='data/ms/', dest='data_dir',
                         help='Directory with input data. Should contain datasets with two files each (X, y).')

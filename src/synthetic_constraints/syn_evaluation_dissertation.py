@@ -1,9 +1,9 @@
 """Evaluation of the study with synthetic constraints
 
-Script to compute all summary statistics and create all plots used in the paper to evaluate the
-study with synthetic constraints. Should be run after the experimental pipeline.
+Script to compute all summary statistics and create all plots used in the dissertation to evaluate
+the study with synthetic constraints. Should be run after the experimental pipeline.
 
-Usage: python -m synthetic_constraints.syn_paper_evaluation --help
+Usage: python -m synthetic_constraints.syn_evaluation_dissertation --help
 """
 
 import argparse
@@ -20,7 +20,7 @@ from utilities import evaluation_utility
 plt.rcParams['font.family'] = 'Arial'
 
 
-# Create and save all plots to evaluate the study with synthetic constraints for the paper.
+# Create and save all plots to evaluate the study with synthetic constraints for the dissertation.
 # To that end, read a results file from the "results_dir" and save plots to the "plot_dir".
 def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     if not plot_dir.is_dir():
@@ -197,7 +197,7 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
 # Parse some command line argument and run evaluation.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Creates the paper\'s plots to evaluate the study with synthetic constraints.',
+        description='Creates the dissertation\'s plots to evaluate the study with synthetic constraints.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-r', '--results', type=pathlib.Path, default='data/openml-results/',
                         dest='results_dir', help='Directory with experimental results.')

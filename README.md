@@ -1,13 +1,19 @@
 # An Empirical Evaluation of Constrained Feature Selection
 
-This repository contains the code to reproduce the experiments of the paper
+This repository contains the code of a paper and a dissertation:
 
 > Bach, Jakob, et al. "An Empirical Evaluation of Constrained Feature Selection"
 
-published at the journal [*SN Computer Science*](https://www.springer.com/journal/42979).
+is a paper published in the journal [*SN Computer Science*](https://www.springer.com/journal/42979).
 You can find the paper [here](https://doi.org/10.1007/s42979-022-01338-z).
 You can find the corresponding complete experimental data (inputs as well as results) on [KITopenData](https://doi.org/10.5445/IR/1000148891).
-This document describes:
+
+> Bach, Jakob. "Leveraging Constraints for User-Centric Feature Selection"
+
+is a dissertation in progress.
+Once it is published, we will link it (and its experimental data) here as well.
+
+This `README` describes:
 
 - An outline of the [repo structure](#repo-structure).
 - Steps for [setting up](#setup) a virtual environment and [reproducing](#reproducing-the-experiments) the experiments.
@@ -118,7 +124,8 @@ You can specify various options, e.g., output directory, number of cores, number
 We recommend using the default output directories `data/openml-results/` and `data/ms-results/`,
 so the following evaluation scripts work without specifying a directory.
 3. **Run evaluation:**
-Run the script `syn_evaluation.py` or `ms_evaluation.py` to create the paper's plots.
+Run the scripts `syn_evaluation_journal.py` and `ms_evaluation_journal.py` to create the paper's plots or
+run the scripts `syn_evaluation_dissertation.py` and `ms_evaluation_dissertation.py` to create the dissertation's plots.
 These scripts save the plots as PDFs.
 You can specify the input and output directory.
 
