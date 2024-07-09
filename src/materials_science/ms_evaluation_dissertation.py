@@ -41,7 +41,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # ---5.2.1 Solution Quality---
 
     prediction_data = evaluation_utility.reshape_prediction_data(results, additional_columns=['cardinality'])
-    prediction_data = evaluation_utility.rename_for_plots(prediction_data)
+    prediction_data = evaluation_utility.rename_for_plots(prediction_data, is_dissertation=True)
 
     # Figure 6a
     plt.figure(figsize=(4, 3))

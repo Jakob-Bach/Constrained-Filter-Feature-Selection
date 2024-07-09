@@ -57,11 +57,13 @@ def reshape_prediction_data(results: pd.DataFrame, additional_columns: Optional[
     return results
 
 
-# Rename columns and also some values for the paper's plots. "long_metric_name" determines
-# whether name + formal identifier or just the formal identifier are used for metrics.
+# Rename columns and also some values for the paper's and dissertation's plots. "long_metric_name"
+# determines whether name + formal identifier or just the formal identifier are used for metrics.
+# "is_dissertation" controls whether the metric names from the dissertation or the paper are used.
 # Note that the names used here are refered to in the evaluation scripts, so if you change
 # something here, you should also change it there.
-def rename_for_plots(results: pd.DataFrame, long_metric_names: bool = False) -> pd.DataFrame:
+def rename_for_plots(results: pd.DataFrame, long_metric_names: bool = False,
+                     is_dissertation: bool = False) -> pd.DataFrame:
     results = results.copy()
     if 'split' in results.columns:
         results['split'] = results['split'].replace({'train': 'Train', 'test': 'Test'})
@@ -75,21 +77,46 @@ def rename_for_plots(results: pd.DataFrame, long_metric_names: bool = False) -> 
     results.rename(columns={'model': 'Prediction model', 'split': 'Split', 'r2': '$R^2$',
                             'constraint_name': 'Constraint type', 'dataset_name': 'Dataset name',
                             'cardinality': 'Cardinality'}, inplace=True)
-    if long_metric_names:
-        results.rename(columns={
-            'frac_constraints': 'Number of constraints $n_{co}^{norm}$',
-            'frac_solutions': 'Number of solutions $n_{so}^{norm}$',
-            'frac_selected': 'Number of selected features $n_{se}^{norm}$',
-            'frac_objective': 'Objective value $Q^{norm}$',
-            'frac_linear-regression_test_r2': 'Prediction $R^{2, norm}_{lreg}$',
-            'frac_xgb-tree_test_r2': 'Prediction $R^{2, norm}_{btree}$'
-        }, inplace=True)
+    if is_dissertation:
+        if long_metric_names:
+            results.rename(columns={
+                'frac_constraints': 'Number of constraints $n_{\\mathrm{co}}^{\\mathrm{norm}}$',
+                'frac_solutions': 'Number of solutions $n_{\\mathrm{so}}^{\\mathrm{norm}}$',
+                'frac_selected': 'Number of selected features $n_{\\mathrm{se}}^{\\mathrm{norm}}$',
+                'frac_objective': 'Objective value $Q^{\\mathrm{norm}}$',
+                'frac_linear-regression_test_r2': 'Prediction $R^{2, \\mathrm{norm}}_{\\mathrm{lreg}}$',
+                'frac_xgb-tree_test_r2': 'Prediction $R^{2, \\mathrm{norm}}_{\\mathrm{btree}}$'
+            }, inplace=True)
+        else:
+            results.rename(columns={
+                'frac_constraints': '$n_{\\mathrm{co}}^{\\mathrm{norm}}$',
+                'frac_constrained_variables': '$n_{\\mathrm{cf}}^{\\mathrm{norm}}$',
+                'frac_unique_constrained_variables': '$n_{\\mathrm{ucf}}^{\\mathrm{norm}}$',
+                'frac_solutions': '$n_{\\mathrm{so}}^{\\mathrm{norm}}$',
+                'frac_selected': '$n_{\\mathrm{se}}^{\\mathrm{norm}}$',
+                'frac_objective': '$Q^{\\mathrm{norm}}$',
+                'frac_linear-regression_test_r2': '$R^{2, \\mathrm{norm}}_{\\mathrm{lreg}}$',
+                'frac_xgb-tree_test_r2': '$R^{2, \\mathrm{norm}}_{\\mathrm{btree}}$'
+            }, inplace=True)
     else:
-        results.rename(columns={
-            'frac_constraints': '$n_{co}^{norm}$', 'frac_constrained_variables': '$n_{cf}^{norm}$',
-            'frac_unique_constrained_variables': '$n_{ucf}^{norm}$', 'frac_solutions': '$n_{so}^{norm}$',
-            'frac_selected': '$n_{se}^{norm}$', 'frac_objective': '$Q^{norm}$',
-            'frac_linear-regression_test_r2': '$R^{2, norm}_{lreg}$',
-            'frac_xgb-tree_test_r2': '$R^{2, norm}_{btree}$'
-        }, inplace=True)
+        if long_metric_names:
+            results.rename(columns={
+                'frac_constraints': 'Number of constraints $n_{co}^{norm}$',
+                'frac_solutions': 'Number of solutions $n_{so}^{norm}$',
+                'frac_selected': 'Number of selected features $n_{se}^{norm}$',
+                'frac_objective': 'Objective value $Q^{norm}$',
+                'frac_linear-regression_test_r2': 'Prediction $R^{2, norm}_{lreg}$',
+                'frac_xgb-tree_test_r2': 'Prediction $R^{2, norm}_{btree}$'
+            }, inplace=True)
+        else:
+            results.rename(columns={
+                'frac_constraints': '$n_{co}^{norm}$',
+                'frac_constrained_variables': '$n_{cf}^{norm}$',
+                'frac_unique_constrained_variables': '$n_{ucf}^{norm}$',
+                'frac_solutions': '$n_{so}^{norm}$',
+                'frac_selected': '$n_{se}^{norm}$',
+                'frac_objective': '$Q^{norm}$',
+                'frac_linear-regression_test_r2': '$R^{2, norm}_{lreg}$',
+                'frac_xgb-tree_test_r2': '$R^{2, norm}_{btree}$'
+            }, inplace=True)
     return results
