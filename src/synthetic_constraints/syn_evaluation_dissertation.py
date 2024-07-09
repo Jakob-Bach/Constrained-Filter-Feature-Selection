@@ -21,8 +21,9 @@ plt.rcParams['font.family'] = 'Arial'
 
 
 # Create and save all plots to evaluate the study with synthetic constraints for the dissertation.
-# To that end, read a results file from the "results_dir" and save plots to the "plot_dir".
-def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
+# To that end, read results from the "results_dir" and some dataset information from the
+# "data_dir"; save plots to the "plot_dir" and print some statistics to the console.
+def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     if not plot_dir.is_dir():
         print('Plot directory does not exist. We create it.')
         plot_dir.mkdir(parents=True)
@@ -42,6 +43,20 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     EVALUATION_METRICS = ['frac_constraints', 'frac_constrained_variables', 'frac_unique_constrained_variables',
                           'frac_solutions', 'frac_selected', 'frac_objective',
                           'frac_linear-regression_test_r2', 'frac_xgb-tree_test_r2']
+
+    print('\n-------- Experimental Design --------')
+
+    print('\n------ Datasets ------')
+
+    print('\n## Table 4.1: Dataset overview ##\n')
+    dataset_overview = pd.read_csv(data_dir / '_data_overview.csv')
+    dataset_overview = dataset_overview[['name', 'NumberOfInstances', 'NumberOfNumericFeatures']]
+    dataset_overview.rename(columns={'name': 'Dataset', 'NumberOfInstances': 'm',
+                                     'NumberOfNumericFeatures': 'n'}, inplace=True)
+    dataset_overview[['m', 'n']] = dataset_overview[['m', 'n']].astype(int)
+    dataset_overview['n'] = dataset_overview['n'] - 1  # exclude prediction target
+    dataset_overview.sort_values(by='Dataset', key=lambda x: x.str.lower(), inplace=True)
+    print(dataset_overview.to_latex(index=False))
 
     # ---4.2.1 Comparison of Prediction Performance---
 
@@ -206,8 +221,11 @@ def evaluate(results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
 # Parse some command line argument and run evaluation.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Creates the dissertation\'s plots to evaluate the study with synthetic constraints.',
+        description='Creates the dissertation\'s plots and prints statistics to evaluate ' +
+        'the study with synthetic constraints.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-d', '--data', type=pathlib.Path, default='data/openml/', dest='data_dir',
+                        help='Directory with prediction datasets in (X, y) form.')
     parser.add_argument('-r', '--results', type=pathlib.Path, default='data/openml-results/',
                         dest='results_dir', help='Directory with experimental results.')
     parser.add_argument('-p', '--plots', type=pathlib.Path, default='data/openml-plots/',
