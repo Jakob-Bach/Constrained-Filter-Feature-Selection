@@ -24,8 +24,8 @@ plt.rcParams['font.family'] = 'Arial'
 
 
 # Create and save all plots to evaluate the case study in materials science for the dissertation.
-# To that end, read a results file from the "results_dir" and save plots to the "plot_dir".
-# Also, print some statistics that are used in the dissertation as well.
+# To that end, read results from the "results_dir" and some dataset information from the
+# "data_dir"; save plots to the "plot_dir" and print some statistics to the console.
 def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathlib.Path) -> None:
     if not plot_dir.is_dir():
         print('Plot directory does not exist. We create it.')
@@ -33,10 +33,33 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     if len(list(plot_dir.glob('*.pdf'))) > 0:
         print('Plot directory is not empty. Files might be overwritten, but not deleted.')
 
+    X, y = data_utility.load_dataset(dataset_name=data_utility.list_datasets(directory=data_dir)[0],
+                                     directory=data_dir)
+
     results = data_utility.load_results(directory=results_dir)
     results['cardinality'] = results['constraint_name'].str.extract('_k([0-9]+)$').astype(int)
     results['constraint_name'] = results['constraint_name'].str.replace('_k[0-9]+$', '', regex=True)
     results['selected'] = results['selected'].apply(ast.literal_eval)  # make list string a proper list
+
+    print('\n-------- Experimental Design --------')
+
+    print('\n------ Scenario and Dataset ------')
+
+    print('\n## Table 5.1: Feature overview ##\n')
+    feature_overview = pd.DataFrame({'Feature': X.columns})
+    aggregates = '(max|min|median|std|sum)'
+    feature_overview['Quantity'] = feature_overview['Feature'].str.replace(
+        f'_(([0-9]+)|{aggregates})$', '')
+    feature_overview['Slip_System'] = feature_overview['Feature'].str.extract(
+        '_([0-9]+)$', expand=False)
+    feature_overview['Aggregate'] = feature_overview['Feature'].str.extract(
+        f'_{aggregates}$', expand=False)
+    feature_overview = feature_overview.groupby('Quantity').agg(
+        Slip_systems=('Slip_System', 'nunique'),
+        Aggregates=('Aggregate', 'nunique'),
+        Features=('Quantity', 'size')).reset_index()
+    feature_overview.sort_values(by='Quantity', inplace=True)
+    print(feature_overview.to_latex(index=False))
 
     # ---5.2.1 Solution Quality---
 
@@ -85,8 +108,6 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # plt.tight_layout()
 
     # For comparison: distribution of feature qualities
-    X, y = data_utility.load_dataset(dataset_name=data_utility.list_datasets(directory=data_dir)[0],
-                                     directory=data_dir)
     max_train_time = X['time'].quantile(q=0.8)  # split from ms_pipeline.py
     X_train = X[X['time'] <= max_train_time].drop(columns=['pos_x', 'pos_y', 'pos_z', 'time', 'step'])
     y_train = y[X['time'] <= max_train_time]
@@ -140,10 +161,11 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 # Parse some command line arguments and run evaluation.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Creates the dissertation\'s plots to evaluate the case study in materials science.',
+        description='Creates the dissertation\'s plots and prints statistics to evaluate ' +
+        'the case study in materials science.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--data', type=pathlib.Path, default='data/ms/', dest='data_dir',
-                        help='Directory with input data. Should contain datasets with two files each (X, y).')
+                        help='Directory with prediction datasets in (X, y) form.')
     parser.add_argument('-r', '--results', type=pathlib.Path, default='data/ms-results/',
                         dest='results_dir', help='Directory with experimental results.')
     parser.add_argument('-p', '--plots', type=pathlib.Path, default='data/ms-plots/',
