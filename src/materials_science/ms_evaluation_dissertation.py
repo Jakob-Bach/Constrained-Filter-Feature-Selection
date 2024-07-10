@@ -41,9 +41,9 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     results['constraint_name'] = results['constraint_name'].str.replace('_k[0-9]+$', '', regex=True)
     results['selected'] = results['selected'].apply(ast.literal_eval)  # make list string a proper list
 
-    print('\n-------- Experimental Design --------')
+    print('\n-------- 5.2 Experimental Design --------')
 
-    print('\n------ Scenario and Dataset ------')
+    print('\n------ 5.2.1 Scenario and Dataset ------')
 
     print('\n## Table 5.1: Feature overview ##\n')
     feature_overview = pd.DataFrame({'Feature': X.columns})
@@ -61,12 +61,14 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     feature_overview.sort_values(by='Quantity', inplace=True)
     print(feature_overview.to_latex(index=False))
 
-    # ---5.2.1 Solution Quality---
+    print('\n-------- 5.3 Evaluation --------')
+
+    print('\n------ 5.3.1 Solution Quality ------')
 
     prediction_data = evaluation_utility.reshape_prediction_data(results, additional_columns=['cardinality'])
     prediction_data = evaluation_utility.rename_for_plots(prediction_data, is_dissertation=True)
 
-    # Figure 6a
+    # Figure 5.1a
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 11
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', palette='Paired',
@@ -77,7 +79,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-prediction-performance-split.pdf')
 
-    # Figure 6b
+    # Figure 5.1b
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 11
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Cardinality', palette='Paired',
@@ -118,13 +120,13 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     print(qualities.describe())
     print(f'Fraction of feature qualities >= 0.8: {(qualities >= 0.8).sum() / len(qualities):.2}')
 
-    # ---5.2.2 Selected Features---
+    print('\n------ 5.3.2 Selected Features ------')
 
     # Test whether always the maximum number of possible features is selected:
     print('Always maximum number of features selected? ' +
           str((results['num_selected'] == results['cardinality']).all()))
 
-    # Prepare Figure 7:
+    # Prepare Figure 5.2:
     # Make sure results have the cardinalities assumed below in the order assumed below:
     assert (([5] * 12 + [10] * 12) == results['cardinality']).all()
     # Compute similarity between feature sets:
@@ -136,7 +138,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     constraint_names = [f'(D{i+1})' for i in range(results['constraint_name'].nunique())] * results['cardinality'].nunique()
     similarity_matrix = pd.DataFrame(similarity_matrix, index=constraint_names, columns=constraint_names)
 
-    # Figure 7a
+    # Figure 5.2a
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 13
     sns.heatmap(similarity_matrix.iloc[:12, :12], vmin=0, vmax=5, cmap='YlGnBu',
@@ -144,7 +146,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-selected-similarity-card5.pdf')
 
-    # Figure 7b
+    # Figure 5.2b
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 13
     sns.heatmap(similarity_matrix.iloc[12:, 12:], vmin=0, vmax=10, cmap='YlGnBu',
