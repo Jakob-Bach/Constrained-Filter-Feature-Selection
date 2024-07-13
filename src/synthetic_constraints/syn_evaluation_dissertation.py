@@ -10,6 +10,7 @@ import argparse
 import pathlib
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -64,26 +65,32 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     # Figure 4.1a
     prediction_data = evaluation_utility.reshape_prediction_data(results[ORIGINAL_PRED_METRICS])
-    prediction_data = evaluation_utility.rename_for_plots(prediction_data, is_dissertation=True)
+    prediction_data = evaluation_utility.rename_for_diss_plots(prediction_data)
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 11
-    sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', data=prediction_data, palette='Paired', fliersize=0)
-    plt.xticks(rotation=20)
+    plt.rcParams['font.size'] = 15
+    sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', data=prediction_data,
+                palette='Paired', fliersize=0)
     plt.ylim(-0.1, 1.1)
-    plt.legend(loc='lower left', bbox_to_anchor=(0, 1), ncol=2, borderpad=0, edgecolor='white')
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
+    leg = plt.legend(title='Split', loc='upper left', bbox_to_anchor=(0, -0.1), ncol=2,
+                     columnspacing=1, edgecolor='white', framealpha=0)
+    leg.get_title().set_position((-110, -21))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-prediction-performance-all.pdf')
 
     # Figure 4.1b
     prediction_data = results.loc[results['constraint_name'] == 'UNCONSTRAINED', ORIGINAL_PRED_METRICS]
     prediction_data = evaluation_utility.reshape_prediction_data(prediction_data)
-    prediction_data = evaluation_utility.rename_for_plots(prediction_data, is_dissertation=True)
+    prediction_data = evaluation_utility.rename_for_diss_plots(prediction_data)
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 11
-    sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', data=prediction_data, palette='Paired', fliersize=0)
-    plt.xticks(rotation=20)
+    plt.rcParams['font.size'] = 15
+    sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', data=prediction_data,
+                palette='Paired', fliersize=0)
     plt.ylim(-0.1, 1.1)
-    plt.legend(loc='lower left', bbox_to_anchor=(0, 1), ncol=2, borderpad=0, edgecolor='white')
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
+    leg = plt.legend(title='Split', loc='upper left', bbox_to_anchor=(0, -0.1), ncol=2,
+                     columnspacing=1, edgecolor='white', framealpha=0)
+    leg.get_title().set_position((-110, -21))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-prediction-performance-unconstrained.pdf')
 
@@ -92,74 +99,89 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 4.2
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 13
-    sns.heatmap(data=evaluation_utility.rename_for_plots(
-        results[EVALUATION_METRICS], is_dissertation=True).corr(method='spearman'),
-        vmin=-1, vmax=1, cmap='PRGn', annot=True, square=True, cbar=False)
+    sns.heatmap(data=evaluation_utility.rename_for_diss_plots(results[EVALUATION_METRICS]).corr(
+        method='spearman'), vmin=-1, vmax=1, cmap='PRGn', annot=True, square=True, cbar=False)
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-evaluation-metrics-correlation.pdf')
 
     # Figure 4.3a
     scatter_plot_data = results.sample(n=1000, random_state=25)
-    scatter_plot_data = evaluation_utility.rename_for_plots(
-        scatter_plot_data, long_metric_names=True, is_dissertation=True)
+    scatter_plot_data = evaluation_utility.rename_for_diss_plots(scatter_plot_data,
+                                                                 long_metric_names=True)
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 18
-    scatter_plot_data.plot.scatter(
-        x='Number of selected features $n_{\\mathrm{se}}^{\\mathrm{norm}}$',
-        y='Objective value $Q^{\\mathrm{norm}}$',
-        s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
+    plt.rcParams['font.size'] = 15
+    sns.scatterplot(x='Number of selected features $n_{\\mathrm{se}}^{\\mathrm{norm}}$',
+                    y='Objective value $Q^{\\mathrm{norm}}$',
+                    data=scatter_plot_data, color=plt.get_cmap('Paired')(1), s=8)
+    plt.xlabel('Number of selected features $n_{\\mathrm{se}}^{\\mathrm{norm}}$', x=0.4)  # move
+    plt.xlim(-0.1, 1.1)
+    plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
+    plt.ylim(-0.1, 1.1)
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-selected-vs-objective.pdf')
 
     # Figure 4.3b
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 18
-    scatter_plot_data.plot.scatter(
-        x='Number of solutions $n_{\\mathrm{so}}^{\\mathrm{norm}}$',
-        y='Objective value $Q^{\\mathrm{norm}}$',
-        s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
+    plt.rcParams['font.size'] = 15
+    sns.scatterplot(x='Number of solutions $n_{\\mathrm{so}}^{\\mathrm{norm}}$',
+                    y='Objective value $Q^{\\mathrm{norm}}$',
+                    data=scatter_plot_data, color=plt.get_cmap('Paired')(1), s=8)
+    plt.xlim(-0.1, 1.1)
+    plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
+    plt.ylim(-0.1, 1.1)
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-solutions-vs-objective.pdf')
 
     # Figure 4.3c
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 11
-    sns.boxplot(x='Number of constraints $n_{\\mathrm{co}}^{\\mathrm{norm}}$',
+    plt.rcParams['font.size'] = 15
+    sns.boxplot(x='Number of constraints $n_{\\mathrm{co}}$',
                 y='Objective value $Q^{\\mathrm{norm}}$',
-                data=scatter_plot_data, color='black', boxprops={'facecolor': plt.get_cmap('Paired')(0)})
+                data=scatter_plot_data, color='black',
+                boxprops={'facecolor': plt.get_cmap('Paired')(0)})
+    plt.ylim(-0.1, 1.1)
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-constraints-vs-objective.pdf')
 
     # Figure 4.3d
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 18
-    scatter_plot_data.plot.scatter(x='Prediction $R^{2, \\mathrm{norm}}_{\\mathrm{lreg}}$',
-                                   y='Objective value $Q^{\\mathrm{norm}}$',
-                                   s=1, xlim=(-0.1, 1.1), ylim=(-0.1, 1.1))
+    plt.rcParams['font.size'] = 15
+    sns.scatterplot(x='Prediction $R^{2, \\mathrm{norm}}_{\\mathrm{lin}}$',
+                    y='Objective value $Q^{\\mathrm{norm}}$',
+                    data=scatter_plot_data, color=plt.get_cmap('Paired')(1), s=8)
+    plt.xlim(-0.1, 1.1)
+    plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
+    plt.ylim(-0.1, 1.1)
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-frac-linear-regression-r2-vs-objective.pdf')
 
     print('\n------ 4.4.3 Comparison of Constraint Types (Q2) ------')
 
     # Figure 4.4a
-    plt.figure(figsize=(4, 4))
-    plt.rcParams['font.size'] = 11
+    plt.figure(figsize=(5, 5))
+    plt.rcParams['font.size'] = 18
     sns.boxplot(x='Constraint type', y='$n_{\\mathrm{so}}^{\\mathrm{norm}}$', fliersize=0, color='black',
-                data=evaluation_utility.rename_for_plots(results, is_dissertation=True),
+                data=evaluation_utility.rename_for_diss_plots(results),
                 boxprops={'facecolor': plt.get_cmap('Paired')(0)})
-    plt.xticks(rotation=70)
+    plt.xticks(rotation=90)
     plt.ylim(-0.1, 1.1)
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-constraint-type-vs-solutions.pdf')
 
     # Figure 4.4b
-    plt.figure(figsize=(4, 4))
-    plt.rcParams['font.size'] = 11
+    plt.figure(figsize=(5, 5))
+    plt.rcParams['font.size'] = 18
     sns.boxplot(x='Constraint type', y='$Q^{\\mathrm{norm}}$', fliersize=0, color='black',
-                data=evaluation_utility.rename_for_plots(results, is_dissertation=True),
+                data=evaluation_utility.rename_for_diss_plots(results),
                 boxprops={'facecolor': plt.get_cmap('Paired')(0)})
-    plt.xticks(rotation=70)
+    plt.xticks(rotation=90)
     plt.ylim(-0.1, 1.1)
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-constraint-type-vs-objective.pdf')
 
@@ -187,28 +209,29 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     # Figure 4.5a
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 11
-    sns.boxplot(x='Dataset name', y='Objective value $Q^{\\mathrm{norm}}$', color='black',
-                data=evaluation_utility.rename_for_plots(
-                    results[['dataset_name', 'frac_objective']], long_metric_names=True,
-                    is_dissertation=True),
+    plt.rcParams['font.size'] = 15
+    sns.boxplot(x='Dataset', y='Objective value $Q^{\\mathrm{norm}}$', color='black',
+                data=evaluation_utility.rename_for_diss_plots(
+                    results[['dataset_name', 'frac_objective']], long_metric_names=True),
                 boxprops={'facecolor': plt.get_cmap('Paired')(0)})
     plt.xticks([])
     plt.ylim(-0.1, 1.1)
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-objective-value-per-dataset.pdf')
 
     # Figure 4.5b
     agg_data = results.groupby('dataset_name')[EVALUATION_METRICS].mean()
     agg_data = agg_data.drop(columns='frac_constrained_variables')  # not in [0,1]
-    agg_data = evaluation_utility.rename_for_plots(agg_data, is_dissertation=True)
+    agg_data = evaluation_utility.rename_for_diss_plots(agg_data)
     agg_data = pd.melt(agg_data, var_name='Evaluation metric', value_name='Mean per dataset')
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 11
+    plt.rcParams['font.size'] = 15
     sns.boxplot(x='Evaluation metric', y='Mean per dataset', data=agg_data,
                 color='black', boxprops={'facecolor': plt.get_cmap('Paired')(0)})
-    plt.xticks(rotation=30)
+    plt.xticks(rotation=90)
     plt.ylim(-0.1, 1.1)
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-evaluation-metrics-mean-per-dataset.pdf')
 

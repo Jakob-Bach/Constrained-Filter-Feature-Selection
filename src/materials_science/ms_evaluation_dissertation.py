@@ -66,27 +66,31 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     print('\n------ 5.3.1 Solution Quality ------')
 
     prediction_data = evaluation_utility.reshape_prediction_data(results, additional_columns=['cardinality'])
-    prediction_data = evaluation_utility.rename_for_plots(prediction_data, is_dissertation=True)
+    prediction_data = evaluation_utility.rename_for_diss_plots(prediction_data)
 
     # Figure 5.1a
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 11
+    plt.rcParams['font.size'] = 15
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', palette='Paired',
                 data=prediction_data.drop(columns='Cardinality'))
-    plt.xticks(rotation=20)
-    plt.ylim(0.8, 1.01)
-    plt.legend(loc='lower left', bbox_to_anchor=(0, 1), ncol=2, borderpad=0, edgecolor='white')
+    plt.ylim(0.79, 1.01)
+    plt.yticks(np.arange(start=0.8, stop=1.01, step=0.05))
+    leg = plt.legend(title='Split', loc='upper left', bbox_to_anchor=(0, -0.1), ncol=2,
+                     columnspacing=1, edgecolor='white', framealpha=0)
+    leg.get_title().set_position((-110, -21))
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-prediction-performance-split.pdf')
 
     # Figure 5.1b
     plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 11
+    plt.rcParams['font.size'] = 15
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Cardinality', palette='Paired',
                 data=prediction_data[prediction_data['Split'] == 'Test'].drop(columns='Split'))
-    plt.xticks(rotation=20)
-    plt.ylim(0.8, 1.01)
-    plt.legend(loc='lower left', bbox_to_anchor=(0, 1), ncol=2, borderpad=0, edgecolor='white')
+    plt.ylim(0.79, 1.01)
+    plt.yticks(np.arange(start=0.8, stop=1.01, step=0.05))
+    leg = plt.legend(title='$n_{se}$', loc='upper left', bbox_to_anchor=(0, -0.1), ncol=2,
+                     columnspacing=1, edgecolor='white', framealpha=0)
+    leg.get_title().set_position((-85, -21))
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-prediction-performance-cardinality.pdf')
 
@@ -140,7 +144,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     # Figure 5.2a
     plt.figure(figsize=(5, 5))
-    plt.rcParams['font.size'] = 13
+    plt.rcParams['font.size'] = 18
     sns.heatmap(similarity_matrix.iloc[:12, :12], vmin=0, vmax=5, cmap='YlGnBu',
                 annot=True, square=True, cbar=False)
     plt.tight_layout()
@@ -148,7 +152,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     # Figure 5.2b
     plt.figure(figsize=(5, 5))
-    plt.rcParams['font.size'] = 13
+    plt.rcParams['font.size'] = 18
     sns.heatmap(similarity_matrix.iloc[12:, 12:], vmin=0, vmax=10, cmap='YlGnBu',
                 annot=True, square=True, cbar=False)
     plt.tight_layout()
