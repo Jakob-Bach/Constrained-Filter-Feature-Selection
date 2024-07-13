@@ -19,6 +19,8 @@ from utilities import evaluation_utility
 
 
 plt.rcParams['font.family'] = 'Arial'
+DEFAULT_COL_PALETTE = 'YlGnBu'
+DEFAULT_COL_SINGLE = sns.color_palette(DEFAULT_COL_PALETTE, 2)[1]
 
 
 # Create and save all plots to evaluate the study with synthetic constraints for the dissertation.
@@ -69,7 +71,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', data=prediction_data,
-                palette='Paired', fliersize=0)
+                palette=DEFAULT_COL_PALETTE, fliersize=0)
     plt.ylim(-0.1, 1.1)
     plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     leg = plt.legend(title='Split', loc='upper left', bbox_to_anchor=(0, -0.1), ncol=2,
@@ -85,7 +87,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', data=prediction_data,
-                palette='Paired', fliersize=0)
+                palette=DEFAULT_COL_PALETTE, fliersize=0)
     plt.ylim(-0.1, 1.1)
     plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     leg = plt.legend(title='Split', loc='upper left', bbox_to_anchor=(0, -0.1), ncol=2,
@@ -112,7 +114,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.rcParams['font.size'] = 15
     sns.scatterplot(x='Number of selected features $n_{\\mathrm{se}}^{\\mathrm{norm}}$',
                     y='Objective value $Q^{\\mathrm{norm}}$',
-                    data=scatter_plot_data, color=plt.get_cmap('Paired')(1), s=8)
+                    data=scatter_plot_data, color=DEFAULT_COL_SINGLE, s=8)
     plt.xlabel('Number of selected features $n_{\\mathrm{se}}^{\\mathrm{norm}}$', x=0.4)  # move
     plt.xlim(-0.1, 1.1)
     plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
@@ -126,7 +128,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.rcParams['font.size'] = 15
     sns.scatterplot(x='Number of solutions $n_{\\mathrm{so}}^{\\mathrm{norm}}$',
                     y='Objective value $Q^{\\mathrm{norm}}$',
-                    data=scatter_plot_data, color=plt.get_cmap('Paired')(1), s=8)
+                    data=scatter_plot_data, color=DEFAULT_COL_SINGLE, s=8)
     plt.xlim(-0.1, 1.1)
     plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.ylim(-0.1, 1.1)
@@ -140,7 +142,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     sns.boxplot(x='Number of constraints $n_{\\mathrm{co}}$',
                 y='Objective value $Q^{\\mathrm{norm}}$',
                 data=scatter_plot_data, color='black',
-                boxprops={'facecolor': plt.get_cmap('Paired')(0)})
+                boxprops={'facecolor': DEFAULT_COL_SINGLE})
     plt.ylim(-0.1, 1.1)
     plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.tight_layout()
@@ -151,7 +153,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.rcParams['font.size'] = 15
     sns.scatterplot(x='Prediction $R^{2, \\mathrm{norm}}_{\\mathrm{lin}}$',
                     y='Objective value $Q^{\\mathrm{norm}}$',
-                    data=scatter_plot_data, color=plt.get_cmap('Paired')(1), s=8)
+                    data=scatter_plot_data, color=DEFAULT_COL_SINGLE, s=8)
     plt.xlim(-0.1, 1.1)
     plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.ylim(-0.1, 1.1)
@@ -164,9 +166,9 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 4.4a
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 18
-    sns.boxplot(x='Constraint type', y='$n_{\\mathrm{so}}^{\\mathrm{norm}}$', fliersize=0, color='black',
-                data=evaluation_utility.rename_for_diss_plots(results),
-                boxprops={'facecolor': plt.get_cmap('Paired')(0)})
+    sns.boxplot(x='Constraint type', y='$n_{\\mathrm{so}}^{\\mathrm{norm}}$',
+                data=evaluation_utility.rename_for_diss_plots(results), fliersize=0, color='black',
+                boxprops={'facecolor': DEFAULT_COL_SINGLE})
     plt.xticks(rotation=90)
     plt.ylim(-0.1, 1.1)
     plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
@@ -176,9 +178,9 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 4.4b
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 18
-    sns.boxplot(x='Constraint type', y='$Q^{\\mathrm{norm}}$', fliersize=0, color='black',
-                data=evaluation_utility.rename_for_diss_plots(results),
-                boxprops={'facecolor': plt.get_cmap('Paired')(0)})
+    sns.boxplot(x='Constraint type', y='$Q^{\\mathrm{norm}}$',
+                data=evaluation_utility.rename_for_diss_plots(results), fliersize=0, color='black',
+                boxprops={'facecolor': DEFAULT_COL_SINGLE})
     plt.xticks(rotation=90)
     plt.ylim(-0.1, 1.1)
     plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
@@ -213,7 +215,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     sns.boxplot(x='Dataset', y='Objective value $Q^{\\mathrm{norm}}$', color='black',
                 data=evaluation_utility.rename_for_diss_plots(
                     results[['dataset_name', 'frac_objective']], long_metric_names=True),
-                boxprops={'facecolor': plt.get_cmap('Paired')(0)})
+                boxprops={'facecolor': DEFAULT_COL_SINGLE})
     plt.xticks([])
     plt.ylim(-0.1, 1.1)
     plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
@@ -228,7 +230,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
     sns.boxplot(x='Evaluation metric', y='Mean per dataset', data=agg_data,
-                color='black', boxprops={'facecolor': plt.get_cmap('Paired')(0)})
+                color='black', boxprops={'facecolor': DEFAULT_COL_SINGLE})
     plt.xticks(rotation=90)
     plt.ylim(-0.1, 1.1)
     plt.yticks(np.arange(start=0, stop=1.1, step=0.2))

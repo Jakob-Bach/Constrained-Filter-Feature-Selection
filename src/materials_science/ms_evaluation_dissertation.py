@@ -21,6 +21,7 @@ from utilities import evaluation_utility
 
 
 plt.rcParams['font.family'] = 'Arial'
+DEFAULT_COL_PALETTE = 'YlGnBu'
 
 
 # Create and save all plots to evaluate the case study in materials science for the dissertation.
@@ -71,7 +72,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 5.1a
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
-    sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', palette='Paired',
+    sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', palette=DEFAULT_COL_PALETTE,
                 data=prediction_data.drop(columns='Cardinality'))
     plt.ylim(0.79, 1.01)
     plt.yticks(np.arange(start=0.8, stop=1.01, step=0.05))
@@ -84,7 +85,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 5.1b
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
-    sns.boxplot(x='Prediction model', y='$R^2$', hue='Cardinality', palette='Paired',
+    sns.boxplot(x='Prediction model', y='$R^2$', hue='Cardinality', palette=DEFAULT_COL_PALETTE,
                 data=prediction_data[prediction_data['Split'] == 'Test'].drop(columns='Split'))
     plt.ylim(0.79, 1.01)
     plt.yticks(np.arange(start=0.8, stop=1.01, step=0.05))
@@ -145,7 +146,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 5.2a
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 18
-    sns.heatmap(similarity_matrix.iloc[:12, :12], vmin=0, vmax=5, cmap='YlGnBu',
+    sns.heatmap(similarity_matrix.iloc[:12, :12], vmin=0, vmax=5, cmap=DEFAULT_COL_PALETTE,
                 annot=True, square=True, cbar=False)
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-selected-similarity-card5.pdf')
@@ -153,7 +154,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 5.2b
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 18
-    sns.heatmap(similarity_matrix.iloc[12:, 12:], vmin=0, vmax=10, cmap='YlGnBu',
+    sns.heatmap(similarity_matrix.iloc[12:, 12:], vmin=0, vmax=10, cmap=DEFAULT_COL_PALETTE,
                 annot=True, square=True, cbar=False)
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-selected-similarity-card10.pdf')
