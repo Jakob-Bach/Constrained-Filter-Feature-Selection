@@ -35,7 +35,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     # Load results and add normalized versions of evaluation metrics
     results = data_utility.load_results(directory=results_dir)
-    results = results[results['quality_name'] == 'abs_corr']  # results for MI very similar
+    results = results[results['quality_name'] == 'mut_info']  # results for "abs_corr" very similar
     evaluation_utility.add_normalized_objective(results)
     evaluation_utility.add_normalized_variable_counts(results)
     evaluation_utility.add_normalized_prediction_performance(results)
