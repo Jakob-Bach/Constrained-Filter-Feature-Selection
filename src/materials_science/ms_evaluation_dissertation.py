@@ -89,9 +89,9 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
                 data=prediction_data[prediction_data['Split'] == 'Test'].drop(columns='Split'))
     plt.ylim(0.79, 1.01)
     plt.yticks(np.arange(start=0.8, stop=1.01, step=0.05))
-    leg = plt.legend(title='$n_{se}$', loc='upper left', bbox_to_anchor=(0, -0.1), ncol=2,
+    leg = plt.legend(title='$k$', loc='upper left', bbox_to_anchor=(0, -0.1), ncol=2,
                      columnspacing=1, edgecolor='white', framealpha=0)
-    leg.get_title().set_position((-85, -21))
+    leg.get_title().set_position((-82, -21))
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-prediction-performance-cardinality.pdf')
 

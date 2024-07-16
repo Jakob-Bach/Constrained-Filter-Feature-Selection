@@ -43,7 +43,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     # Prepare sub-lists of evaluation metrics for certain plots
     ORIGINAL_PRED_METRICS = [x for x in results.columns if x.endswith('_r2') and not x.startswith('frac_')]
-    EVALUATION_METRICS = ['frac_constraints', 'frac_constrained_variables', 'frac_unique_constrained_variables',
+    EVALUATION_METRICS = ['num_constraints', 'frac_constrained_variables', 'frac_unique_constrained_variables',
                           'frac_solutions', 'frac_selected', 'frac_objective',
                           'frac_linear-regression_test_r2', 'frac_xgb-tree_test_r2']
 
@@ -112,10 +112,10 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
                                                                  long_metric_names=True)
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
-    sns.scatterplot(x='Number of selected features $n_{\\mathrm{se}}^{\\mathrm{norm}}$',
-                    y='Objective value $Q^{\\mathrm{norm}}$',
+    sns.scatterplot(x='Fraction of selected features $\\mathit{frac}_{\\mathrm{se}}$',
+                    y='Objective value $Q_{\\mathrm{norm}}$',
                     data=scatter_plot_data, color=DEFAULT_COL_SINGLE, s=8)
-    plt.xlabel('Number of selected features $n_{\\mathrm{se}}^{\\mathrm{norm}}$', x=0.4)  # move
+    plt.xlabel('Fraction of selected features $\\mathit{frac}_{\\mathrm{se}}$', x=0.4)  # move
     plt.xlim(-0.1, 1.1)
     plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.ylim(-0.1, 1.1)
@@ -126,8 +126,8 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 4.3b
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
-    sns.scatterplot(x='Number of solutions $n_{\\mathrm{so}}^{\\mathrm{norm}}$',
-                    y='Objective value $Q^{\\mathrm{norm}}$',
+    sns.scatterplot(x='Fraction of solutions $\\mathit{frac}_{\\mathrm{so}}$',
+                    y='Objective value $Q_{\\mathrm{norm}}$',
                     data=scatter_plot_data, color=DEFAULT_COL_SINGLE, s=8)
     plt.xlim(-0.1, 1.1)
     plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
@@ -139,8 +139,8 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 4.3c
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
-    sns.boxplot(x='Number of constraints $n_{\\mathrm{co}}$',
-                y='Objective value $Q^{\\mathrm{norm}}$',
+    sns.boxplot(x='Number of constraints $\\mathit{num}_{\\mathrm{co}}$',
+                y='Objective value $Q_{\\mathrm{norm}}$',
                 data=scatter_plot_data, color='black',
                 boxprops={'facecolor': DEFAULT_COL_SINGLE})
     plt.ylim(-0.1, 1.1)
@@ -151,8 +151,8 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 4.3d
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
-    sns.scatterplot(x='Prediction $R^{2, \\mathrm{norm}}_{\\mathrm{lin}}$',
-                    y='Objective value $Q^{\\mathrm{norm}}$',
+    sns.scatterplot(x='Prediction $R^{2, \\mathrm{lin}}_{\\mathrm{norm}}$',
+                    y='Objective value $Q_{\\mathrm{norm}}$',
                     data=scatter_plot_data, color=DEFAULT_COL_SINGLE, s=8)
     plt.xlim(-0.1, 1.1)
     plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
@@ -166,7 +166,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 4.4a
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 18
-    sns.boxplot(x='Constraint type', y='$n_{\\mathrm{so}}^{\\mathrm{norm}}$',
+    sns.boxplot(x='Constraint type', y='$\\mathit{frac}_{\\mathrm{so}}$',
                 data=evaluation_utility.rename_for_diss_plots(results), fliersize=0, color='black',
                 boxprops={'facecolor': DEFAULT_COL_SINGLE})
     plt.xticks(rotation=90)
@@ -178,7 +178,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 4.4b
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 18
-    sns.boxplot(x='Constraint type', y='$Q^{\\mathrm{norm}}$',
+    sns.boxplot(x='Constraint type', y='$Q_{\\mathrm{norm}}$',
                 data=evaluation_utility.rename_for_diss_plots(results), fliersize=0, color='black',
                 boxprops={'facecolor': DEFAULT_COL_SINGLE})
     plt.xticks(rotation=90)
@@ -212,7 +212,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 4.5a
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
-    sns.boxplot(x='Dataset', y='Objective value $Q^{\\mathrm{norm}}$', color='black',
+    sns.boxplot(x='Dataset', y='Objective value $Q_{\\mathrm{norm}}$', color='black',
                 data=evaluation_utility.rename_for_diss_plots(
                     results[['dataset_name', 'frac_objective']], long_metric_names=True),
                 boxprops={'facecolor': DEFAULT_COL_SINGLE})
@@ -232,6 +232,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     sns.boxplot(x='Evaluation metric', y='Mean per dataset', data=agg_data,
                 color='black', boxprops={'facecolor': DEFAULT_COL_SINGLE})
     plt.xticks(rotation=90)
+    plt.ylabel('Mean per dataset', y=0.4)  # move
     plt.ylim(-0.1, 1.1)
     plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     plt.tight_layout()

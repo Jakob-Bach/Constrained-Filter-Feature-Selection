@@ -116,23 +116,22 @@ def rename_for_diss_plots(results: pd.DataFrame, long_metric_names: bool = False
                             'cardinality': 'Cardinality'}, inplace=True)
     if long_metric_names:
         results.rename(columns={
-            'frac_constraints': 'Number of constraints $n_{\\mathrm{co}}^{\\mathrm{norm}}$',
-            'frac_solutions': 'Number of solutions $n_{\\mathrm{so}}^{\\mathrm{norm}}$',
-            'frac_selected': 'Number of selected features $n_{\\mathrm{se}}^{\\mathrm{norm}}$',
-            'frac_objective': 'Objective value $Q^{\\mathrm{norm}}$',
-            'frac_linear-regression_test_r2': 'Prediction $R^{2, \\mathrm{norm}}_{\\mathrm{lin}}$',
-            'frac_xgb-tree_test_r2': 'Prediction $R^{2, \\mathrm{norm}}_{\\mathrm{b-tree}}$',
-            'num_constraints': 'Number of constraints $n_{\\mathrm{co}}$'
+            'frac_solutions': 'Fraction of solutions $\\mathit{frac}_{\\mathrm{so}}$',
+            'frac_selected': 'Fraction of selected features $\\mathit{frac}_{\\mathrm{se}}$',
+            'frac_objective': 'Objective value $Q_{\\mathrm{norm}}$',
+            'frac_linear-regression_test_r2': 'Prediction $R^{2, \\mathrm{lin}}_{\\mathrm{norm}}$',
+            'frac_xgb-tree_test_r2': 'Prediction $R^{2, \\mathrm{b-tree}}_{\\mathrm{norm}}$',
+            'num_constraints': 'Number of constraints $\\mathit{num}_{\\mathrm{co}}$'
         }, inplace=True)
     else:
         results.rename(columns={
-            'frac_constraints': '$n_{\\mathrm{co}}^{\\mathrm{norm}}$',
-            'frac_constrained_variables': '$n_{\\mathrm{cf}}^{\\mathrm{norm}}$',
-            'frac_unique_constrained_variables': '$n_{\\mathrm{ucf}}^{\\mathrm{norm}}$',
-            'frac_solutions': '$n_{\\mathrm{so}}^{\\mathrm{norm}}$',
-            'frac_selected': '$n_{\\mathrm{se}}^{\\mathrm{norm}}$',
-            'frac_objective': '$Q^{\\mathrm{norm}}$',
-            'frac_linear-regression_test_r2': '$R^{2, \\mathrm{norm}}_{\\mathrm{lin}}$',
-            'frac_xgb-tree_test_r2': '$R^{2, \\mathrm{norm}}_{\\mathrm{b-tree}}$'
+            'frac_constrained_variables': '$\\mathit{frac}_{\\mathrm{cf}}$',
+            'frac_unique_constrained_variables': '$\\mathit{frac}_{\\mathrm{ucf}}$',
+            'frac_solutions': '$\\mathit{frac}_{\\mathrm{so}}$',
+            'frac_selected': '$\\mathit{frac}_{\\mathrm{se}}$',
+            'frac_objective': '$Q_{\\mathrm{norm}}$',
+            'frac_linear-regression_test_r2': '$R^{2, \\mathrm{lin}}_{\\mathrm{norm}}$',
+            'frac_xgb-tree_test_r2': '$R^{2, \\mathrm{b-tree}}_{\\mathrm{norm}}$',
+            'num_constraints': '$\\mathit{num}_{\\mathrm{co}}$'
         }, inplace=True)
     return results
