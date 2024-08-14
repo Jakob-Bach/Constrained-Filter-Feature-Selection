@@ -41,6 +41,14 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     evaluation_utility.add_normalized_prediction_performance(results)
     evaluation_utility.add_normalized_num_constraints(results)
 
+    # Remove a few faulty results (0.0036 % of rows) -- in small fraction of infeasible scenarios,
+    # no features are selected (correct!) but solver still returns a positive objective value
+    results = results[~((results['num_selected'] == 0) & (results['objective_value'] > 0))]
+
+    # Set normalized prediction performance for empty feature sets to 0 (consistent with objective)
+    NORM_PRED_METRIC = [x for x in results.columns if x.endswith('_r2') and x.startswith('frac_')]
+    results.loc[results['num_selected'] == 0, NORM_PRED_METRIC] = 0
+
     # Prepare sub-lists of evaluation metrics for certain plots
     ORIGINAL_PRED_METRICS = [x for x in results.columns if x.endswith('_r2') and not x.startswith('frac_')]
     EVALUATION_METRICS = ['num_constraints', 'frac_constrained_variables', 'frac_unique_constrained_variables',
@@ -96,7 +104,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-prediction-performance-unconstrained.pdf')
 
-    print('\n------ 4.4.2 Relationship Between Evaluation Metrics (Q1) ------')
+    print('\n------ 4.4.2 Relationship Between Evaluation Metrics ------')
 
     # Figure 4.2
     plt.figure(figsize=(5, 5))
@@ -161,7 +169,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-frac-linear-regression-r2-vs-objective.pdf')
 
-    print('\n------ 4.4.3 Comparison of Constraint Types (Q2) ------')
+    print('\n------ 4.4.3 Comparison of Constraint Types ------')
 
     # Figure 4.4a
     plt.figure(figsize=(5, 5))
@@ -207,7 +215,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # plt.ylim(-0.1, 1.1)
     # plt.tight_layout()
 
-    print('\n------ 4.4.4 Comparison of Datasets (Q3) ------')
+    print('\n------ 4.4.4 Comparison of Datasets ------')
 
     # Figure 4.5a
     plt.figure(figsize=(4, 3))

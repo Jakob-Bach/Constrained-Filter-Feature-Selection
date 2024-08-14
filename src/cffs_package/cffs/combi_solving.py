@@ -46,11 +46,14 @@ class Problem(solving.Problem):
     # Run optimization and return result dict
     def optimize(self) -> Dict[str, Union[float, Sequence[str]]]:
         self.optimizer.check()
-        # Object value can have different types, depending on whether result is a whole number
+        # Object value can have different types, depending on whether result is a whole number;
+        # if no valid variable assignment (result of "check()" is "unsat"), objective value is 0
         if self.objective.value().is_int():  # type IntNumRef
             value = self.objective.value().as_long()
         else:  # type RatNumRef
             value = self.objective.value().numerator_as_long() / self.objective.value().denominator_as_long()
         model = self.optimizer.model()
+        # If no valid variable assignment exists, values of all variables in model are None by
+        # default; in our code, these values become converted to False
         selected = [var.get_name() for var in self.get_variables() if str(model[var.get_z3()]) == 'True']
         return {'objective_value': value, 'num_selected': len(selected), 'selected': selected}
