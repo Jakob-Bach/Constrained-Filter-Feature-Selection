@@ -24,7 +24,6 @@ def add_normalized_prediction_performance(results: pd.DataFrame) -> None:
     results_grouped = results.groupby(['dataset_name', 'split_idx', 'quality_name'])
     results[[f'frac_{metric}' for metric in prediction_metrics]] =\
         results_grouped[prediction_metrics].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
-    return results
 
 
 # Make several metrics relative to number of variables.
@@ -120,7 +119,6 @@ def rename_for_diss_plots(results: pd.DataFrame, long_metric_names: bool = False
             'frac_selected': 'Fraction of selected features $\\mathit{frac}_{\\mathrm{se}}$',
             'frac_objective': 'Objective value $Q_{\\mathrm{norm}}$',
             'frac_linear-regression_test_r2': 'Prediction $R^{2, \\mathrm{lin}}_{\\mathrm{norm}}$',
-            'frac_xgb-tree_test_r2': 'Prediction $R^{2, \\mathrm{b-tree}}_{\\mathrm{norm}}$',
             'num_constraints': 'Number of constraints $\\mathit{num}_{\\mathrm{co}}$'
         }, inplace=True)
     else:

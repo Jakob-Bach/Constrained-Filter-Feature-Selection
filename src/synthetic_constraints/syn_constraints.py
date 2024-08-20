@@ -99,7 +99,7 @@ class AtLeastGenerator(ConstraintGenerator):
         else:
             cardinality = self.cardinality
         result = expr.AtLeast(variables, cardinality)
-        # If this constraint is the first, AND it with a Gloabl-AT-MOST constraint (AND makes sure
+        # If this constraint is the first, AND it with a Global-AT-MOST constraint (AND makes sure
         # the number of constraints is not increased by two in one call of generate()).
         if (self.problem.get_num_constraints() == 0) and (self.global_at_most < len(self.problem.get_variables())):
             global_at_most_constraint = expr.AtMost(self.problem.get_variables(), self.global_at_most)
@@ -159,7 +159,7 @@ class IffGenerator(ConstraintGenerator):
     # cardinality constraint.
     def generate(self, variables: Sequence[expr.Variable]) -> expr.BooleanExpression:
         result = expr.Iff(variables)
-        # If this constraint is the first, AND it with a Gloabl-AT-MOST constraint (AND makes sure
+        # If this constraint is the first, AND it with a Global-AT-MOST constraint (AND makes sure
         # the number of constraints is not increased by two in one call of generate()).
         if (self.problem.get_num_constraints() == 0) and (self.global_at_most < len(self.problem.get_variables())):
             global_at_most_constraint = expr.AtMost(self.problem.get_variables(), self.global_at_most)

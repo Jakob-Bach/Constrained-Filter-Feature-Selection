@@ -1,4 +1,4 @@
-"""Evaluation of the study with synthetic constraints
+"""Evaluation of the study with synthetic constraints for dissertation
 
 Script to compute all summary statistics and create all plots used in the dissertation to evaluate
 the study with synthetic constraints. Should be run after the experimental pipeline.
@@ -39,25 +39,26 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     evaluation_utility.add_normalized_objective(results)
     evaluation_utility.add_normalized_variable_counts(results)
     evaluation_utility.add_normalized_prediction_performance(results)
-    evaluation_utility.add_normalized_num_constraints(results)
 
     # Remove a few faulty results (0.0036 % of rows) -- in small fraction of infeasible scenarios,
     # no features are selected (correct!) but solver still returns a positive objective value
     results = results[~((results['num_selected'] == 0) & (results['objective_value'] > 0))]
 
     # Set normalized prediction performance for empty feature sets to 0 (consistent with objective)
-    NORM_PRED_METRIC = [x for x in results.columns if x.endswith('_r2') and x.startswith('frac_')]
-    results.loc[results['num_selected'] == 0, NORM_PRED_METRIC] = 0
+    NORM_PRED_METRICS = [x for x in results.columns if x.endswith('_r2') and x.startswith('frac_')]
+    results.loc[results['num_selected'] == 0, NORM_PRED_METRICS] = 0
 
     # Prepare sub-lists of evaluation metrics for certain plots
-    ORIGINAL_PRED_METRICS = [x for x in results.columns if x.endswith('_r2') and not x.startswith('frac_')]
-    EVALUATION_METRICS = ['num_constraints', 'frac_constrained_variables', 'frac_unique_constrained_variables',
-                          'frac_solutions', 'frac_selected', 'frac_objective',
-                          'frac_linear-regression_test_r2', 'frac_xgb-tree_test_r2']
+    ORIGINAL_PRED_METRICS = [x for x in results.columns
+                             if x.endswith('_r2') and not x.startswith('frac_')]
+    EVALUATION_METRICS = ['num_constraints', 'frac_constrained_variables',
+                          'frac_unique_constrained_variables', 'frac_solutions', 'frac_selected',
+                          'frac_objective', 'frac_linear-regression_test_r2',
+                          'frac_xgb-tree_test_r2']
 
     print('\n-------- 4.3 Experimental Design --------')
 
-    print('\n------ 4.3.4 Datasets ------')
+    print('\n------ 4.3.6 Datasets ------')
 
     print('\n## Table 4.1: Dataset overview ##\n')
     dataset_overview = pd.read_csv(data_dir / '_data_overview.csv')
@@ -71,7 +72,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     print('\n-------- 4.4 Evaluation --------')
 
-    print('\n------ 4.4.1 Comparison of Prediction Performance ------')
+    print('\n------ 4.4.1 Comparison of Prediction Models ------')
 
     # Figure 4.1a
     prediction_data = evaluation_utility.reshape_prediction_data(results[ORIGINAL_PRED_METRICS])
@@ -134,6 +135,19 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     # Figure 4.3b
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
+    sns.scatterplot(x='Prediction $R^{2, \\mathrm{lin}}_{\\mathrm{norm}}$',
+                    y='Objective value $Q_{\\mathrm{norm}}$',
+                    data=scatter_plot_data, color=DEFAULT_COL_SINGLE, s=8)
+    plt.xlim(-0.1, 1.1)
+    plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
+    plt.ylim(-0.1, 1.1)
+    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
+    plt.tight_layout()
+    plt.savefig(plot_dir / 'syn-frac-linear-regression-r2-vs-objective.pdf')
+
+    # Figure 4.3c
+    plt.figure(figsize=(4, 3))
+    plt.rcParams['font.size'] = 15
     sns.scatterplot(x='Fraction of solutions $\\mathit{frac}_{\\mathrm{so}}$',
                     y='Objective value $Q_{\\mathrm{norm}}$',
                     data=scatter_plot_data, color=DEFAULT_COL_SINGLE, s=8)
@@ -144,7 +158,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-solutions-vs-objective.pdf')
 
-    # Figure 4.3c
+    # Figure 4.3d
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
     sns.boxplot(x='Number of constraints $\\mathit{num}_{\\mathrm{co}}$',
@@ -156,20 +170,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-constraints-vs-objective.pdf')
 
-    # Figure 4.3d
-    plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 15
-    sns.scatterplot(x='Prediction $R^{2, \\mathrm{lin}}_{\\mathrm{norm}}$',
-                    y='Objective value $Q_{\\mathrm{norm}}$',
-                    data=scatter_plot_data, color=DEFAULT_COL_SINGLE, s=8)
-    plt.xlim(-0.1, 1.1)
-    plt.xticks(np.arange(start=0, stop=1.1, step=0.2))
-    plt.ylim(-0.1, 1.1)
-    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
-    plt.tight_layout()
-    plt.savefig(plot_dir / 'syn-frac-linear-regression-r2-vs-objective.pdf')
-
-    print('\n------ 4.4.3 Comparison of Constraint Types ------')
+    print('\n------ 4.4.3 Impact of Constraint Types ------')
 
     # Figure 4.4a
     plt.figure(figsize=(5, 5))
@@ -195,63 +196,16 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-constraint-type-vs-objective.pdf')
 
-    # For comparison: average out repetitions, only show variation between datasets
-    # agg_data = results.groupby(['constraint_name', 'dataset_name'])[EVALUATION_METRICS].mean().reset_index()
-    # plt.figure(figsize=(4, 3))
-    # sns.boxplot(x='constraint_name', y='frac_objective', data=agg_data, fliersize=0)
-    # plt.xticks(rotation=60)
-    # plt.ylim(-0.1, 1.1)
-    # plt.tight_layout()
-
     # For comparison: prediction performance
-    # plt.figure(figsize=(4, 3))
-    # sns.boxplot(x='constraint_name', y='frac_linear-regression_test_r2', data=results.replace(float('nan'), 0))
-    # plt.xticks(rotation=60)
+    # plt.figure(figsize=(5, 5))
+    # plt.rcParams['font.size'] = 18
+    # sns.boxplot(x='Constraint type', y='$R^{2, \\mathrm{lin}}_{\\mathrm{norm}}$',
+    #             data=evaluation_utility.rename_for_diss_plots(results), fliersize=0,
+    #             color='black', boxprops={'facecolor': DEFAULT_COL_SINGLE})
+    # plt.xticks(rotation=90)
     # plt.ylim(-0.1, 1.1)
+    # plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
     # plt.tight_layout()
-    # plt.figure(figsize=(4, 3))
-    # sns.boxplot(x='constraint_name', y='frac_xgb-tree_test_r2', data=results.replace(float('nan'), 0))
-    # plt.xticks(rotation=60)
-    # plt.ylim(-0.1, 1.1)
-    # plt.tight_layout()
-
-    print('\n------ 4.4.4 Comparison of Datasets ------')
-
-    # Figure 4.5a
-    plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 15
-    sns.boxplot(x='Dataset', y='Objective value $Q_{\\mathrm{norm}}$', color='black',
-                data=evaluation_utility.rename_for_diss_plots(
-                    results[['dataset_name', 'frac_objective']], long_metric_names=True),
-                boxprops={'facecolor': DEFAULT_COL_SINGLE})
-    plt.xticks([])
-    plt.ylim(-0.1, 1.1)
-    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
-    plt.tight_layout()
-    plt.savefig(plot_dir / 'syn-objective-value-per-dataset.pdf')
-
-    # Figure 4.5b
-    agg_data = results.groupby('dataset_name')[EVALUATION_METRICS].mean()
-    agg_data = agg_data.drop(columns='frac_constrained_variables')  # not in [0,1]
-    agg_data = evaluation_utility.rename_for_diss_plots(agg_data)
-    agg_data = pd.melt(agg_data, var_name='Evaluation metric', value_name='Mean per dataset')
-    plt.figure(figsize=(4, 3))
-    plt.rcParams['font.size'] = 15
-    sns.boxplot(x='Evaluation metric', y='Mean per dataset', data=agg_data,
-                color='black', boxprops={'facecolor': DEFAULT_COL_SINGLE})
-    plt.xticks(rotation=90)
-    plt.ylabel('Mean per dataset', y=0.4)  # move
-    plt.ylim(-0.1, 1.1)
-    plt.yticks(np.arange(start=0, stop=1.1, step=0.2))
-    plt.tight_layout()
-    plt.savefig(plot_dir / 'syn-evaluation-metrics-mean-per-dataset.pdf')
-
-    # For comparison: without aggregation (constraint types and generation mechanism not averaged out)
-    # for evaluation_metric in EVALUATION_METRICS:
-    #     sns.boxplot(x='dataset_name', y=evaluation_metric, data=results)
-    #     plt.xticks(rotation=45)
-    #     plt.ylim(-0.1, 1.1)
-    #     plt.show()
 
 
 # Parse some command line argument and run evaluation.
@@ -269,4 +223,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print('Evaluation started.')
     evaluate(**vars(args))
-    print('Plots created and saved.')
+    print('\nPlots created and saved.')

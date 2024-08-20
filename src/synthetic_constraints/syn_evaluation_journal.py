@@ -1,4 +1,4 @@
-"""Evaluation of the study with synthetic constraints
+"""Evaluation of the study with synthetic constraints for (journal) paper
 
 Script to compute all summary statistics and create all plots used in the paper to evaluate the
 study with synthetic constraints. Should be run after the experimental pipeline.
