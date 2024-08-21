@@ -1,4 +1,4 @@
-"""Evaluation of the case study in materials science
+"""Evaluation of the case study in materials science for dissertation
 
 Script to compute all summary statistics and create all plots used in the dissertation to evaluate
 the case study in materials science. Should be run after the experimental pipeline.
@@ -44,7 +44,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     print('\n-------- 5.2 Experimental Design --------')
 
-    print('\n------ 5.2.1 Scenario and Dataset ------')
+    print('\n------ 5.2.2 Scenario and Dataset ------')
 
     print('\n## Table 5.1: Feature overview ##\n')
     feature_overview = pd.DataFrame({'Feature': X.columns})
@@ -64,7 +64,9 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     print('\n-------- 5.3 Evaluation --------')
 
-    print('\n------ 5.3.1 Solution Quality ------')
+    print('\n------ 5.3.1 Feature-Set Quality ------')
+
+    print('\n-- Prediction performance --')
 
     prediction_data = evaluation_utility.reshape_prediction_data(results, additional_columns=['cardinality'])
     prediction_data = evaluation_utility.rename_for_diss_plots(prediction_data)
@@ -95,40 +97,32 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-prediction-performance-cardinality.pdf')
 
-    print('Objective value aggregated over constraint types:')
-    print(results.groupby('cardinality')['objective_value'].describe())
-    print('Objective value aggregated over constraint types, excluding "Mixed":')
-    print(results[results['constraint_name'] != 'Mixed'].groupby('cardinality')['objective_value'].describe())
+    print('\n-- Objective value --')
 
-    # For comparison: box plot
-    # plt.figure(figsize=(4, 3))
-    # sns.boxplot(x='cardinality', y='objective_value', data=results)
-    # plt.xticks(rotation=20)
-    # plt.ylim(0, 10)
-    # plt.tight_layout()
+    print('\nHow is the objective value distributed over constraint types?')
+    print(results.groupby('cardinality')['objective_value'].describe().round(2))
 
-    # For comparison: bar chart
-    # plt.figure(figsize=(8, 3))
-    # sns.barplot(x='constraint_name', hue='cardinality', y='objective_value', data=results)
-    # plt.xticks(rotation=20)
-    # plt.ylim(0, 10)
-    # plt.tight_layout()
+    print('\nHow is the objective value distributed over constraint types without "Mixed"?')
+    print(results[results['constraint_name'] != 'Mixed'].groupby('cardinality')[
+        'objective_value'].describe().round(2))
 
     # For comparison: distribution of feature qualities
-    max_train_time = X['time'].quantile(q=0.8)  # split from ms_pipeline.py
+    max_train_time = X['time'].quantile(q=0.8)  # split used in ms_pipeline.py
     X_train = X[X['time'] <= max_train_time].drop(columns=['pos_x', 'pos_y', 'pos_z', 'time', 'step'])
     y_train = y[X['time'] <= max_train_time]
     qualities = pd.Series(feature_qualities.abs_corr(X=X_train, y=y_train), index=X_train.columns)
     # Make sure we have the correct qualities by computing one objective value with them:
     assert results.loc[0, 'objective_value'] == qualities[results.loc[0, 'selected']].sum()
-    print('Distribution of feature qualities:')
-    print(qualities.describe())
-    print(f'Fraction of feature qualities >= 0.8: {(qualities >= 0.8).sum() / len(qualities):.2}')
+    print('\nHow are the feature qualities distributed in the dataset?')
+    print(qualities.describe().round(2))
 
     print('\n------ 5.3.2 Selected Features ------')
 
+    print('\nWhich features were selected for k=5?')
+    print(results.loc[results['cardinality'] == 5, ['constraint_name', 'selected']])
+
     # Test whether always the maximum number of possible features is selected:
-    print('Always maximum number of features selected? ' +
+    print('\nAlways allowed maximum number of features selected? ' +
           str((results['num_selected'] == results['cardinality']).all()))
 
     # Prepare Figure 5.2:
@@ -160,9 +154,9 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.savefig(plot_dir / 'ms-selected-similarity-card10.pdf')
 
     # Compute drop in objective value if adding the hardest combination of constraints
-    print('Maximum drop in objective value over constraint types:')
+    print('\nMaximum drop in objective value over constraint types:')
     grouping = results.groupby('cardinality')
-    print(1 - grouping['objective_value'].min() / grouping['objective_value'].max())
+    print(round(1 - grouping['objective_value'].min() / grouping['objective_value'].max(), 4))
 
 
 # Parse some command line arguments and run evaluation.
@@ -180,4 +174,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print('Evaluation started.')
     evaluate(**vars(args))
-    print('Plots created and saved.')
+    print('\nPlots created and saved.')
