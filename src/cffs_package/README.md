@@ -1,6 +1,9 @@
 # `cffs` -- A Python Package for Constrained Filter Feature Selection
 
-The package `cffs` contains classes to formulate and solve constrained (univariate) filter feature selection problems.
+The package `cffs` contains classes to formulate and solve constrained-feature-selection problems.
+In particular, we support univariate filter feature selection as the objective
+and constraints from propositional logic and linear arithmetic.
+We use an SMT (Satisfiability Modulo Theories) solver to find optimal feature sets under the constraints.
 
 This document provides:
 
@@ -25,7 +28,13 @@ If you use this package for a scientific publication, please cite [our paper](ht
 
 ## Setup
 
-You can directly install this package from GitHub:
+You can install our package from [PyPI](https://pypi.org/):
+
+```
+python -m pip install cffs
+```
+
+Alternatively, you can install the package from GitHub:
 
 ```bash
 python -m pip install git+https://github.com/Jakob-Bach/Constrained-Filter-Feature-Selection.git#subdirectory=src/cffs_package
@@ -51,7 +60,7 @@ The package `cffs` contains the following modules:
 - `expressions.py`: Formulate constraints in propositional logic and linear arithmetic,
   using our own expression classes.
   These constraints may be added to a satisfiability problem in `solving.py`.
-- `feature_qualities.py`: Compute univariate feature qualities for the optimization objective.
+- `feature_qualities.py`: Compute univariate feature qualities for the (linear) optimization objective.
 - `solving.py`: Formulate a constrained-filter-feature-selection *satisfiability* problem
   with constraints from `expressions.py`.
   Count the number of solutions with our own implementation; optimization is not supported.
@@ -60,6 +69,7 @@ The package `cffs` contains the following modules:
 
 For constrained filter feature selection, we first need to compute an individual quality score for each feature.
 (We only consider univariate feature selection, so we ignore interactions between features.)
+The objective value is the summed quality of all selected features.
 To this end, `cffs.feature_qualities` provides functions for
 
 - the absolute value of Pearson correlation between each feature and the prediction target (`abs_corr()`)
@@ -67,11 +77,11 @@ To this end, `cffs.feature_qualities` provides functions for
 
 Both functions round the qualities to two digits to speed up solving.
 (We found that the solver becomes slower the more precise the floats are,
-as they are represented as rational numbers.)
+as they are represented as rational numbers in the solver.)
 As inputs, the quality functions require a dataset in X-y form (as used in `sklearn`).
 
 After computing feature qualities, we set up an SMT optimization problem from `cffs.combi_solving`.
-It's "combi" in the sense that our code wraps an existing SMT solver (`Z3`).
+It is "combi" in the sense that our code wraps an existing SMT solver (`Z3`).
 We retrieve the problem's decision variables (one binary variable for each feature) and use them to
 formulate constraints with `cffs.combi_expressions`.
 These constraints are added to `Z3` but also to our own expression tree,
@@ -121,17 +131,18 @@ The optimization procedure returns the objective value (summed quality of select
 and the feature selection.
 To assess how strongly the constraints cut down the space of valid solutions,
 we can use `compute_solution_fraction()`.
-However, this function iterates over each solution candidate and checks whether it is valid or not.
+However, this function iterates over each solution candidate and checks whether it is valid or not,
+which becomes very expensive with a growing number of features.
 Alternatively, `estimate_solution_fraction()` randomly samples solutions to estimate this quantity.
 
-Our code snippet also shows that you can remove all constraints without setting up a new optimization problem.
+Our code snippet also shows that you can remove all constraints via `clear_constraints()` without setting up a new optimization problem.
 You can also add further constraints after optimization and then optimize again.
 The optimizer keeps its state between optimizations, so you may benefit from a warm start.
 
 ## Developer Info
 
 New operators / expressions types for constraints in `expressions.py` should (directly or indirectly)
-inherit from the top-level superclass `Expression.py`. Preferably, inherit from its subclass
+inherit from the top-level superclass `Expression`. Preferably, inherit from one of its subclasses
 
 - `BooleanExpression` (if your operator returns a boolean value; need to override `is_true()`) or
 - `ArithmeticExpression` (if your operator returns a numeric value; need to override `get_value()`).
@@ -153,7 +164,7 @@ use `get_z3()` to access `Z3` representations of your child expressions serving 
 
 `combi_solving.py` supports adding arbitrary `BooleanExpression`s from `combi_expressions.py` as constraints.
 Also, it supports arbitrary univariate feature qualities (e.g., computed with `feature_qualities.py`)
-to formulate a univariate/linear objective function.
+to formulate a univariate (= linear) objective function.
 
 New functions for univariate feature qualities in `feature_qualities.py` should satisfy the following implicit interface:
 
