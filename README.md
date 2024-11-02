@@ -7,11 +7,21 @@ This repository contains the code of a paper and a dissertation:
 is a paper published in the journal [*SN Computer Science*](https://www.springer.com/journal/42979).
 You can find the paper [here](https://doi.org/10.1007/s42979-022-01338-z).
 You can find the corresponding complete experimental data (inputs as well as results) on [KITopenData](https://doi.org/10.5445/IR/1000148891).
+We tagged the commits for reproducing these data:
+
+- Use the tag `syn-pipeline-2021-03-26-paper-accept` to run `prepare_openml_datasets.py` and `syn_pipeline.py`.
+- Use the tag `ms-pipeline-2021-03-26-paper-accept` to run `prepare_ms_dataset.py` and `ms_pipeline.py`.
+- Use the tag `evaluation-2021-08-10-paper-accept` to run `syn_evaluation_journal.py` and `ms_evaluation_journal.py`.
 
 > Bach, Jakob. "Leveraging Constraints for User-Centric Feature Selection"
 
 is a dissertation in progress.
 Once it is published, we will link it (and its experimental data) here as well.
+We tagged the commits for reproducing these data:
+
+- Use the tag `syn-pipeline-2021-03-26-dissertation` to run `prepare_openml_datasets.py` and `syn_pipeline.py` (same commit as for journal version).
+- Use the tag `ms-pipeline-2021-03-26-dissertation` to run `prepare_ms_dataset.py` and `ms_pipeline.py` (same commit as for journal version).
+- Use the tag `evaluation-2024-11-02-dissertation` to run `syn_evaluation_dissertation.py` and `ms_evaluation_dissertation.py`.
 
 This `README` describes:
 
@@ -43,7 +53,7 @@ Our code is implemented in Python (version 3.7).
 
 ### Option 1: `conda` Environment
 
-If you use `conda`, you can install the right Python version into a new `conda` environment
+If you use `conda`, you can install the correct Python version into a new `conda` environment
 and activate the environment as follows:
 
 ```bash

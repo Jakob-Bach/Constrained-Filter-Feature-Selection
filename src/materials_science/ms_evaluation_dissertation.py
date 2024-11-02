@@ -71,7 +71,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     prediction_data = evaluation_utility.reshape_prediction_data(results, additional_columns=['cardinality'])
     prediction_data = evaluation_utility.rename_for_diss_plots(prediction_data)
 
-    # Figure 5.1a
+    # Figure 5.1a: Prediction performance by prediction model and split
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Split', palette=DEFAULT_COL_PALETTE,
@@ -84,7 +84,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-prediction-performance-split.pdf')
 
-    # Figure 5.1b
+    # Figure 5.1b: Prediction performance by prediction model and cardinality
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
     sns.boxplot(x='Prediction model', y='$R^2$', hue='Cardinality', palette=DEFAULT_COL_PALETTE,
@@ -137,7 +137,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     constraint_names = [f'(D{i+1})' for i in range(results['constraint_name'].nunique())] * results['cardinality'].nunique()
     similarity_matrix = pd.DataFrame(similarity_matrix, index=constraint_names, columns=constraint_names)
 
-    # Figure 5.2a
+    # Figure 5.2a: Number of common features between results for different constraint types (k=5)
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 18
     sns.heatmap(similarity_matrix.iloc[:12, :12], vmin=0, vmax=5, cmap=DEFAULT_COL_PALETTE,
@@ -145,7 +145,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'ms-selected-similarity-card5.pdf')
 
-    # Figure 5.2b
+    # Figure 5.2b: Number of common features between results for different constraint types (k=10)
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 18
     sns.heatmap(similarity_matrix.iloc[12:, 12:], vmin=0, vmax=10, cmap=DEFAULT_COL_PALETTE,

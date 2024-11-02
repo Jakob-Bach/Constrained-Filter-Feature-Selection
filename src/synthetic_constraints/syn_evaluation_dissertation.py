@@ -74,7 +74,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     print('\n------ 4.4.1 Comparison of Prediction Models ------')
 
-    # Figure 4.1a
+    # Figure 4.1a: Prediction performance by prediction model, all experimental runs
     prediction_data = evaluation_utility.reshape_prediction_data(results[ORIGINAL_PRED_METRICS])
     prediction_data = evaluation_utility.rename_for_diss_plots(prediction_data)
     plt.figure(figsize=(4, 3))
@@ -89,7 +89,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-prediction-performance-all.pdf')
 
-    # Figure 4.1b
+    # Figure 4.1b: Prediction performance by prediction model, unconstrained experimental runs
     prediction_data = results.loc[results['constraint_name'] == 'UNCONSTRAINED', ORIGINAL_PRED_METRICS]
     prediction_data = evaluation_utility.reshape_prediction_data(prediction_data)
     prediction_data = evaluation_utility.rename_for_diss_plots(prediction_data)
@@ -107,7 +107,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     print('\n------ 4.4.2 Relationship Between Evaluation Metrics ------')
 
-    # Figure 4.2
+    # Figure 4.2: Correlation between evaluation metrics
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 13
     sns.heatmap(data=evaluation_utility.rename_for_diss_plots(results[EVALUATION_METRICS]).corr(
@@ -115,7 +115,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-evaluation-metrics-correlation.pdf')
 
-    # Figure 4.3a
+    # Figure 4.3a: Fraction of selected features vs. objective value
     scatter_plot_data = results.sample(n=1000, random_state=25)
     scatter_plot_data = evaluation_utility.rename_for_diss_plots(scatter_plot_data,
                                                                  long_metric_names=True)
@@ -132,7 +132,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-selected-vs-objective.pdf')
 
-    # Figure 4.3b
+    # Figure 4.3b: Prediction performance vs. objective value
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
     sns.scatterplot(x='Prediction $R^{2, \\mathrm{lin}}_{\\mathrm{norm}}$',
@@ -145,7 +145,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-frac-linear-regression-r2-vs-objective.pdf')
 
-    # Figure 4.3c
+    # Figure 4.3c: Fraction of solutions vs. objective value
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
     sns.scatterplot(x='Fraction of solutions $\\mathit{frac}_{\\mathrm{so}}$',
@@ -158,7 +158,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-solutions-vs-objective.pdf')
 
-    # Figure 4.3d
+    # Figure 4.3d: Number of constraints vs. objective value
     plt.figure(figsize=(4, 3))
     plt.rcParams['font.size'] = 15
     sns.boxplot(x='Number of constraints $\\mathit{num}_{\\mathrm{co}}$',
@@ -172,7 +172,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
 
     print('\n------ 4.4.3 Impact of Constraint Types ------')
 
-    # Figure 4.4a
+    # Figure 4.4a: Fraction of solutions by constraint type
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 18
     sns.boxplot(x='Constraint type', y='$\\mathit{frac}_{\\mathrm{so}}$',
@@ -184,7 +184,7 @@ def evaluate(data_dir: pathlib.Path, results_dir: pathlib.Path, plot_dir: pathli
     plt.tight_layout()
     plt.savefig(plot_dir / 'syn-constraint-type-vs-solutions.pdf')
 
-    # Figure 4.4b
+    # Figure 4.4b: Objective value by constraint type
     plt.figure(figsize=(5, 5))
     plt.rcParams['font.size'] = 18
     sns.boxplot(x='Constraint type', y='$Q_{\\mathrm{norm}}$',
