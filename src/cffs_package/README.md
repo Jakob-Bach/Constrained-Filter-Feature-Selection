@@ -44,7 +44,7 @@ If you already have the source code for the package (i.e., the directory in whic
 as a local directory on your computer (e.g., after cloning the project), you can also perform a local install:
 
 ```bash
-python -m pip install cffs_package/
+python -m pip install .
 ```
 
 ## Functionality

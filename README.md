@@ -1,6 +1,18 @@
 # An Empirical Evaluation of Constrained Feature Selection
 
-This repository contains the code of a paper and a dissertation:
+This repository contains the code for
+
+- a paper,
+- (parts of) a dissertation,
+- and the Python package [`cffs`](https://pypi.org/project/cffs/).
+
+This `README` provides:
+
+- An overview of the [related publications](#publications).
+- An outline of the [repo structure](#repo-structure).
+- Steps for [setting up](#setup) a virtual environment and [reproducing](#reproducing-the-experiments) the experiments.
+
+## Publications
 
 > Bach, Jakob, et al. "An Empirical Evaluation of Constrained Feature Selection"
 
@@ -16,17 +28,13 @@ We tagged the commits for reproducing these data:
 > Bach, Jakob. "Leveraging Constraints for User-Centric Feature Selection"
 
 is a dissertation in progress.
-Once it is published, we will link it (and its experimental data) here as well.
+Once it is published, we will link it here as well.
+You can find the corresponding complete experimental data (inputs as well as results) on [*RADAR4KIT*](https://doi.org/10.35097/4kjyeg0z2bxmr6eh).
 We tagged the commits for reproducing these data:
 
 - Use the tag `syn-pipeline-2021-03-26-dissertation` to run `prepare_openml_datasets.py` and `syn_pipeline.py` (same commit as for journal version).
 - Use the tag `ms-pipeline-2021-03-26-dissertation` to run `prepare_ms_dataset.py` and `ms_pipeline.py` (same commit as for journal version).
 - Use the tag `evaluation-2024-11-02-dissertation` to run `syn_evaluation_dissertation.py` and `ms_evaluation_dissertation.py`.
-
-This `README` describes:
-
-- An outline of the [repo structure](#repo-structure).
-- Steps for [setting up](#setup) a virtual environment and [reproducing](#reproducing-the-experiments) the experiments.
 
 ## Repo Structure
 
