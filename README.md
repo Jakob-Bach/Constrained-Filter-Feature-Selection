@@ -14,7 +14,7 @@ This `README` provides:
 
 ## Publications
 
-> Bach, Jakob, et al. "An Empirical Evaluation of Constrained Feature Selection"
+> Bach, Jakob, et al. (2022): "An Empirical Evaluation of Constrained Feature Selection"
 
 is a paper published in the journal [*SN Computer Science*](https://www.springer.com/journal/42979).
 You can find the paper [here](https://doi.org/10.1007/s42979-022-01338-z).
@@ -25,10 +25,10 @@ We tagged the commits for reproducing these data:
 - Use the tag `ms-pipeline-2021-03-26-paper-accept` to run `prepare_ms_dataset.py` and `ms_pipeline.py`.
 - Use the tag `evaluation-2021-08-10-paper-accept` to run `syn_evaluation_journal.py` and `ms_evaluation_journal.py`.
 
-> Bach, Jakob. "Leveraging Constraints for User-Centric Feature Selection"
+> Bach, Jakob (2025): "Leveraging Constraints for User-Centric Feature Selection"
 
-is a dissertation in progress.
-Once it is published, we will link it here as well.
+is a dissertation at the [Department of Informatics](https://www.informatik.kit.edu/english/index.php) of the [Karlsruhe Institute of Technology](https://www.kit.edu/english/).
+You can find the dissertation [here](https://doi.org/10.5445/IR/1000178649).
 You can find the corresponding complete experimental data (inputs as well as results) on [*RADAR4KIT*](https://doi.org/10.35097/4kjyeg0z2bxmr6eh).
 We tagged the commits for reproducing these data:
 
